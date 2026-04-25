@@ -1,18 +1,18 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
+import { db } from "@/lib/firebaseAdmin";
 
-import dbConnect from "@/lib/mongodb";
-import Event from "@/models/Event";
-
-//Getting all events
 export async function GET() {
   try {
-    await dbConnect();
-    
-    //{ date: -1 }puts the newest events first!
-    const events = await Event.find({}).sort({ date: -1 });
-    
+    const snapshot = await db.collection("events").get();
+
+    const events = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
     return NextResponse.json(events, { status: 200 });
   } catch (error) {
+    console.error("Firebase GET Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
@@ -20,42 +20,37 @@ export async function GET() {
 //Creating new event
 export async function POST(req) {
   try {
-    const adminSecret = req.headers.get('x-admin-secret');
-    
+    const adminSecret = req.headers.get("x-admin-secret");
+
     if (adminSecret !== process.env.ADMIN_SECRET) {
-      return NextResponse.json({ error: 'Unauthorized: Invalid Admin Secret' }, { status: 401 });
+      return NextResponse.json(
+        { error: "Unauthorized: Invalid Admin Secret" },
+        { status: 401 },
+      );
     }
-
-    await dbConnect();
-
+    
     const body = await req.json();
 
-    const newEvent = await Event.create(body);
-
-    return NextResponse.json(newEvent, { status: 201 });
-  } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-}
-
-
-export async function DELETE(req, { params }) {
-  try {
-    const adminSecret = req.headers.get('x-admin-secret');
-    if (adminSecret !== process.env.ADMIN_SECRET) {
-      return NextResponse.json({ error: 'Unauthorized: Invalid Admin Secret' }, { status: 401 });
+    if (!body.title || !body.slug) {
+      return NextResponse.json(
+        { error: "Title and slug are required fields" },
+        { status: 400 },
+      );
     }
 
-    await dbConnect();
-    const { slug } = params;
-    
-    const deletedEvent = await Event.findOneAndDelete({ slug });
+    const docRef = db.collection('events').doc(body.slug);
 
-    if (!deletedEvent) {
-      return NextResponse.json({ error: 'Event not found' }, { status: 404 });
+    const docSnap = await docRef.get();
+    if (docSnap.exists) {
+      return NextResponse.json({ error: 'An event with this slug already exists' }, { status: 409 });
     }
 
-    return NextResponse.json({ message: 'Event successfully deleted' }, { status: 200 });
+    await docRef.set({
+      ...body,
+      createdAt: new Date().toISOString(),
+    });
+
+    return NextResponse.json({ id: docRef.id, ...body }, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

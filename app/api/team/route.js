@@ -1,14 +1,19 @@
 import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/mongodb';
-import Member from '@/models/Member';
+import { db } from '@/lib/firebaseAdmin';
 
-//Getting Team members
+//Get all members
 export async function GET() {
   try {
-    await dbConnect();
-    const members = await Member.find({}).sort({ year: -1, createdAt: 1 }).lean();
-    return NextResponse.json(members);
+    const snapshot = await db.collection('members').get();
+    
+    const members = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+
+    return NextResponse.json(members, { status: 200 });
   } catch (error) {
+    console.error("Firebase Team GET Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
@@ -21,10 +26,18 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    await dbConnect();
     const body = await req.json();
-    const newMember = await Member.create(body);
-    return NextResponse.json(newMember, { status: 201 });
+
+    if (!body.name || !body.role || !body.year) {
+      return NextResponse.json({ error: 'Name, role, and year are required fields' }, { status: 400 });
+    }
+  
+    const docRef= await db.collection('members').add({
+      ...body,
+      createdAt: new Date().toISOString(),
+    })
+
+    return NextResponse.json({ id: docRef.id, ...body}, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
