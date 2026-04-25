@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/mongodb';
-import Member from '@/models/Member';
+import { db } from '@/lib/firebaseAdmin';
+
 
 //Updating a member
 export async function PATCH(req, { params }) {
@@ -9,28 +9,32 @@ export async function PATCH(req, { params }) {
     if (adminSecret !== process.env.ADMIN_SECRET) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    await dbConnect();
+
     const { id } = await params;
-    console.log(id);
+
     const body = await req.json();
 
-    const updatedMember = await Member.findByIdAndUpdate(id, body, {
-      returnDocument: 'after',
-      runValidators: true,
-    });
+    const docRef=db.collection('members').doc(id);
+    const docSnap = await docRef.get();
 
-    if (!updatedMember) {
-      return NextResponse.json({ error: "Member not found" }, { status: 404 });
+    if (!docSnap.exists) {
+      return NextResponse.json({ error: 'Member not found' }, { status: 404 });
     }
 
-    return NextResponse.json(updatedMember);
+    await docRef.update({
+      ...body,
+      createdAt: new Date().toISOString(),
+    })
+
+    const updatedDoc=await docRef.get();
+    
+    return NextResponse.json({ id: updatedDoc.id, ...updatedDoc.data() });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
 //Deleting a member
-
 export async function DELETE(req, { params }) {
   try {
     const adminSecret = req.headers.get("x-admin-secret");
@@ -38,14 +42,18 @@ export async function DELETE(req, { params }) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    await dbConnect();
 
     const { id } = await params;
-    const deletedMember =await Member.findByIdAndDelete(id);
 
-    if (!deletedMember) {
-      return NextResponse.json({ error: "Member not found" }, { status: 404 });
+    const docRef=db.collection('members').doc(id);
+    const docSnap=await docRef.get();
+
+    if(!docSnap.exists){
+      return NextResponse.json({ error: 'Member not found' }, { status: 404 });
     }
+
+    await docRef.delete();
+
     return NextResponse.json({ message: "Member deleted successfully" });
   } catch (error) {
     return NextResponse.json({ error: error.message });
