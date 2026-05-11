@@ -5,7 +5,7 @@ import { db } from '@/lib/firebaseAdmin';
 async function getEventBySlug(slug) {
   const snapshot = await db.collection('events').where('slug', '==', slug).limit(1).get();
   if (snapshot.empty) return null;
-  
+
   const doc = snapshot.docs[0];
   return { id: doc.id, ref: doc.ref, data: doc.data() };
 }
@@ -35,7 +35,7 @@ export async function PATCH(req, { params }) {
 
     const { slug } = await params;
     const body = await req.json();
-    const event=await getEventBySlug(slug);
+    const event = await getEventBySlug(slug);
 
     if (!event) {
       return NextResponse.json({ error: 'Event not found' }, { status: 404 });
@@ -63,7 +63,7 @@ export async function DELETE(req, { params }) {
     }
 
     const { slug } = await params;
-    
+
     const event = await getEventBySlug(slug);
     if (!event) {
       return NextResponse.json({ error: 'Event not found' }, { status: 404 });

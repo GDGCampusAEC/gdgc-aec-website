@@ -28,7 +28,7 @@ export async function POST(req) {
         { status: 401 },
       );
     }
-    
+
     const body = await req.json();
 
     if (!body.title || !body.slug) {
