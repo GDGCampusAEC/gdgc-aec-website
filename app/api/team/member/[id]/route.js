@@ -4,6 +4,9 @@ import { db } from '@/lib/firebaseAdmin';
 
 //Updating a member
 export async function PATCH(req, { params }) {
+  if (!db) {
+    return NextResponse.json({ error: "Firebase is not configured" }, { status: 503 });
+  }
   try {
     const adminSecret = req.headers.get("x-admin-secret");
     if (adminSecret !== process.env.ADMIN_SECRET) {
@@ -36,6 +39,9 @@ export async function PATCH(req, { params }) {
 
 //Deleting a member
 export async function DELETE(req, { params }) {
+  if (!db) {
+    return NextResponse.json({ error: "Firebase is not configured" }, { status: 503 });
+  }
   try {
     const adminSecret = req.headers.get("x-admin-secret");
     if (adminSecret !== process.env.ADMIN_SECRET) {

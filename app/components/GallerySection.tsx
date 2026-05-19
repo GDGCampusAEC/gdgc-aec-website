@@ -5,12 +5,14 @@ import { useState, useRef } from "react";
 import { X, Maximize2, Camera, Calendar, ArrowUpRight } from "lucide-react";
 
 const photos = [
-  { id: 1, src: "/assets/event-1.jpg", title: "Build with AI", color: "#4285f4", size: "md:col-span-2 md:row-span-2" },
-  { id: 2, src: "/assets/event-2.jpg", title: "Cloud Jam", color: "#db4437", size: "col-span-1" },
-  { id: 3, src: "/assets/event-3.jpg", title: "Workshop", color: "#f4b400", size: "col-span-1" },
-  { id: 4, src: "/assets/event-4.jpg", title: "Hackathon", color: "#0f9d58", size: "md:col-span-2" },
-  { id: 5, src: "/assets/event-5.jpg", title: "Team Meet", color: "#4285f4", size: "col-span-1" },
-  { id: 6, src: "/assets/event-6.jpg", title: "Speaker", color: "#db4437", size: "col-span-1" },
+  { id: 1, src: "/assets/event-1.jpg", title: "Workshop Sessions", color: "#4285f4", size: "md:col-span-2 md:row-span-2" },
+  { id: 2, src: "/assets/event-2.jpg", title: "Hackathon 2026", color: "#db4437", size: "col-span-1" },
+  { id: 3, src: "/assets/event-3.jpg", title: "Keynote Speakers", color: "#f4b400", size: "col-span-1" },
+  { id: 4, src: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=2070&auto=format&fit=crop", title: "Tech Talk", color: "#0f9d58", size: "md:col-span-2" },
+  { id: 5, src: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=2070&auto=format&fit=crop", title: "Networking", color: "#4285f4", size: "col-span-1" },
+  { id: 6, src: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=2070&auto=format&fit=crop", title: "Community Meetup", color: "#db4437", size: "col-span-1" },
+  { id: 7, src: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?q=80&w=2070&auto=format&fit=crop", title: "Innovation Lab", color: "#f4b400", size: "col-span-1" },
+  { id: 8, src: "https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=2070&auto=format&fit=crop", title: "Design Sprint", color: "#0f9d58", size: "col-span-1" },
 ];
 
 function PerspectiveCard({ photo, onClick }: { photo: any, onClick: () => void }) {
@@ -70,7 +72,7 @@ function PerspectiveCard({ photo, onClick }: { photo: any, onClick: () => void }
 }
 
 export default function GallerySection() {
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState<any>(null);
 
   return (
     <section className="max-w-7xl mx-auto px-6 py-32">

@@ -1,11 +1,50 @@
 "use client";
 
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 
+interface TeamMember {
+  name: string;
+  role: string;
+  img: string;
+  github?: string;
+  linkedin?: string;
+  instagram?: string;
+  twitter?: string;
+  globe?: string;
+}
 
-const teamYears = [
+interface TeamYear {
+  yop: string;
+  color: string;
+  members: TeamMember[];
+}
+
+const GithubIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
+    <path d="M9 18c-4.51 2-5-2-7-2" />
+  </svg>
+);
+
+const LinkedinIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+    <rect x="2" y="9" width="4" height="12" />
+    <circle cx="4" cy="4" r="2" />
+  </svg>
+);
+
+const GlobeIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <line x1="2" y1="12" x2="22" y2="12" />
+    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+  </svg>
+);
+
+const defaultTeamYears: TeamYear[] = [
   {
     yop: "Class of 2026",
     color: "from-[#0f9d58] to-[#0b703e]",
@@ -37,6 +76,48 @@ const teamYears = [
 export default function TeamTrainSection() {
   const targetRef = useRef<HTMLDivElement>(null);
   const [expandedYear, setExpandedYear] = useState<string | null>(null);
+  const [teamYears, setTeamYears] = useState<TeamYear[]>(defaultTeamYears);
+
+  useEffect(() => {
+    async function fetchTeam() {
+      try {
+        const res = await fetch("/api/team");
+        if (!res.ok) throw new Error("Failed to fetch team data");
+        const members = await res.json();
+        
+        if (members && members.length > 0) {
+          const grouped = members.reduce((acc: any, member: any) => {
+            const yearStr = `Class of ${member.year}`;
+            if (!acc[yearStr]) {
+              acc[yearStr] = [];
+            }
+            acc[yearStr].push(member);
+            return acc;
+          }, {});
+
+          const colors = [
+            "from-[#0f9d58] to-[#0b703e]",
+            "from-[#4285f4] to-[#2c5ea8]",
+            "from-[#f4b400] to-[#b38500]",
+            "from-[#db4437] to-[#a32e22]",
+          ];
+
+          const formattedYears = Object.keys(grouped)
+            .sort((a, b) => b.localeCompare(a))
+            .map((yearStr, idx) => ({
+              yop: yearStr,
+              color: colors[idx % colors.length],
+              members: grouped[yearStr],
+            }));
+            
+          setTeamYears(formattedYears);
+        }
+      } catch (error) {
+        console.error("Error fetching team, using fallback data:", error);
+      }
+    }
+    fetchTeam();
+  }, []);
 
   const { scrollYProgress } = useScroll({ target: targetRef });
 
@@ -66,7 +147,6 @@ export default function TeamTrainSection() {
           <ChevronDown className="w-6 h-6" />
         </div>
 
-
         <motion.div style={{ x: skyX }} className="absolute top-20 w-[300%] flex opacity-40 z-0 pointer-events-none">
           <img src="/assets/clouds-blue.svg" alt="clouds" className="w-1/3 object-contain" />
           <img src="/assets/clouds-blue.svg" alt="clouds" className="w-1/3 object-contain" />
@@ -80,7 +160,6 @@ export default function TeamTrainSection() {
           <div className="w-[1000px] h-80 bg-gray-500 rounded-t-[100%] -ml-20" />
         </motion.div>
 
-
         <div className="absolute bottom-0 w-full h-16 md:h-24 bg-gray-800 z-10 border-t-[12px] border-[#db4437]">
           <motion.div style={{ x: groundX }} className="absolute top-0 -left-[300vw] w-[600vw] h-full flex justify-around pt-2">
             {[...Array(75)].map((_, i) => (
@@ -93,7 +172,6 @@ export default function TeamTrainSection() {
           style={{ x: trainX }}
           className="relative z-20 flex items-end gap-2 md:gap-8 px-4 w-max"
         >
-
 
           <div className="flex items-end shrink-0 drop-shadow-2xl relative z-20">
             <div className="w-16 h-20 bg-gray-800 rounded-tl-full border-l-4 border-gray-500 z-10 skew-x-[15deg] -mr-8" />
@@ -135,23 +213,17 @@ export default function TeamTrainSection() {
             </div>
           </div>
 
-
-
           {teamYears.map((yearGroup, idx) => {
             const isExpanded = expandedYear === yearGroup.yop;
-
             const collapsedWidth = 360;
-
             const expandedWidth = Math.max(
               collapsedWidth,
               (yearGroup.members.length * 180) + ((yearGroup.members.length - 1) * 32) + 200
             );
-
             const leadMember = yearGroup.members[0];
 
             return (
               <div key={idx} className="flex items-end shrink-0 z-10 drop-shadow-xl relative">
-
 
                 <div className="w-12 h-4 bg-gray-800 mb-8 shrink-0 shadow-inner flex justify-center items-center">
                   <div className="w-6 h-2 bg-gray-600 rounded-full" />
@@ -163,17 +235,13 @@ export default function TeamTrainSection() {
                   style={{ width: isExpanded ? `${expandedWidth}px` : `${collapsedWidth}px`, height: '420px' }}
                 >
 
-
                   <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-white text-gray-900 px-6 py-2 rounded-xl font-black text-base shadow-[4px_4px_0px_0px_rgba(0,0,0,0.8)] border-2 border-gray-900 whitespace-nowrap z-30">
                     {yearGroup.yop}
                   </div>
 
-
                   <div className="relative w-full h-full flex items-center justify-center">
 
-
                     <div className={`absolute inset-0 w-full h-full flex flex-col items-center justify-center transition-all duration-300 ${isExpanded ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100 delay-200'}`}>
-
                       <div className="w-44 aspect-[3/4] bg-white/10 backdrop-blur-md rounded-2xl p-2 border border-white/20 shadow-[0_12px_40px_rgba(0,0,0,0.25)] relative overflow-hidden mb-3">
                         <img src={leadMember.img} alt={leadMember.name} className="w-full h-full object-cover rounded-xl" />
                       </div>
@@ -188,14 +256,61 @@ export default function TeamTrainSection() {
                       </p>
                     </div>
 
-
                     <div className={`absolute inset-0 w-full h-full flex gap-8 items-center justify-center transition-opacity duration-300 ${isExpanded ? 'opacity-100 delay-200' : 'opacity-0 pointer-events-none'}`}>
                       {yearGroup.members.map((member, mIdx) => (
                         <div key={mIdx} className="flex flex-col items-center w-[160px] md:w-[180px] shrink-0 group">
 
-                          <div className="w-full aspect-[3/4] bg-white/10 backdrop-blur-md rounded-2xl p-2 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.15)] relative overflow-hidden mb-4 transition-all duration-500 group-hover:-translate-y-2 group-hover:bg-white/20 group-hover:shadow-[0_16px_48px_rgba(0,0,0,0.3)] group-hover:border-white/40 z-10">
-                            <img src={member.img} alt={member.name} className="w-full h-full object-cover rounded-xl" />
-                            <div className="absolute top-0 left-[-150%] w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-[30deg] transition-all duration-700 group-hover:left-[150%] pointer-events-none" />
+                          <div className="w-full aspect-[3/4] flip-container mb-4 transition-all duration-500 group-hover:-translate-y-2 z-10">
+                            <div className="flip-card">
+                              
+                              <div className="flip-front w-full h-full p-2 bg-white/10 backdrop-blur-md border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.15)] overflow-hidden">
+                                <img src={member.img} alt={member.name} className="w-full h-full object-cover rounded-xl" />
+                                <div className="absolute top-0 left-[-150%] w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-[30deg] transition-all duration-700 group-hover:left-[150%] pointer-events-none" />
+                              </div>
+
+                              <div className="flip-back w-full h-full p-4 bg-gray-900/90 backdrop-blur-md border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.15)] flex flex-col items-center justify-center gap-4 text-white">
+                                <div className="w-12 h-12 rounded-full overflow-hidden border border-white/30 shadow-inner">
+                                  <img src={member.img} alt={member.name} className="w-full h-full object-cover" />
+                                </div>
+                                <div className="text-center">
+                                  <span className="text-[9px] uppercase font-bold tracking-widest text-[#0f9d58]">Connect</span>
+                                  <p className="text-xs font-semibold mt-0.5 truncate max-w-[130px]">{member.name.split(" ")[0]}</p>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                  <a 
+                                    href={member.github || `https://github.com/search?q=${encodeURIComponent(member.name)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="p-2 rounded-full bg-white/10 hover:bg-white/20 hover:scale-110 border border-white/10 hover:border-white/30 text-white transition-all duration-300"
+                                    title="GitHub"
+                                  >
+                                    <GithubIcon className="w-4 h-4" />
+                                  </a>
+                                  <a 
+                                    href={member.linkedin || `https://www.linkedin.com/search/results/all/?keywords=${encodeURIComponent(member.name)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="p-2 rounded-full bg-white/10 hover:bg-white/20 hover:scale-110 border border-white/10 hover:border-white/30 text-[#4285f4] hover:text-[#4285f4] transition-all duration-300"
+                                    title="LinkedIn"
+                                  >
+                                    <LinkedinIcon className="w-4 h-4" />
+                                  </a>
+                                  <a 
+                                    href={member.instagram || member.twitter || member.globe || `https://instagram.com`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="p-2 rounded-full bg-white/10 hover:bg-white/20 hover:scale-110 border border-white/10 hover:border-white/30 text-[#db4437] hover:text-[#db4437] transition-all duration-300"
+                                    title="Website / Social"
+                                  >
+                                    <GlobeIcon className="w-4 h-4" />
+                                  </a>
+                                </div>
+                              </div>
+
+                            </div>
                           </div>
 
                           <h3 className="font-bold text-white text-sm md:text-base text-center tracking-wide drop-shadow-md">{member.name}</h3>
@@ -207,7 +322,6 @@ export default function TeamTrainSection() {
                     </div>
 
                   </div>
-
 
                   <div className="absolute -bottom-10 left-0 w-full flex justify-around px-8 z-20">
                     {[1, 2].map((wheel) => (

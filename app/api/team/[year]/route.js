@@ -2,8 +2,10 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/firebaseAdmin";
 
 export async function GET(req, { params }) {
+  if (!db) {
+    return NextResponse.json({ error: "Firebase is not configured" }, { status: 503 });
+  }
   try {
-    await dbConnect();
     const { year } = await params;
 
     const snapshot = await db
@@ -11,7 +13,7 @@ export async function GET(req, { params }) {
       .where("year", "==", parseInt(year))
       .get();
 
-    const members = snapshot.map((doc) => ({
+    const members = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     }));

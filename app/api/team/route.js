@@ -3,6 +3,9 @@ import { db } from '@/lib/firebaseAdmin';
 
 //Get all members
 export async function GET() {
+  if (!db) {
+    return NextResponse.json({ error: "Firebase is not configured" }, { status: 503 });
+  }
   try {
     const snapshot = await db.collection('members').get();
     
@@ -20,6 +23,9 @@ export async function GET() {
 
 //Creating a new member
 export async function POST(req) {
+  if (!db) {
+    return NextResponse.json({ error: "Firebase is not configured" }, { status: 503 });
+  }
   try {
     const adminSecret = req.headers.get('x-admin-secret');
     if (adminSecret !== process.env.ADMIN_SECRET) {

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/firebaseAdmin";
 
 export async function GET() {
+  if (!db) return NextResponse.json({ error: "Firebase not configured" }, { status: 503 });
   try {
     const snapshot = await db.collection("events").get();
 
@@ -19,6 +20,7 @@ export async function GET() {
 
 //Creating new event
 export async function POST(req) {
+  if (!db) return NextResponse.json({ error: "Firebase not configured" }, { status: 503 });
   try {
     const adminSecret = req.headers.get("x-admin-secret");
 

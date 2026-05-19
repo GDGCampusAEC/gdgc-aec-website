@@ -11,6 +11,7 @@ async function getEventBySlug(slug) {
 }
 
 export async function GET(req, { params }) {
+  if (!db) return NextResponse.json({ error: "Firebase not configured" }, { status: 503 });
   try {
     const { slug } = await params;
     const event = await getEventBySlug(slug);
@@ -27,6 +28,7 @@ export async function GET(req, { params }) {
 
 //Updating events
 export async function PATCH(req, { params }) {
+  if (!db) return NextResponse.json({ error: "Firebase not configured" }, { status: 503 });
   try {
     const adminSecret = req.headers.get('x-admin-secret');
     if (adminSecret !== process.env.ADMIN_SECRET) {
@@ -56,6 +58,7 @@ export async function PATCH(req, { params }) {
 
 //Deleting event
 export async function DELETE(req, { params }) {
+  if (!db) return NextResponse.json({ error: "Firebase not configured" }, { status: 503 });
   try {
     const adminSecret = req.headers.get('x-admin-secret');
     if (adminSecret !== process.env.ADMIN_SECRET) {
