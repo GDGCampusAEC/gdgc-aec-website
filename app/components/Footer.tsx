@@ -13,14 +13,19 @@ export default function Footer() {
       <div className="relative z-10 max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left">
 
 
-        <div className="flex flex-col items-center md:items-start">
-          <h2 className="text-2xl font-bold mb-2">
-            <span className="text-[#4285f4]">G</span>
-            <span className="text-[#db4437]">D</span>
-            <span className="text-[#f4b400]">G</span>
-            <span className="text-[#0f9d58]">C</span> AEC
-          </h2>
-          <p className="text-sm text-gray-400 max-w-xs">
+        <div className="flex flex-col items-center md:items-start col-span-1 md:col-span-1">
+          <div className="flex items-center gap-3.5 mb-4">
+            <img 
+              src="/gdsc-logo.png" 
+              alt="GDG On Campus Asansol Engineering College" 
+              className="h-12 w-auto" 
+            />
+            <div className="flex flex-col text-left">
+              <span className="font-semibold text-lg leading-none tracking-tight text-white">Google Developer Groups</span>
+              <span className="text-xs font-medium text-[#4285F4] leading-none mt-1.5">On Campus Asansol Engineering College</span>
+            </div>
+          </div>
+          <p className="text-sm text-gray-400 max-w-xs text-center md:text-left">
             Empowering students at Asansol Engineering College to build real-world solutions using Google technologies.
           </p>
         </div>

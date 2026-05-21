@@ -26,10 +26,10 @@ export default function AdminPage() {
     gallery: [""]
   });
   const [team, setTeam] = useState<any[]>([]);
-  const [newMember, setNewMember] = useState({ 
-    name: "", 
-    role: "", 
-    year: "2026", 
+  const [newMember, setNewMember] = useState({
+    name: "",
+    role: "",
+    year: "2026",
     img: "/assets/team-1.jpg",
     github: "",
     linkedin: "",
@@ -122,7 +122,7 @@ export default function AdminPage() {
   const handleDateChange = (dateVal: string) => {
     const parsedDate = robustParseDate(dateVal);
     let updatedTag = newEvent.tag;
-    
+
     if (dateVal && parsedDate) {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -132,7 +132,7 @@ export default function AdminPage() {
         updatedTag = "Completed";
       }
     }
-    
+
     setNewEvent(prev => ({
       ...prev,
       date: dateVal,
@@ -255,10 +255,10 @@ export default function AdminPage() {
       if (!res.ok) throw new Error("Failed to add member");
       const savedMember = await res.json();
       setTeam([savedMember, ...team]);
-      setNewMember({ 
-        name: "", 
-        role: "", 
-        year: "2026", 
+      setNewMember({
+        name: "",
+        role: "",
+        year: "2026",
         img: "/assets/team-1.jpg",
         github: "",
         linkedin: "",
@@ -304,9 +304,9 @@ export default function AdminPage() {
           <form onSubmit={handleLogin} className="w-full">
             <div className="relative mb-6">
               <input type="password" value={secret} onChange={(e) => setSecret(e.target.value)} className="w-full px-4 pt-6 pb-2 border-2 border-gray-200 rounded-xl focus:border-[#4285f4] focus:ring-0 outline-none peer transition-colors bg-transparent" required disabled={isAuthenticating} />
-              <label className={`absolute left-4 transition-all duration-200 pointer-events-none text-gray-500 ${secret ? 'text-xs top-2 text-[#4285f4]' : 'text-base top-4 peer-focus:text-xs peer-focus:top-2 peer-focus:text-[#4285f4]'}`}>Authorization Key</label>
+              <label className={`absolute left-4 transition-all duration-200 pointer-events-none text-gray-500 ${secret ? 'text-xs top-2 text-[#4285f4]' : 'text-base top-4 peer-focus:text-xs peer-focus:top-2 peer-focus:text-[#4285f4]'}`}>Enter Password</label>
             </div>
-            <div className="flex justify-end mt-8">
+            <div className="flex justify-center mt-8">
               <button type="submit" disabled={isAuthenticating} className="bg-[#4285f4] text-white px-8 py-2.5 rounded-full font-medium hover:bg-[#3367d6] hover:shadow-md transition-all active:scale-95 disabled:opacity-70 flex items-center gap-2">
                 {isAuthenticating ? <Loader2 size={18} className="animate-spin" /> : "Verify & Login"}
               </button>
@@ -339,7 +339,7 @@ export default function AdminPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-         <AnimatePresence>
+        <AnimatePresence>
           {success && (
             <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="fixed top-24 left-1/2 -translate-x-1/2 z-50 bg-[#e6f4ea] border border-[#ceead6] text-[#137333] px-6 py-3 rounded-full shadow-lg flex items-center gap-3 font-medium text-sm">
               <CheckCircle2 size={18} /> {success}
@@ -391,7 +391,7 @@ export default function AdminPage() {
                       today.setHours(0, 0, 0, 0);
                       return parsedDate.getTime() >= today.getTime();
                     })();
-                    
+
                     return (
                       <motion.div key={event._id || event.slug || index} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ delay: index * 0.05 }} className="group bg-white p-5 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-all flex justify-between items-center">
                         <div className="flex items-center gap-5">
@@ -399,8 +399,8 @@ export default function AdminPage() {
                           <div>
                             <h3 className="text-lg font-medium text-gray-900">{event.title}</h3>
                             <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500 mt-1 font-medium">
-                              <span>{event.date}</span> • 
-                              <span className="uppercase tracking-wider text-[10px] bg-gray-100 px-2 py-0.5 rounded-md">{event.tag || 'EVENT'}</span> • 
+                              <span>{event.date}</span> •
+                              <span className="uppercase tracking-wider text-[10px] bg-gray-100 px-2 py-0.5 rounded-md">{event.tag || 'EVENT'}</span> •
                               {isUpcoming ? (
                                 <span className="uppercase tracking-wider text-[9px] font-bold bg-green-50 text-green-700 border border-green-200/80 px-2 py-0.5 rounded-md flex items-center gap-1">
                                   <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" /> Yet to Happen
