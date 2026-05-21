@@ -15,7 +15,15 @@ const ConcentricSun = ({ className }: { className?: string }) => (
 );
 
 const TopCloudsLeft = () => (
-  <div className="absolute top-[-95px] left-[-110px] w-[340px] sm:w-[430px] md:w-[520px] z-30 drop-shadow-[0_12px_16px_rgba(0,0,0,0.08)] pointer-events-none">
+  <motion.div
+    initial={{ x: -220, opacity: 0 }}
+    animate={{ x: 0, opacity: 1 }}
+    transition={{
+      duration: 1.8,
+      ease: "easeOut",
+    }}
+    className="absolute top-[-95px] left-[-110px] w-[340px] sm:w-[430px] md:w-[520px] z-30 drop-shadow-[0_12px_16px_rgba(0,0,0,0.08)] pointer-events-none"
+  >
     <svg
       viewBox="0 0 500 360"
       fill="#a8c7fa"
@@ -30,11 +38,19 @@ const TopCloudsLeft = () => (
       <circle cx="340" cy="135" r="85" />
       <circle cx="430" cy="105" r="70" />
     </svg>
-  </div>
+  </motion.div>
 );
 
 const TopCloudsRight = () => (
-  <div className="absolute top-[-90px] right-[-120px] w-[340px] sm:w-[430px] md:w-[520px] z-30 drop-shadow-[0_12px_16px_rgba(0,0,0,0.08)] pointer-events-none">
+  <motion.div
+    initial={{ x: 220, opacity: 0 }}
+    animate={{ x: 0, opacity: 1 }}
+    transition={{
+      duration: 1.8,
+      ease: "easeOut",
+    }}
+    className="absolute top-[-90px] right-[-120px] w-[340px] sm:w-[430px] md:w-[520px] z-30 drop-shadow-[0_12px_16px_rgba(0,0,0,0.08)] pointer-events-none"
+  >
     <svg
       viewBox="0 0 500 360"
       fill="#a8c7fa"
@@ -49,11 +65,20 @@ const TopCloudsRight = () => (
       <circle cx="160" cy="135" r="85" />
       <circle cx="70" cy="105" r="70" />
     </svg>
-  </div>
+  </motion.div>
 );
 
 const MiddleBlueClouds = () => (
-  <div className="absolute bottom-[5%] sm:bottom-[4%] md:bottom-[2%] left-0 w-full z-40 pointer-events-none drop-shadow-[0_-10px_14px_rgba(0,0,0,0.08)]">
+  <motion.div
+    initial={{ y: 120, opacity: 0 }}
+    animate={{ y: 0, opacity: 1 }}
+    transition={{
+      duration: 1.8,
+      ease: "easeOut",
+      delay: 0.2,
+    }}
+    className="absolute bottom-[5%] sm:bottom-[4%] md:bottom-[2%] left-0 w-full z-40 pointer-events-none drop-shadow-[0_-10px_14px_rgba(0,0,0,0.08)]"
+  >
     <svg
       viewBox="0 0 1440 360"
       className="w-full h-auto text-[#6fa3f7]"
@@ -74,7 +99,8 @@ const MiddleBlueClouds = () => (
       <circle cx="1155" cy="210" r="140" />
       <circle cx="1305" cy="225" r="155" />
       <circle cx="1440" cy="245" r="210" />
-      <path d="
+      <path
+        d="
         M0 255
         C130 220 255 205 390 225
         C505 242 580 292 655 318
@@ -84,13 +110,23 @@ const MiddleBlueClouds = () => (
         L1440 360
         L0 360
         Z
-      " />
+      "
+      />
     </svg>
-  </div>
+  </motion.div>
 );
 
 const BottomShadowClouds = () => (
-  <div className="absolute bottom-[1%] left-0 w-full z-[45] pointer-events-none opacity-90 drop-shadow-[0_-8px_10px_rgba(0,0,0,0.08)]">
+  <motion.div
+    initial={{ y: 120, opacity: 0 }}
+    animate={{ y: 0, opacity: 1 }}
+    transition={{
+      duration: 2,
+      ease: "easeOut",
+      delay: 0.35,
+    }}
+    className="absolute bottom-[1%] left-0 w-full z-[45] pointer-events-none opacity-90 drop-shadow-[0_-8px_10px_rgba(0,0,0,0.08)]"
+  >
     <svg
       viewBox="0 0 1440 290"
       className="w-full h-auto text-[#f4f4f4]"
@@ -111,7 +147,8 @@ const BottomShadowClouds = () => (
       <circle cx="1220" cy="160" r="92" />
       <circle cx="1360" cy="170" r="100" />
       <circle cx="1440" cy="190" r="110" />
-      <path d="
+      <path
+        d="
         M0 200
         C130 168 260 152 390 175
         C520 198 595 242 675 265
@@ -121,14 +158,24 @@ const BottomShadowClouds = () => (
         L1440 290
         L0 290
         Z
-      " />
+      "
+      />
       <rect x="0" y="250" width="1440" height="60" />
     </svg>
-  </div>
+  </motion.div>
 );
 
 const BottomWhiteClouds = () => (
-  <div className="absolute bottom-[-12px] left-0 w-full z-50 pointer-events-none drop-shadow-[0_-14px_18px_rgba(0,0,0,0.08)]">
+  <motion.div
+    initial={{ y: 140, opacity: 0 }}
+    animate={{ y: 0, opacity: 1 }}
+    transition={{
+      duration: 2.2,
+      ease: "easeOut",
+      delay: 0.5,
+    }}
+    className="absolute bottom-[-12px] left-0 w-full z-50 pointer-events-none drop-shadow-[0_-14px_18px_rgba(0,0,0,0.08)]"
+  >
     <svg
       viewBox="0 0 1440 350"
       className="w-full h-auto text-white"
@@ -150,7 +197,8 @@ const BottomWhiteClouds = () => (
       <circle cx="1260" cy="195" r="100" />
       <circle cx="1370" cy="205" r="110" />
       <circle cx="1440" cy="220" r="125" />
-      <path d="
+      <path
+        d="
         M0 230
         C125 198 250 185 380 208
         C505 230 585 280 660 302
@@ -160,7 +208,8 @@ const BottomWhiteClouds = () => (
         L1440 350
         L0 350
         Z
-      " />
+      "
+      />
       <circle cx="70" cy="295" r="92" />
       <circle cx="215" cy="280" r="98" />
       <circle cx="370" cy="300" r="108" />
@@ -171,7 +220,7 @@ const BottomWhiteClouds = () => (
       <circle cx="1370" cy="295" r="92" />
       <rect x="0" y="305" width="1440" height="70" />
     </svg>
-  </div>
+  </motion.div>
 );
 
 export default function HeroSection() {
