@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trash2, Plus, LogOut, LayoutDashboard, Users, CalendarDays, Server, CheckCircle2, Loader2, Pencil } from "lucide-react";
+import { Trash2, Plus, LogOut, LayoutDashboard, Users, CalendarDays, Server, CheckCircle2, Loader2, Pencil, Camera } from "lucide-react";
 import { robustParseDate } from "@/lib/dateUtils";
 
 export default function AdminPage() {
   const [secret, setSecret] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
-  const [activeTab, setActiveTab] = useState<"events" | "team">("events");
+  const [activeTab, setActiveTab] = useState<"events" | "team" | "gallery">("events");
 
   const [events, setEvents] = useState<any[]>([]);
   const [newEvent, setNewEvent] = useState({
@@ -35,6 +35,14 @@ export default function AdminPage() {
     linkedin: "",
     globe: ""
   });
+  const [gallery, setGallery] = useState<any[]>([]);
+  const [newGalleryItem, setNewGalleryItem] = useState({
+    title: "",
+    src: "",
+    eventSlug: "",
+    size: "col-span-1"
+  });
+  const [editingGalleryId, setEditingGalleryId] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -74,9 +82,14 @@ export default function AdminPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [eventsRes, teamRes] = await Promise.all([fetch("/api/events"), fetch("/api/team")]);
+      const [eventsRes, teamRes, galleryRes] = await Promise.all([
+        fetch("/api/events"),
+        fetch("/api/team"),
+        fetch("/api/gallery")
+      ]);
       if (eventsRes.ok) setEvents(await eventsRes.json());
       if (teamRes.ok) setTeam(await teamRes.json());
+      if (galleryRes.ok) setGallery(await galleryRes.json());
     } catch (err) {
       setError("API Offline. Showing local cache.");
     } finally {
@@ -300,9 +313,72 @@ export default function AdminPage() {
     setEditingMemberId(null);
   };
 
+  const handleSubmitGallery = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    try {
+      const url = editingGalleryId ? `/api/gallery/${editingGalleryId}` : "/api/gallery";
+      const method = editingGalleryId ? "PATCH" : "POST";
+
+      const res = await fetch(url, {
+        method: method,
+        headers: { "Content-Type": "application/json", "x-admin-secret": secret },
+        body: JSON.stringify(newGalleryItem),
+      });
+      if (!res.ok) throw new Error(`Failed to ${editingGalleryId ? 'update' : 'add'} gallery photo`);
+      const savedItem = await res.json();
+
+      if (editingGalleryId) {
+        setGallery(gallery.map((g) => (g.id === editingGalleryId ? savedItem : g)));
+        showSuccess("Gallery photo updated.");
+      } else {
+        setGallery([savedItem, ...gallery]);
+        showSuccess("Gallery photo uploaded.");
+      }
+
+      cancelEditGallery();
+    } catch (err: any) { setError(err.message); }
+  };
+
+  const startEditGallery = (item: any) => {
+    setNewGalleryItem({
+      title: item.title || "",
+      src: item.src || "",
+      eventSlug: item.eventSlug || "",
+      size: item.size || "col-span-1"
+    });
+    setIsEditing(true);
+    setEditingGalleryId(item.id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const cancelEditGallery = () => {
+    setNewGalleryItem({
+      title: "",
+      src: "",
+      eventSlug: "",
+      size: "col-span-1"
+    });
+    setIsEditing(false);
+    setEditingGalleryId(null);
+  };
+
+  const deleteGallery = async (id: string) => {
+    try {
+      const res = await fetch(`/api/gallery/${id}`, {
+        method: "DELETE",
+        headers: { "x-admin-secret": secret },
+      });
+      if (!res.ok) throw new Error("Failed to delete gallery photo");
+      setGallery(gallery.filter((g) => g.id !== id));
+      showSuccess("Gallery photo removed.");
+    } catch (err: any) { setError(err.message); }
+  };
+
   useEffect(() => {
     cancelEdit();
     cancelEditMember();
+    cancelEditGallery();
   }, [activeTab]);
 
   const deleteMember = async (id: string) => {
@@ -386,14 +462,14 @@ export default function AdminPage() {
 
         <div className="flex justify-center mb-12">
           <div className="bg-gray-100/80 p-1 rounded-full flex shadow-inner">
-            {(["events", "team"] as const).map((tab) => (
+            {(["events", "team", "gallery"] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`px-8 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2 ${activeTab === tab ? "bg-[#d3e3fd] text-blue-900 shadow-sm" : "text-gray-500 hover:text-gray-700 hover:bg-gray-200/50"
                   }`}
               >
-                {tab === "events" ? <CalendarDays size={16} /> : <Users size={16} />}
+                {tab === "events" ? <CalendarDays size={16} /> : tab === "team" ? <Users size={16} /> : <Camera size={16} />}
                 {tab.charAt(0).toUpperCase() + tab.slice(1)}
               </button>
             ))}
@@ -404,7 +480,7 @@ export default function AdminPage() {
 
           <div className="lg:col-span-7 xl:col-span-8 space-y-4">
             <h2 className="text-xl font-normal text-gray-800 mb-6 flex items-center gap-2">
-              <Server size={20} className="text-[#4285f4]" /> Active {activeTab === "events" ? "Schedules" : "Roster"}
+              <Server size={20} className="text-[#4285f4]" /> Active {activeTab === "events" ? "Schedules" : activeTab === "team" ? "Roster" : "Vault Images"}
             </h2>
 
             {loading ? (
@@ -487,6 +563,38 @@ export default function AdminPage() {
                       </div>
                     </motion.div>
                   ))}
+
+                  {activeTab === "gallery" && gallery.map((item, index) => {
+                    const linkedEvent = events.find(e => e.slug === item.eventSlug);
+                    return (
+                      <motion.div key={item.id || index} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} transition={{ delay: index * 0.05 }} className="group bg-white p-4 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-md transition-all flex justify-between items-center">
+                        <div className="flex items-center gap-4">
+                          <img src={item.src} alt={item.title} className="w-14 h-14 rounded-2xl object-cover border border-gray-100" />
+                          <div>
+                            <h3 className="text-base font-medium text-gray-900">{item.title}</h3>
+                            <p className="text-xs text-[#0f9d58] font-semibold uppercase tracking-wider mb-1">
+                              Size: <span className="text-gray-500 font-medium normal-case">{item.size === "col-span-1" ? "Standard (1x1)" : item.size === "md:col-span-2" ? "Wide (2x1)" : "Large Feature (2x2)"}</span>
+                            </p>
+                            <p className="text-xs text-gray-500 font-medium">
+                              Linked Event: {linkedEvent ? (
+                                <span className="text-blue-600 font-semibold">{linkedEvent.title} ({linkedEvent.date})</span>
+                              ) : (
+                                <span className="text-gray-400 font-normal italic">None (Stand-alone Photo)</span>
+                              )}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button onClick={() => startEditGallery(item)} className="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#0f9d58] hover:bg-green-50 transition-colors" title="Edit Photo">
+                            <Pencil size={18} />
+                          </button>
+                          <button onClick={() => deleteGallery(item.id)} className="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#db4437] hover:bg-[#fce8e6] transition-colors" title="Delete Photo">
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
                 </AnimatePresence>
               </motion.div>
             )}
@@ -495,7 +603,7 @@ export default function AdminPage() {
           <div className="lg:col-span-5 xl:col-span-4 sticky top-28">
             <div className="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-8">
               <h2 className="text-xl font-normal text-gray-800 mb-6 flex items-center gap-2">
-                <LayoutDashboard size={20} className="text-[#f4b400]" /> {isEditing ? (activeTab === "events" ? "Edit Event" : "Edit Profile") : `Create ${activeTab === "events" ? "Event" : "Profile"}`}
+                <LayoutDashboard size={20} className="text-[#f4b400]" /> {isEditing ? (activeTab === "events" ? "Edit Event" : activeTab === "team" ? "Edit Profile" : "Edit Photo") : `Create ${activeTab === "events" ? "Event" : activeTab === "team" ? "Profile" : "Vault Item"}`}
               </h2>
 
               <AnimatePresence mode="wait">
@@ -605,7 +713,7 @@ export default function AdminPage() {
                       </button>
                     </div>
                   </motion.form>
-                ) : (
+                ) : activeTab === "team" ? (
                   <motion.form key="team-form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onSubmit={handleSubmitMember} className="space-y-5">
 
                     <div className="relative bg-gray-50 rounded-t-xl border-b-2 border-gray-300 focus-within:border-[#0f9d58] transition-colors px-4 pt-6 pb-2">
@@ -652,6 +760,48 @@ export default function AdminPage() {
                       )}
                       <button type="submit" className={`${editingMemberId ? 'flex-[2]' : 'w-full'} bg-[#0f9d58] text-white py-3.5 rounded-full font-medium hover:bg-[#0b703e] hover:shadow-md active:scale-[0.98] transition-all flex justify-center items-center gap-2`}>
                         {editingMemberId ? <CheckCircle2 size={18} /> : <Plus size={18} />} {editingMemberId ? "Update Member" : "Register Member"}
+                      </button>
+                    </div>
+                  </motion.form>
+                ) : (
+                  <motion.form key="gallery-form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onSubmit={handleSubmitGallery} className="space-y-5">
+                    <div className="relative bg-gray-50 rounded-t-xl border-b-2 border-gray-300 focus-within:border-[#0f9d58] transition-colors px-4 pt-6 pb-2">
+                      <input type="text" required value={newGalleryItem.title} onChange={(e) => setNewGalleryItem({ ...newGalleryItem, title: e.target.value })} className="w-full bg-transparent outline-none peer text-gray-900" />
+                      <label className={`absolute left-4 transition-all duration-200 pointer-events-none text-gray-500 font-medium ${newGalleryItem.title ? 'text-xs top-2 text-[#0f9d58]' : 'text-sm top-4 peer-focus:text-xs peer-focus:top-2 peer-focus:text-[#0f9d58]'}`}>Photo Title</label>
+                    </div>
+
+                    <div className="relative bg-gray-50 rounded-t-xl border-b-2 border-gray-300 focus-within:border-[#0f9d58] transition-colors px-4 pt-6 pb-2">
+                      <input type="text" required value={newGalleryItem.src} onChange={(e) => setNewGalleryItem({ ...newGalleryItem, src: e.target.value })} className="w-full bg-transparent outline-none peer text-gray-900" />
+                      <label className={`absolute left-4 transition-all duration-200 pointer-events-none text-gray-500 font-medium ${newGalleryItem.src ? 'text-xs top-2 text-[#0f9d58]' : 'text-sm top-4 peer-focus:text-xs peer-focus:top-2 peer-focus:text-[#0f9d58]'}`}>Image URL</label>
+                    </div>
+
+                    <div className="bg-gray-50 rounded-t-xl border-b-2 border-gray-300 focus-within:border-[#0f9d58] px-4 py-2 flex flex-col justify-end">
+                      <span className="text-xs text-gray-500 font-medium mb-1">Link to Event</span>
+                      <select value={newGalleryItem.eventSlug} onChange={(e) => setNewGalleryItem({ ...newGalleryItem, eventSlug: e.target.value })} className="w-full bg-transparent outline-none font-medium text-gray-900">
+                        <option value="">-- No Linked Event (Stand-alone) --</option>
+                        {events.map((ev) => (
+                          <option key={ev.id || ev.slug} value={ev.slug}>{ev.title} ({ev.date})</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="bg-gray-50 rounded-t-xl border-b-2 border-gray-300 focus-within:border-[#0f9d58] px-4 py-2 flex flex-col justify-end">
+                      <span className="text-xs text-gray-500 font-medium mb-1">Display Size (Grid Span)</span>
+                      <select value={newGalleryItem.size} onChange={(e) => setNewGalleryItem({ ...newGalleryItem, size: e.target.value })} className="w-full bg-transparent outline-none font-medium text-gray-900">
+                        <option value="col-span-1">Standard (1x1)</option>
+                        <option value="md:col-span-2">Wide (2x1)</option>
+                        <option value="md:col-span-2 md:row-span-2">Large Feature (2x2)</option>
+                      </select>
+                    </div>
+
+                    <div className="flex gap-3 mt-4">
+                      {editingGalleryId && (
+                        <button type="button" onClick={cancelEditGallery} className="flex-grow bg-gray-100 text-gray-600 py-3.5 rounded-full font-medium hover:bg-gray-200 transition-all">
+                          Cancel
+                        </button>
+                      )}
+                      <button type="submit" className={`${editingGalleryId ? 'flex-[2]' : 'w-full'} bg-[#0f9d58] text-white py-3.5 rounded-full font-medium hover:bg-[#0b703e] hover:shadow-md active:scale-[0.98] transition-all flex justify-center items-center gap-2`}>
+                        {editingGalleryId ? <CheckCircle2 size={18} /> : <Plus size={18} />} {editingGalleryId ? "Update Photo" : "Upload Photo"}
                       </button>
                     </div>
                   </motion.form>
