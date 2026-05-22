@@ -75,8 +75,29 @@ const defaultTeamYears: TeamYear[] = [
 
 export default function TeamTrainSection() {
   const targetRef = useRef<HTMLDivElement>(null);
+  const trainContainerRef = useRef<HTMLDivElement>(null);
   const [expandedYear, setExpandedYear] = useState<string | null>(null);
   const [teamYears, setTeamYears] = useState<TeamYear[]>(defaultTeamYears);
+  const [trainWidth, setTrainWidth] = useState(0);
+  const [windowWidth, setWindowWidth] = useState(1200);
+
+  useEffect(() => {
+    setWindowWidth(window.innerWidth);
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (!trainContainerRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        setTrainWidth(entry.contentRect.width);
+      }
+    });
+    observer.observe(trainContainerRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     async function fetchTeam() {
@@ -119,27 +140,33 @@ export default function TeamTrainSection() {
     fetchTeam();
   }, []);
 
-  const { scrollYProgress } = useScroll({ target: targetRef });
-
-  const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 40,
-    damping: 18,
-    mass: 0.8,
-    restDelta: 0.001
+  const { scrollYProgress } = useScroll({ 
+    target: targetRef,
+    offset: ["start start", "end end"]
   });
 
-  const dynamicTrainEnd = `-${teamYears.length * 60}vw`;
-  const trainX = useTransform(smoothProgress, [0, 1], ["10vw", dynamicTrainEnd]);
-  const wheelRotation = useTransform(smoothProgress, [0, 1], [0, -1800]);
+  const maxShift = trainWidth > 0 && windowWidth > 0 
+    ? Math.min(0, -(trainWidth - windowWidth + 100))
+    : -(teamYears.length * 60 * 16); // fallback
+  const startX = windowWidth > 0 ? windowWidth * 0.1 : 100;
+  
+  const distance = Math.abs(maxShift - startX);
 
-  const dynamicGroundEnd = `${teamYears.length * 40}vw`;
-  const groundX = useTransform(smoothProgress, [0, 1], ["0vw", dynamicGroundEnd]);
+  const trainX = useTransform(scrollYProgress, [0, 1], [startX, maxShift]);
+  const wheelRotation = useTransform(scrollYProgress, [0, 1], [0, -1800]);
 
-  const skyX = useTransform(smoothProgress, [0, 1], ["0%", "-10%"]);
-  const mountainsX = useTransform(smoothProgress, [0, 1], ["0%", "-30%"]);
+  const maxGroundShift = maxShift * -0.5;
+  const groundX = useTransform(scrollYProgress, [0, 1], [0, maxGroundShift]);
+
+  const skyX = useTransform(scrollYProgress, [0, 1], ["0%", "-10%"]);
+  const mountainsX = useTransform(scrollYProgress, [0, 1], ["0%", "-30%"]);
 
   return (
-    <section ref={targetRef} className="relative bg-[#FDFBF7]" style={{ height: `${teamYears.length * 100}vh` }}>
+    <section 
+      ref={targetRef} 
+      className="relative bg-[#FDFBF7]" 
+      style={{ height: trainWidth > 0 ? `calc(${distance}px + 100vh)` : `${teamYears.length * 100}vh` }}
+    >
       <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-end pb-10 md:pb-24">
 
         <div className="absolute top-32 left-1/2 -translate-x-1/2 flex flex-col items-center text-gray-400 animate-bounce z-50">
@@ -169,6 +196,7 @@ export default function TeamTrainSection() {
         </div>
 
         <motion.div
+          ref={trainContainerRef}
           style={{ x: trainX }}
           className="relative z-20 flex items-end gap-2 md:gap-8 px-4 w-max"
         >
