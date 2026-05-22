@@ -1,8 +1,9 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, X } from "lucide-react";
+import { useState } from "react";
 
 const ConcentricSun = ({ className }: { className?: string }) => (
   <div className={`flex justify-center ${className}`}>
@@ -224,6 +225,7 @@ const BottomWhiteClouds = () => (
 );
 
 export default function HeroSection() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { scrollY } = useScroll();
 
   const textY = useTransform(scrollY, [0, 500], [0, 160]);
@@ -260,15 +262,15 @@ export default function HeroSection() {
         </p>
 
         <div className="flex flex-wrap justify-center gap-4">
-          <Link
-            href="#join"
+          <button
+            onClick={() => setIsModalOpen(true)}
             className="bg-gray-900 text-white px-6 py-3 rounded-full text-sm font-semibold flex items-center gap-3 hover:bg-gray-800 transition-all duration-300 hover:scale-105"
           >
             Join GDG
             <span className="bg-white text-gray-900 rounded-full p-0.5">
               <ArrowRight className="w-4 h-4" />
             </span>
-          </Link>
+          </button>
 
           <Link
             href="#events"
@@ -317,6 +319,99 @@ export default function HeroSection() {
 
         <BottomWhiteClouds />
       </div>
+
+      <AnimatePresence>
+        {isModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+            onClick={() => setIsModalOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.8, y: 50, rotateX: 20 }}
+              animate={{ scale: 1, y: 0, rotateX: 0 }}
+              exit={{ scale: 0.8, y: 50, opacity: 0, rotateX: -20 }}
+              transition={{ type: "spring", damping: 20, stiffness: 200 }}
+              className="relative w-full max-w-md bg-gradient-to-br from-white to-gray-50 rounded-[2rem] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.3),inset_0_2px_0_rgba(255,255,255,0.8)] border border-gray-100 transform-gpu"
+              onClick={(e) => e.stopPropagation()}
+              style={{ perspective: 1000 }}
+            >
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors z-10"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="text-center mb-8 relative z-10">
+                <div className="w-20 h-20 mx-auto rounded-2xl shadow-lg mb-4 transform hover:scale-105 transition-transform overflow-hidden bg-white">
+                  <img src="/android-chrome-512x512.png" alt="GDG Logo" className="w-full h-full object-contain" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Join Our Community</h2>
+                <p className="text-gray-500 text-sm">Choose your preferred platform to connect with us and stay updated.</p>
+              </div>
+
+              <div className="flex flex-col gap-4 relative z-10">
+                {/* LinkedIn */}
+                <a 
+                  href="https://www.linkedin.com/company/gdgcampusaec/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="group relative flex items-center gap-4 p-4 rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-[0_8px_30px_rgba(10,102,194,0.2)] hover:border-[#0a66c2]/30 transition-all duration-300 hover:-translate-y-1 overflow-hidden"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#0a66c2]/0 to-[#0a66c2]/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="w-12 h-12 rounded-xl bg-[#0a66c2] text-white flex items-center justify-center shrink-0 shadow-md transform group-hover:scale-110 transition-transform">
+                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                  </div>
+                  <div className="flex-grow">
+                    <h3 className="font-bold text-gray-900">LinkedIn</h3>
+                    <p className="text-xs text-gray-500">Professional Network</p>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-gray-300 group-hover:text-[#0a66c2] transition-colors" />
+                </a>
+
+                {/* Discord */}
+                <a 
+                  href="https://discord.gg/nVXEt2dQG" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="group relative flex items-center gap-4 p-4 rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-[0_8px_30px_rgba(88,101,242,0.2)] hover:border-[#5865F2]/30 transition-all duration-300 hover:-translate-y-1 overflow-hidden"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#5865F2]/0 to-[#5865F2]/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="w-12 h-12 rounded-xl bg-[#5865F2] text-white flex items-center justify-center shrink-0 shadow-md transform group-hover:scale-110 transition-transform">
+                    <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>
+                  </div>
+                  <div className="flex-grow">
+                    <h3 className="font-bold text-gray-900">Discord</h3>
+                    <p className="text-xs text-gray-500">Community Server</p>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-gray-300 group-hover:text-[#5865F2] transition-colors" />
+                </a>
+
+                {/* X / Twitter */}
+                <a 
+                  href="https://x.com/GDGCampusAEC" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="group relative flex items-center gap-4 p-4 rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-[0_8px_30px_rgba(0,0,0,0.15)] hover:border-gray-900/30 transition-all duration-300 hover:-translate-y-1 overflow-hidden"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-gray-900/0 to-gray-900/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="w-12 h-12 rounded-xl bg-gray-900 text-white flex items-center justify-center shrink-0 shadow-md transform group-hover:scale-110 transition-transform">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                  </div>
+                  <div className="flex-grow">
+                    <h3 className="font-bold text-gray-900">X (Twitter)</h3>
+                    <p className="text-xs text-gray-500">Latest Updates</p>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-gray-300 group-hover:text-gray-900 transition-colors" />
+                </a>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }
