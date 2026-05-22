@@ -107,15 +107,6 @@ export default function TeamTrainSection() {
         const members = await res.json();
         
         if (members && members.length > 0) {
-          const grouped = members.reduce((acc: any, member: any) => {
-            const yearStr = `Class of ${member.year}`;
-            if (!acc[yearStr]) {
-              acc[yearStr] = [];
-            }
-            acc[yearStr].push(member);
-            return acc;
-          }, {});
-
           const colors = [
             "from-[#0f9d58] to-[#0b703e]",
             "from-[#4285f4] to-[#2c5ea8]",
@@ -123,13 +114,17 @@ export default function TeamTrainSection() {
             "from-[#db4437] to-[#a32e22]",
           ];
 
-          const formattedYears = Object.keys(grouped)
-            .sort((a, b) => b.localeCompare(a))
-            .map((yearStr, idx) => ({
-              yop: yearStr,
-              color: colors[idx % colors.length],
-              members: grouped[yearStr],
-            }));
+          const sortedMembers = [...members].sort((a: any, b: any) => {
+            const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+            const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+            return timeA - timeB;
+          });
+
+          const formattedYears = sortedMembers.map((member: any, idx: number) => ({
+            yop: member.name,
+            color: colors[idx % colors.length],
+            members: [member],
+          }));
             
           setTeamYears(formattedYears);
         }

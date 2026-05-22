@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trash2, Plus, LogOut, LayoutDashboard, Users, CalendarDays, Server, CheckCircle2, Loader2 } from "lucide-react";
 import { robustParseDate } from "@/lib/dateUtils";
-
+import { supabase } from "@/lib/supabaseClient";
 export default function AdminPage() {
   const [secret, setSecret] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -41,6 +41,7 @@ export default function AdminPage() {
   const [success, setSuccess] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editingSlug, setEditingSlug] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     async function verifySession() {
@@ -280,6 +281,35 @@ export default function AdminPage() {
     } catch (err: any) { setError(err.message); }
   };
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsUploading(true);
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { data, error } = await supabase.storage
+        .from('team-avatars')
+        .upload(filePath, file, { upsert: true });
+
+      if (error) throw error;
+
+      const { data: publicUrlData } = supabase.storage
+        .from('team-avatars')
+        .getPublicUrl(filePath);
+
+      setNewMember({ ...newMember, img: publicUrlData.publicUrl });
+      showSuccess("Image uploaded successfully");
+    } catch (err: any) {
+      setError(err.message || "Failed to upload image");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#FDFBF7] p-4 pt-20">
@@ -303,7 +333,7 @@ export default function AdminPage() {
 
           <form onSubmit={handleLogin} className="w-full">
             <div className="relative mb-6">
-              <input type="password" value={secret} onChange={(e) => setSecret(e.target.value)} className="w-full px-4 pt-6 pb-2 border-2 border-gray-200 rounded-xl focus:border-[#4285f4] focus:ring-0 outline-none peer transition-colors bg-transparent" required disabled={isAuthenticating} />
+              <input type="password" value={secret} onChange={(e) => setSecret(e.target.value)} className="w-full px-4 pt-6 pb-2 border-2 border-gray-200 rounded-xl focus:border-[#4285f4] focus:ring-0 outline-none peer transition-colors bg-transparent text-gray-900" required disabled={isAuthenticating} />
               <label className={`absolute left-4 transition-all duration-200 pointer-events-none text-gray-500 ${secret ? 'text-xs top-2 text-[#4285f4]' : 'text-base top-4 peer-focus:text-xs peer-focus:top-2 peer-focus:text-[#4285f4]'}`}>Enter Password</label>
             </div>
             <div className="flex justify-center mt-8">
@@ -582,8 +612,12 @@ export default function AdminPage() {
                         <label className={`absolute left-4 transition-all duration-200 pointer-events-none text-gray-500 font-medium ${newMember.year ? 'text-xs top-2 text-[#0f9d58]' : 'text-sm top-4 peer-focus:text-xs peer-focus:top-2 peer-focus:text-[#0f9d58]'}`}>Class Year</label>
                       </div>
                       <div className="relative bg-gray-50 rounded-t-xl border-b-2 border-gray-300 focus-within:border-[#0f9d58] transition-colors px-4 pt-6 pb-2">
-                        <input type="text" required value={newMember.img} onChange={(e) => setNewMember({ ...newMember, img: e.target.value })} className="w-full bg-transparent outline-none peer text-gray-900" />
-                        <label className={`absolute left-4 transition-all duration-200 pointer-events-none text-gray-500 font-medium ${newMember.img ? 'text-xs top-2 text-[#0f9d58]' : 'text-sm top-4 peer-focus:text-xs peer-focus:top-2 peer-focus:text-[#0f9d58]'}`}>Avatar Path</label>
+                        {isUploading ? (
+                          <div className="w-full text-sm text-gray-500 flex items-center gap-2 pt-1"><Loader2 size={16} className="animate-spin text-[#0f9d58]" /> Uploading...</div>
+                        ) : (
+                          <input type="file" accept="image/*" onChange={handleAvatarUpload} className="w-full bg-transparent outline-none peer text-gray-900 text-sm file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[#e6f4ea] file:text-[#0f9d58] hover:file:bg-[#ceead6] cursor-pointer" />
+                        )}
+                        <label className={`absolute left-4 transition-all duration-200 pointer-events-none text-gray-500 font-medium text-xs top-2 text-[#0f9d58]`}>Avatar Image (Click to Upload)</label>
                       </div>
                     </div>
 
