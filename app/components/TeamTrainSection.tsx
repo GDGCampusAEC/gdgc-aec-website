@@ -73,7 +73,13 @@ const defaultTeamYears: TeamYear[] = [
   },
 ];
 
-export default function TeamTrainSection() {
+export default function TeamTrainSection({
+  compact = false,
+  homepageMode = false,
+}: {
+  compact?: boolean;
+  homepageMode?: boolean;
+}) {
   const targetRef = useRef<HTMLDivElement>(null);
   const trainContainerRef = useRef<HTMLDivElement>(null);
   const [expandedYear, setExpandedYear] = useState<string | null>(null);
@@ -165,7 +171,13 @@ export default function TeamTrainSection() {
     <section
       ref={targetRef}
       className="relative bg-[#FDFBF7]"
-      style={{ height: trainWidth > 0 ? `calc(${distance}px + 100vh)` : `${teamYears.length * 100}vh` }}
+style={{
+  height: compact
+    ? "100vh"
+    : trainWidth > 0
+    ? `calc(${distance}px + 100vh)`
+    : `${teamYears.length * 100}vh`,
+}}
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-end pb-10 md:pb-24">
 
@@ -174,11 +186,7 @@ export default function TeamTrainSection() {
           <ChevronDown className="w-6 h-6" />
         </div>
 
-        <motion.div style={{ x: skyX }} className="absolute top-20 w-[300%] flex opacity-40 z-0 pointer-events-none">
-          <img src="/assets/clouds-blue.svg" alt="clouds" className="w-1/3 object-contain" />
-          <img src="/assets/clouds-blue.svg" alt="clouds" className="w-1/3 object-contain" />
-          <img src="/assets/clouds-blue.svg" alt="clouds" className="w-1/3 object-contain" />
-        </motion.div>
+{/* train cloud */}
 
         <motion.div style={{ x: mountainsX }} className="absolute bottom-16 md:bottom-32 w-[300%] flex items-end opacity-20 z-0 pointer-events-none">
           <div className="w-[800px] h-64 bg-gray-400 rounded-t-full -ml-40" />
@@ -258,7 +266,13 @@ export default function TeamTrainSection() {
                 </div>
 
                 <div
-                  onClick={() => setExpandedYear(isExpanded ? null : yearGroup.yop)}
+                  onClick={() => {
+                        if (homepageMode) {
+                          window.location.href = "/teams";
+                        } else {
+                          setExpandedYear(isExpanded ? null : yearGroup.yop);
+                        }
+                      }}
                   className={`relative px-4 py-6 bg-gradient-to-br ${yearGroup.color} rounded-[2rem] border border-white/30 flex flex-col items-center justify-center shadow-2xl cursor-pointer shrink-0 transition-[width] duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] transform-gpu will-change-[width] hover:brightness-105`}
                   style={{ width: isExpanded ? `${expandedWidth}px` : `${collapsedWidth}px`, height: '420px' }}
                 >

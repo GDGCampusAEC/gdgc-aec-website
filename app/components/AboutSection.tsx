@@ -56,7 +56,7 @@ export default function AboutSection() {
             whileHover={{ rotate: -2, scale: 1.05 }}
             transition={{ type: "spring", stiffness: 300 }}
           >
-            <img src="/assets/group-photo.png" alt="GDGC AEC Team" className="w-full h-auto bg-gray-200 aspect-video object-cover" />
+            <img src="/gdgc core team photo.jpeg" alt="GDGC AEC Team" className="w-full h-auto bg-gray-200 aspect-video object-cover" />
           </motion.div>
 
 
