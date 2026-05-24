@@ -335,7 +335,7 @@ export default function EventDetailPage() {
               </div>
             </div>
             
-            <div className="pt-6 border-t border-gray-100">
+            {/* <div className="pt-6 border-t border-gray-100">
               <p className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Featuring</p>
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-3">
@@ -347,7 +347,7 @@ export default function EventDetailPage() {
                   <Users size={16} />
                 </div>
               </div>
-            </div>
+            </div> */}
           </motion.div>
         </motion.div>
 

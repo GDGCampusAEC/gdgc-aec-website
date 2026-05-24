@@ -128,11 +128,11 @@ export default function Footer() {
 
           {/* Column 2: Navigation links */}
           <div className="flex flex-col items-center md:items-center gap-2">
-            <div className="text-left">
+            <div className="text-center md:text-left">
               <h3 className="font-bold text-base uppercase tracking-wider text-gray-300 mb-4">
                 Explore Links
               </h3>
-              <div className="flex flex-col gap-2.5">
+              <div className="flex flex-col gap-2.5 items-center md:items-start">
                 {footerLinks.map((link) => (
                   <Link
                     key={link.name}
@@ -225,9 +225,14 @@ export default function Footer() {
         {/* Legal Copyright Line */}
         <div className="border-t border-gray-800/60 mt-12 pt-8 text-center text-xs text-gray-500 font-medium tracking-wide">
           <p>© {new Date().getFullYear()} Google Developer Groups OnCampus AEC. All rights reserved.</p>
-          <p className="mt-1.5 text-gray-600">
+          <a
+            href="https://gdg.community.dev/gdg-on-campus-asansol-engineering-college-asansol-india/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-1.5 text-gray-600 hover:text-[#4285F4] transition-colors duration-300 inline-block"
+          >
             Designed & Built with ❤️ by the GDGC AEC Core Team.
-          </p>
+          </a>
         </div>
       </div>
     </footer>
