@@ -202,6 +202,10 @@ export default function TeamTrainSection({
       style={{
         height: compact
           ? "100vh"
+          : homepageMode
+          ? windowWidth < 768
+            ? "125vh"
+            : "100vh"
           : trainWidth > 0
           ? `calc(${distance}px + 100vh)`
           : `${teamYears.length * 100}vh`,
@@ -210,10 +214,10 @@ export default function TeamTrainSection({
       <div 
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
-        className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-end pb-10 md:pb-24"
+        className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-end pb-8 md:pb-16"
       >
 
-        <div className="absolute top-32 left-1/2 -translate-x-1/2 flex flex-col items-center text-gray-400 animate-bounce z-50">
+        <div className="absolute top-20 md:top-32 left-1/2 -translate-x-1/2 flex flex-col items-center text-gray-400 animate-bounce z-50">
           <span className="text-xs sm:text-sm font-bold uppercase tracking-widest mb-2 text-gray-500 text-center whitespace-nowrap">Swipe or Scroll to ride</span>
           <ChevronDown className="w-6 h-6" />
         </div>
@@ -221,7 +225,7 @@ export default function TeamTrainSection({
 {/* train cloud */}
 
         <motion.div style={{ x: mountainsX }} className="absolute bottom-16 md:bottom-32 w-[300%] flex items-end opacity-20 z-0 pointer-events-none">
-          <div className="w-[800px] h-64 bg-gray-400 rounded-t-full -ml-40" />
+          <div className="w-[800px] h-48 md:h-64 bg-gray-400 rounded-t-full -ml-40" />
           <div className="w-[1200px] h-96 bg-gray-500 rounded-t-[100%] -ml-64" />
           <div className="w-[900px] h-72 bg-gray-400 rounded-t-full -ml-40" />
           <div className="w-[1000px] h-80 bg-gray-500 rounded-t-[100%] -ml-20" />
@@ -238,8 +242,8 @@ export default function TeamTrainSection({
         <motion.div
           ref={trainContainerRef}
           style={{ x: trainX }}
-          className="relative z-20 flex items-end gap-2 md:gap-8 px-4 w-max"
-        >
+          className="relative z-20 flex items-end gap-0 md:gap-2 px-4 w-max mb-6 md:mb-8"
+          >
 
           <div className="flex items-end shrink-0 drop-shadow-2xl relative z-20">
             <div className="w-16 h-20 bg-gray-800 rounded-tl-full border-l-4 border-gray-500 z-10 skew-x-[15deg] -mr-8" />
@@ -264,7 +268,7 @@ export default function TeamTrainSection({
               </div>
             </div>
 
-            <div className="w-40 md:w-48 h-64 bg-gradient-to-tr from-gray-900 to-gray-800 rounded-t-[2.5rem] shadow-xl relative border-4 border-gray-950 flex flex-col items-center z-30 -ml-6">
+            <div className="w-40 md:w-48 h-56 md:h-64 bg-gradient-to-tr from-gray-900 to-gray-800 rounded-t-[2.5rem] shadow-xl relative border-4 border-gray-950 flex flex-col items-center z-30 -ml-6">
               <div className="absolute -top-4 w-[110%] h-8 bg-gray-950 rounded-full shadow-lg" />
               <div className="mt-12 w-24 h-24 bg-blue-200/90 rounded-xl border-4 border-gray-700 overflow-hidden relative shadow-inner">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/40 rotate-45 transform origin-top-right"></div>
@@ -306,7 +310,7 @@ export default function TeamTrainSection({
                         }
                       }}
                   className={`relative px-4 py-6 bg-gradient-to-br ${yearGroup.color} rounded-[2rem] border border-white/30 flex flex-col items-center justify-center shadow-2xl cursor-pointer shrink-0 transition-[width] duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)] transform-gpu will-change-[width] hover:brightness-105`}
-                  style={{ width: isExpanded ? `${expandedWidth}px` : `${collapsedWidth}px`, height: isMobile ? '340px' : '420px' }}
+                  style={{ width: isExpanded ? `${expandedWidth}px` : `${collapsedWidth}px`, height: isMobile ? '320px' : '420px' }}
                 >
 
                   <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-white text-gray-900 px-6 py-2 rounded-xl font-black text-base shadow-[4px_4px_0px_0px_rgba(0,0,0,0.8)] border-2 border-gray-900 whitespace-nowrap z-30">
@@ -324,10 +328,31 @@ export default function TeamTrainSection({
                       <p className="text-white/90 text-[9px] md:text-[10px] text-center font-bold tracking-widest uppercase bg-black/20 backdrop-blur-sm border border-white/10 px-3 py-1 rounded-full mt-1">
                         {leadMember.role}
                       </p>
-
-                      <p className="text-white/80 text-[8px] md:text-[9px] font-bold uppercase tracking-widest mt-4 bg-white/10 border border-white/10 px-4 py-1.5 rounded-full animate-pulse">
-                        Tap to view team
-                      </p>
+                        <p
+                          className="
+                            text-white/80
+                            text-[8px] md:text-[10px]
+                            font-bold
+                            uppercase
+                            tracking-[0.2em]
+                            mt-4
+                            bg-white/20
+                            border border-white/20
+                            px-4
+                            py-1.5
+                            rounded-full
+                            animate-pulse
+                            shadow-lg
+                            backdrop-blur-md
+                            transition-all
+                            duration-300
+                            group-hover:bg-white
+                            group-hover:text-[#0f9d58]
+                            group-hover:scale-105
+                          "
+                        >
+                          Tap to view team
+                        </p>
                     </div>
 
                     <div className={`absolute inset-0 w-full h-full flex gap-4 md:gap-8 items-center justify-center transition-opacity duration-300 ${isExpanded ? 'opacity-100 delay-200' : 'opacity-0 pointer-events-none'}`}>
@@ -397,7 +422,7 @@ export default function TeamTrainSection({
 
                   </div>
 
-                  <div className="absolute -bottom-8 md:-bottom-10 left-0 w-full flex justify-between px-8 md:px-12 z-20 pointer-events-none">
+                  <div className="absolute -bottom-5 md:-bottom-8 left-0 w-full flex justify-between px-8 md:px-12 z-20 pointer-events-none">
                     {[1, 2].map((wheel) => (
                       <motion.div key={`car-wheel-${idx}-${wheel}`} style={{ rotate: wheelRotation }} className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 border-4 border-gray-400 flex items-center justify-center shadow-lg shrink-0 overflow-hidden pointer-events-auto">
                         <div className="w-full h-1.5 bg-gray-400 absolute"></div><div className="w-1.5 h-full bg-gray-400 absolute"></div>

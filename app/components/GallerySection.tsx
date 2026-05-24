@@ -2,7 +2,7 @@
 
 import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
-import { X, Camera, Calendar, ArrowUpRight } from "lucide-react";
+import { X, Calendar, ArrowUpRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const defaultPhotos = [
@@ -141,9 +141,6 @@ export default function GallerySection() {
   return (
     <section className="max-w-7xl mx-auto px-6 py-32">
       <div className="mb-24 flex flex-col items-center text-center">
-        <motion.div initial={{ scale: 0.8, opacity: 0 }} whileInView={{ scale: 1, opacity: 1 }} className="w-12 h-12 rounded-2xl bg-[#0f9d58]/10 flex items-center justify-center text-[#0f9d58] mb-6">
-          <Camera size={24} />
-        </motion.div>
         <h2 className="text-6xl md:text-8xl font-black text-gray-900 tracking-tighter mb-6">
           THE <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-900 to-gray-500">VAULT.</span>
         </h2>
