@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -22,19 +24,19 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className="scroll-smooth">
-      <body className={`${poppins.variable} font-sans bg-[#FDFBF7] text-slate-800 antialiased overflow-x-hidden flex flex-col min-h-screen`}>
-
+      <body
+        className={`${poppins.variable} font-sans bg-[#FDFBF7] text-slate-800 antialiased overflow-x-hidden flex flex-col min-h-screen`}
+      >
+        <Analytics />
+        <SpeedInsights />
 
         <Navbar />
-
 
         <div className="flex-grow">
           {children}
         </div>
 
-
         <Footer />
-
       </body>
     </html>
   );

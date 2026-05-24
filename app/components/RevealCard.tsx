@@ -1,0 +1,419 @@
+"use client";
+
+import React, { useState, useEffect, useRef } from "react";
+import { toPng } from "html-to-image";
+
+export default function RevealCard() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  // 1: Input
+  // 2: Minting
+  // 3: Final Ticket
+  const [step, setStep] = useState(1);
+
+  const [name, setName] = useState("");
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  // Random Pokemon states
+  const [pokemonId, setPokemonId] = useState<number>(25);
+  const [pokemonName, setPokemonName] = useState("pikachu");
+
+  const ticketRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsOpen(true), 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Generate Random Pokemon Ticket
+  const handleGenerate = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!name.trim()) return;
+
+    setStep(2);
+
+    try {
+      // Random Pokemon from Gen 1
+      const randomId = Math.floor(Math.random() * 151) + 1;
+
+      const response = await fetch(
+        `https://pokeapi.co/api/v2/pokemon/${randomId}`
+      );
+
+      const data = await response.json();
+
+      setPokemonId(data.id);
+      setPokemonName(data.name);
+    } catch (error) {
+      console.error("Failed to fetch Pokemon:", error);
+
+      // fallback
+      setPokemonId(25);
+      setPokemonName("pikachu");
+    }
+
+    setTimeout(() => {
+      setStep(3);
+    }, 2500);
+  };
+
+  // Download Ticket
+  const handleDownload = async () => {
+    if (!ticketRef.current) return;
+    setIsDownloading(true);
+
+    try {
+      const dataUrl = await toPng(ticketRef.current, {
+        quality: 1.0,
+        pixelRatio: 6,        
+        cacheBust: true,      
+      });
+
+      const link = document.createElement("a");
+      link.download = `GDGC-AEC-Pass-${name.replace(/\s+/g, '-').toLowerCase()}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (error) {
+      console.error("Failed to generate ticket image:", error);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  const currentDate = new Date().toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }).toUpperCase();
+
+  const pokemonUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`;
+
+  return (
+    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#FFFDF5]/85 backdrop-blur-xl p-4 sm:p-6 select-none font-sans overflow-y-auto">
+
+      {/* Close Button */}
+      <button
+        onClick={() => setIsOpen(false)}
+        className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 transition-colors z-50 text-2xl font-medium"
+      >
+        &times;
+      </button>
+
+      {/* Ticket Wrapper */}
+      <div className="w-full max-w-4xl flex flex-col items-center gap-6 animate-fade-in mt-8">
+
+        {/* Ticket */}
+        <div
+          ref={ticketRef}
+          className="relative w-full aspect-[16/9] bg-white border border-slate-200/60 rounded-3xl overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05),0_0_40px_rgba(66,133,244,0.08)] min-h-[220px] max-h-[500px]"
+        >
+
+          {/* Grid Background */}
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.02)_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none z-0" />
+
+          {/* Google Color Strip */}
+          <div className="absolute top-0 left-0 right-0 h-1.5 flex z-20">
+            <div className="w-1/4 bg-[#4285F4]" />
+            <div className="w-1/4 bg-[#EA4335]" />
+            <div className="w-1/4 bg-[#FBBC05]" />
+            <div className="w-1/4 bg-[#34A853]" />
+          </div>
+
+          <div className="w-full h-full grid grid-cols-5 relative z-10">
+
+            {/* LEFT SECTION */}
+            <div className="col-span-2 relative h-full bg-slate-50/50 border-r border-slate-100 flex flex-col items-center justify-center p-4 overflow-hidden">
+
+              <div className="relative w-32 h-32 sm:w-48 sm:h-48 flex items-center justify-center group">
+
+                {/* Glow */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-[#4285F4]/30 to-[#34A853]/20 blur-2xl rounded-full group-hover:scale-110 transition-transform duration-700" />
+
+                {/* Pokemon */}
+                <img
+                  src={pokemonUrl}
+                  alt="Companion Pokemon"
+                  crossOrigin="anonymous"
+                  className="w-full h-full object-contain relative z-10 drop-shadow-xl animate-float scale-125"
+                  style={{ imageRendering: "pixelated" }}
+                />
+              </div>
+            </div>
+
+            {/* RIGHT SECTION */}
+            <div className="col-span-3 h-full flex flex-col justify-between p-5 sm:p-8 relative bg-white">
+
+              {/* STEP 1 */}
+              {step === 1 && (
+                <form
+                  onSubmit={handleGenerate}
+                  className="h-full flex flex-col justify-between animate-fade-in"
+                >
+
+                  {/* Header */}
+                  <div className="flex items-center gap-3 sm:gap-4 group cursor-default">
+
+                    <img
+                      src="/gdsc-logo.png"
+                      alt="GDGC Logo"
+                      className="w-10 h-10 sm:w-12 sm:h-12 object-contain"
+                    />
+
+                    <div className="flex flex-col text-left">
+
+                      <span className="font-bold text-base sm:text-lg leading-none tracking-tight text-slate-900">
+                        Google Developer Groups
+                      </span>
+
+                      <span className="text-[10px] sm:text-xs font-semibold text-[#4285F4] leading-none mt-1.5">
+                        On Campus Asansol Engineering College
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Form */}
+                  <div className="my-auto py-2">
+
+                    <h2 className="text-xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mb-2">
+                      Claim Your Pass
+                    </h2>
+
+                    <p className="text-sm text-slate-500 mb-5 leading-relaxed">
+                      Imprint your name below to reveal your unique launch
+                      companion and high-fidelity entry ticket.
+                    </p>
+
+                    <div className="relative group w-full">
+
+                      <input
+                        type="text"
+                        maxLength={22}
+                        required
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="e.g. Souvik Majee"
+                        className="w-full bg-slate-50 border-2 border-slate-200 focus:bg-white focus:border-[#4285F4] px-4 py-3 sm:py-4 rounded-xl text-base sm:text-lg font-bold text-slate-800 outline-none transition-all duration-300 shadow-sm"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Generate Button */}
+                  <button
+                    type="submit"
+                    disabled={!name.trim()}
+                    className={`w-full py-3.5 sm:py-4 rounded-xl text-sm font-bold tracking-wide text-white transition-all duration-300 ${
+                      name.trim()
+                        ? "bg-slate-900 hover:bg-[#4285F4] shadow-lg shadow-slate-200 active:scale-[0.98]"
+                        : "bg-slate-200 text-slate-400 cursor-not-allowed"
+                    }`}
+                  >
+                    Generate Ticket
+                  </button>
+                </form>
+              )}
+
+              {/* STEP 2 */}
+              {step === 2 && (
+                <div className="h-full flex flex-col items-center justify-center text-center animate-fade-in">
+
+                  <div className="relative z-10 flex flex-col items-center space-y-6">
+
+                    {/* Loader */}
+                    <div className="relative w-16 h-16">
+
+                      <div className="absolute inset-0 rounded-full border-4 border-slate-100" />
+
+                      <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-[#4285F4] border-r-[#EA4335] border-b-[#FBBC05] border-l-[#34A853] animate-spin" />
+                    </div>
+
+                    <div className="space-y-2">
+
+                      <p className="text-sm font-bold text-slate-800 tracking-wide uppercase">
+                        Summoning Companion
+                      </p>
+
+                      <p className="text-xs text-slate-400 font-mono">
+                        Fetching random Pokémon...
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 3 */}
+              {step === 3 && (
+                <div className="h-full flex flex-col justify-between animate-scale-up">
+
+                  {/* Header */}
+                  <div className="flex justify-between items-start">
+
+                    <div className="flex items-center gap-3">
+
+                      <img
+                        src="/gdsc-logo.png"
+                        alt="GDGC Logo"
+                        className="w-10 h-10 sm:w-12 sm:h-12 object-contain"
+                      />
+
+                      <div className="flex flex-col text-left">
+
+                        <span className="font-bold text-base sm:text-lg leading-none tracking-tight text-slate-900">
+                          Google Developer Groups
+                        </span>
+
+                        <span className="text-[10px] sm:text-xs font-semibold text-[#4285F4] leading-none mt-1.5">
+                          On Campus Asansol Engineering College
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Date */}
+                    <div className="text-right">
+
+                      <p className="text-[9px] text-slate-400 uppercase tracking-widest font-bold">
+                        Date
+                      </p>
+
+                      <p className="text-[11px] text-slate-800 font-extrabold uppercase font-mono">
+                        {currentDate}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Main Content */}
+                  <div className="my-auto py-2">
+
+                    <p className="text-[10px] font-bold tracking-widest text-slate-400 uppercase mb-1">
+                      Pass Holder
+                    </p>
+
+                    <h1 className="text-3xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-600 tracking-tight capitalize truncate pb-1">
+                      {name}
+                    </h1>
+
+                    {/* WEBSITE LAUNCH TEXT */}
+                    <div className="mt-5">
+
+                      <p className="text-xs sm:text-sm font-black uppercase tracking-[0.35em] text-transparent bg-clip-text bg-gradient-to-r from-[#4285F4] via-[#EA4335] to-[#34A853]">
+                        GDGCAEC WEBSITE LAUNCH
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Footer */}
+                  <div className="flex justify-between items-end border-t border-slate-100 pt-4">
+
+                    <div className="flex items-center gap-4">
+
+                      {/* Barcode */}
+                      <div className="flex h-8 items-end gap-[3px] opacity-30">
+                        {[40, 100, 30, 80, 50, 90, 20, 70, 60, 100, 40].map(
+                          (height, idx) => (
+                            <div
+                              key={idx}
+                              className="bg-slate-900 w-[2px] rounded-t-sm"
+                              style={{ height: `${height}%` }}
+                            />
+                          )
+                        )}
+                      </div>
+
+                      {/* Pokemon Info */}
+                      <div className="text-[10px] sm:text-[11px] text-slate-500 leading-tight">
+
+                        <p className="uppercase font-bold tracking-wider text-[8px] sm:text-[9px] mb-0.5 text-slate-400">
+                          Pokemon
+                        </p>
+
+                        <p className="font-extrabold text-[#4285F4] uppercase font-mono tracking-widest">
+                          #{pokemonId.toString().padStart(3, "0")}
+                        </p>
+
+                        <p className="font-black text-slate-700 capitalize text-xs tracking-wide mt-1">
+                          {pokemonName}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Website */}
+                    <div className="flex flex-col items-end">
+
+                      <p className="text-[13px] sm:text-[15px] font-black text-slate-800 tracking-wide">
+                        gdgcaec.com
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Download Button */}
+        {step === 3 && (
+          <div className="animate-slide-up w-full flex justify-center mt-2 pb-6">
+
+            <button
+              onClick={handleDownload}
+              disabled={isDownloading}
+              className={`w-full max-w-sm py-4 rounded-2xl text-sm font-bold tracking-wide transition-all duration-300 flex items-center justify-center gap-3 ${
+                isDownloading
+                  ? "bg-slate-200 text-slate-500 cursor-wait"
+                  : "bg-slate-900 hover:bg-[#4285F4] text-white shadow-xl hover:shadow-[#4285F4]/30 hover:-translate-y-1 active:translate-y-0"
+              }`}
+            >
+              {isDownloading ? (
+                <>
+                  <svg
+                    className="animate-spin h-5 w-5 text-slate-500"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8H4z"
+                    />
+                  </svg>
+
+                  Encoding Image...
+                </>
+              ) : (
+                <>
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2.5}
+                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                    />
+                  </svg>
+
+                  Download High-Res Ticket
+                </>
+              )}
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
