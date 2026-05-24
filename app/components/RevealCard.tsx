@@ -20,10 +20,37 @@ export default function RevealCard() {
 
   const ticketRef = useRef<HTMLDivElement>(null);
 
+  // Open modal + lock scroll
   useEffect(() => {
     const timer = setTimeout(() => setIsOpen(true), 1000);
 
-    return () => clearTimeout(timer);
+    // Save current scroll position
+    const scrollY = window.scrollY;
+
+    // Lock background scroll completely
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.width = "100%";
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      clearTimeout(timer);
+
+      // Restore scroll
+      const top = document.body.style.top;
+
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.width = "";
+      document.body.style.overflow = "";
+
+      // Restore previous scroll position
+      window.scrollTo(0, parseInt(top || "0") * -1);
+    };
   }, []);
 
   // Generate Random Pokemon Ticket
@@ -62,18 +89,24 @@ export default function RevealCard() {
   // Download Ticket
   const handleDownload = async () => {
     if (!ticketRef.current) return;
+
     setIsDownloading(true);
 
     try {
       const dataUrl = await toPng(ticketRef.current, {
         quality: 1.0,
-        pixelRatio: 6,        
-        cacheBust: true,      
+        pixelRatio: 6,
+        cacheBust: true,
       });
 
       const link = document.createElement("a");
-      link.download = `GDGC-AEC-Pass-${name.replace(/\s+/g, '-').toLowerCase()}.png`;
+
+      link.download = `GDGC-AEC-Pass-${name
+        .replace(/\s+/g, "-")
+        .toLowerCase()}.png`;
+
       link.href = dataUrl;
+
       link.click();
     } catch (error) {
       console.error("Failed to generate ticket image:", error);
@@ -93,23 +126,52 @@ export default function RevealCard() {
   const pokemonUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#FFFDF5]/85 backdrop-blur-xl p-4 sm:p-6 select-none font-sans overflow-y-auto">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#FFFDF5]/85 backdrop-blur-xl px-3 py-6 sm:p-6 select-none font-sans overflow-hidden">
 
       {/* Close Button */}
       <button
-        onClick={() => setIsOpen(false)}
-        className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 transition-colors z-50 text-2xl font-medium"
-      >
-        &times;
-      </button>
+      onClick={() => {
+        const top = document.body.style.top;
+
+        document.body.style.position = "";
+        document.body.style.top = "";
+        document.body.style.left = "";
+        document.body.style.right = "";
+        document.body.style.width = "";
+        document.body.style.overflow = "";
+
+        window.scrollTo(0, parseInt(top || "0") * -1);
+
+        setIsOpen(false);
+      }}
+      className="absolute top-4 right-4 sm:top-6 sm:right-6 w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 transition-colors z-50 text-2xl font-medium"
+    >
+      &times;
+    </button>
 
       {/* Ticket Wrapper */}
-      <div className="w-full max-w-4xl flex flex-col items-center gap-6 animate-fade-in mt-8">
+      <div className="w-full max-w-4xl flex flex-col items-center gap-6 animate-fade-in">
 
         {/* Ticket */}
         <div
           ref={ticketRef}
-          className="relative w-full aspect-[16/9] bg-white border border-slate-200/60 rounded-3xl overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05),0_0_40px_rgba(66,133,244,0.08)] min-h-[220px] max-h-[500px]"
+          className="
+            relative
+            w-full
+            max-w-4xl
+            bg-white
+            border
+            border-slate-200/60
+            rounded-3xl
+            overflow-hidden
+            shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05),0_0_40px_rgba(66,133,244,0.08)]
+
+            md:aspect-[16/9]
+
+            flex
+            flex-col
+            md:block
+          "
         >
 
           {/* Grid Background */}
@@ -123,10 +185,10 @@ export default function RevealCard() {
             <div className="w-1/4 bg-[#34A853]" />
           </div>
 
-          <div className="w-full h-full grid grid-cols-5 relative z-10">
+          <div className="w-full h-full grid grid-cols-1 md:grid-cols-5 relative z-10">
 
             {/* LEFT SECTION */}
-            <div className="col-span-2 relative h-full bg-slate-50/50 border-r border-slate-100 flex flex-col items-center justify-center p-4 overflow-hidden">
+            <div className="col-span-1 md:col-span-2 relative min-h-[220px] md:h-full bg-slate-50/50 md:border-r border-b md:border-b-0 border-slate-100 flex flex-col items-center justify-center p-4 overflow-hidden">
 
               <div className="relative w-32 h-32 sm:w-48 sm:h-48 flex items-center justify-center group">
 
@@ -136,7 +198,7 @@ export default function RevealCard() {
                 {/* Pokemon */}
                 <img
                   src={pokemonUrl}
-                  alt="Companion Pokemon"
+                  alt="Pokemon"
                   crossOrigin="anonymous"
                   className="w-full h-full object-contain relative z-10 drop-shadow-xl animate-float scale-125"
                   style={{ imageRendering: "pixelated" }}
@@ -145,7 +207,7 @@ export default function RevealCard() {
             </div>
 
             {/* RIGHT SECTION */}
-            <div className="col-span-3 h-full flex flex-col justify-between p-5 sm:p-8 relative bg-white">
+            <div className="col-span-1 md:col-span-3 flex flex-col justify-between p-5 sm:p-8 relative bg-white min-h-[340px]">
 
               {/* STEP 1 */}
               {step === 1 && (
@@ -165,20 +227,20 @@ export default function RevealCard() {
 
                     <div className="flex flex-col text-left">
 
-                      <span className="font-bold text-base sm:text-lg leading-none tracking-tight text-slate-900">
+                      <span className="font-bold text-sm sm:text-lg leading-none tracking-tight text-slate-900">
                         Google Developer Groups
                       </span>
 
-                      <span className="text-[10px] sm:text-xs font-semibold text-[#4285F4] leading-none mt-1.5">
+                      <span className="text-[9px] sm:text-xs font-semibold text-[#4285F4] leading-none mt-1.5">
                         On Campus Asansol Engineering College
                       </span>
                     </div>
                   </div>
 
                   {/* Form */}
-                  <div className="my-auto py-2">
+                  <div className="my-auto py-4">
 
-                    <h2 className="text-xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mb-2">
+                    <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mb-2">
                       Claim Your Pass
                     </h2>
 
@@ -233,7 +295,7 @@ export default function RevealCard() {
                     <div className="space-y-2">
 
                       <p className="text-sm font-bold text-slate-800 tracking-wide uppercase">
-                        Summoning Companion
+                        Summoning Pokemon
                       </p>
 
                       <p className="text-xs text-slate-400 font-mono">
@@ -249,7 +311,7 @@ export default function RevealCard() {
                 <div className="h-full flex flex-col justify-between animate-scale-up">
 
                   {/* Header */}
-                  <div className="flex justify-between items-start">
+                  <div className="flex justify-between items-start gap-4">
 
                     <div className="flex items-center gap-3">
 
@@ -261,56 +323,56 @@ export default function RevealCard() {
 
                       <div className="flex flex-col text-left">
 
-                        <span className="font-bold text-base sm:text-lg leading-none tracking-tight text-slate-900">
+                        <span className="font-bold text-sm sm:text-lg leading-none tracking-tight text-slate-900">
                           Google Developer Groups
                         </span>
 
-                        <span className="text-[10px] sm:text-xs font-semibold text-[#4285F4] leading-none mt-1.5">
+                        <span className="text-[9px] sm:text-xs font-semibold text-[#4285F4] leading-none mt-1.5">
                           On Campus Asansol Engineering College
                         </span>
                       </div>
                     </div>
 
                     {/* Date */}
-                    <div className="text-right">
+                    <div className="text-right shrink-0">
 
-                      <p className="text-[9px] text-slate-400 uppercase tracking-widest font-bold">
+                      <p className="text-[8px] sm:text-[9px] text-slate-400 uppercase tracking-widest font-bold">
                         Date
                       </p>
 
-                      <p className="text-[11px] text-slate-800 font-extrabold uppercase font-mono">
+                      <p className="text-[10px] sm:text-[11px] text-slate-800 font-extrabold uppercase font-mono">
                         {currentDate}
                       </p>
                     </div>
                   </div>
 
                   {/* Main Content */}
-                  <div className="my-auto py-2">
+                  <div className="my-auto py-4">
 
                     <p className="text-[10px] font-bold tracking-widest text-slate-400 uppercase mb-1">
                       Pass Holder
                     </p>
 
-                    <h1 className="text-3xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-600 tracking-tight capitalize truncate pb-1">
+                    <h1 className="text-2xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-600 tracking-tight capitalize break-words leading-tight pb-1">
                       {name}
                     </h1>
 
                     {/* WEBSITE LAUNCH TEXT */}
                     <div className="mt-5">
 
-                      <p className="text-xs sm:text-sm font-black uppercase tracking-[0.35em] text-transparent bg-clip-text bg-gradient-to-r from-[#4285F4] via-[#EA4335] to-[#34A853]">
+                      <p className="text-[10px] sm:text-sm font-black uppercase tracking-[0.18em] sm:tracking-[0.35em] text-transparent bg-clip-text bg-gradient-to-r from-[#4285F4] via-[#EA4335] to-[#34A853] leading-relaxed">
                         GDGCAEC WEBSITE LAUNCH
                       </p>
                     </div>
                   </div>
 
                   {/* Footer */}
-                  <div className="flex justify-between items-end border-t border-slate-100 pt-4">
+                  <div className="flex justify-between items-end border-t border-slate-100 pt-4 gap-4">
 
                     <div className="flex items-center gap-4">
 
                       {/* Barcode */}
-                      <div className="flex h-8 items-end gap-[3px] opacity-30">
+                      <div className="hidden sm:flex h-8 items-end gap-[3px] opacity-30">
                         {[40, 100, 30, 80, 50, 90, 20, 70, 60, 100, 40].map(
                           (height, idx) => (
                             <div
@@ -342,7 +404,7 @@ export default function RevealCard() {
                     {/* Website */}
                     <div className="flex flex-col items-end">
 
-                      <p className="text-[13px] sm:text-[15px] font-black text-slate-800 tracking-wide">
+                      <p className="text-[12px] sm:text-[15px] font-black text-slate-800 tracking-wide">
                         gdgcaec.com
                       </p>
                     </div>
@@ -355,7 +417,7 @@ export default function RevealCard() {
 
         {/* Download Button */}
         {step === 3 && (
-          <div className="animate-slide-up w-full flex justify-center mt-2 pb-6">
+          <div className="animate-slide-up w-full flex justify-center">
 
             <button
               onClick={handleDownload}
