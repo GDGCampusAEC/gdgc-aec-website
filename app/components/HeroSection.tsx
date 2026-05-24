@@ -266,7 +266,7 @@ export default function HeroSection() {
             href="/events"
             className="bg-white/40 backdrop-blur-sm border border-gray-900 text-gray-900 px-6 py-3 rounded-full text-sm font-semibold hover:bg-white/70 transition-all duration-300 hover:scale-105"
           >
-            Upcoming Event
+            Upcoming Events
           </Link>
 
           <div className="relative inline-flex items-center justify-center z-[90] pointer-events-auto">
