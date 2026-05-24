@@ -33,7 +33,8 @@ export default function AdminPage() {
     img: "/assets/default-avatar.svg",
     github: "",
     linkedin: "",
-    globe: ""
+    globe: "",
+    showOnTrain: false
   });
   const [gallery, setGallery] = useState<any[]>([]);
   const [newGalleryItem, setNewGalleryItem] = useState({
@@ -311,10 +312,28 @@ export default function AdminPage() {
       const savedMember = await res.json();
 
       if (editingMemberId) {
-        setTeam(team.map((m) => ((m._id || m.id) === editingMemberId ? savedMember : m)));
+        let updatedTeam = team.map((m) => ((m._id || m.id) === editingMemberId ? savedMember : m));
+        if (savedMember.showOnTrain) {
+          updatedTeam = updatedTeam.map((m) => {
+            if ((m._id || m.id) !== editingMemberId && parseInt(m.year) === parseInt(savedMember.year)) {
+              return { ...m, showOnTrain: false };
+            }
+            return m;
+          });
+        }
+        setTeam(updatedTeam);
         showSuccess("Member profile updated.");
       } else {
-        setTeam([savedMember, ...team]);
+        let updatedTeam = [savedMember, ...team];
+        if (savedMember.showOnTrain) {
+          updatedTeam = updatedTeam.map((m) => {
+            if ((m._id || m.id) !== savedMember.id && (m._id || m.id) !== savedMember._id && parseInt(m.year) === parseInt(savedMember.year)) {
+              return { ...m, showOnTrain: false };
+            }
+            return m;
+          });
+        }
+        setTeam(updatedTeam);
         showSuccess("Team member boarded.");
       }
 
@@ -330,7 +349,8 @@ export default function AdminPage() {
       img: member.img || "/assets/team-1.jpg",
       github: member.github || "",
       linkedin: member.linkedin || "",
-      globe: member.globe || ""
+      globe: member.globe || "",
+      showOnTrain: member.showOnTrain === true
     });
     setIsEditing(true);
     setEditingMemberId(member._id || member.id);
@@ -345,7 +365,8 @@ export default function AdminPage() {
       img: "/assets/default-avatar.svg",
       github: "",
       linkedin: "",
-      globe: ""
+      globe: "",
+      showOnTrain: false
     });
     setIsEditing(false);
     setEditingMemberId(null);
@@ -584,6 +605,7 @@ export default function AdminPage() {
                           <h3 className="text-base font-medium text-gray-900">{member.name}</h3>
                           <p className="text-sm text-[#0f9d58] font-medium mb-1.5">{member.role} <span className="text-gray-400 ml-2">Class of {member.year}</span></p>
                           <div className="flex flex-wrap gap-1.5">
+                            {member.showOnTrain && <span className="text-[9px] bg-emerald-50 text-emerald-700 border border-emerald-200/80 px-1.5 py-0.5 rounded font-bold tracking-wide flex items-center gap-1"><span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" /> Featured Cover</span>}
                             {member.github && <span className="text-[9px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded font-semibold tracking-wide">GitHub</span>}
                             {member.linkedin && <span className="text-[9px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded font-semibold tracking-wide">LinkedIn</span>}
                             {member.globe && <span className="text-[9px] bg-teal-50 text-teal-600 px-1.5 py-0.5 rounded font-semibold tracking-wide">Website</span>}
@@ -879,6 +901,26 @@ export default function AdminPage() {
                         <input type="text" value={newMember.globe || ""} onChange={(e) => setNewMember({ ...newMember, globe: e.target.value })} className="w-full bg-transparent outline-none peer text-gray-900 text-xs" />
                         <label className={`absolute left-3 transition-all duration-200 pointer-events-none text-gray-500 font-medium ${newMember.globe ? 'text-[10px] top-1.5 text-[#0f9d58]' : 'text-xs top-4 peer-focus:text-[10px] peer-focus:top-1.5 peer-focus:text-[#0f9d58]'}`}>Portfolio Link</label>
                       </div>
+                    </div>
+
+                    {/* Premium Animated Toggle Switch for showOnTrain */}
+                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100 hover:border-gray-200/80 transition-all">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-sm font-semibold text-gray-800">Featured on Train Cover</span>
+                        <span className="text-[11px] text-gray-500 font-medium">Display this member's card on the collapsed train car cover.</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setNewMember(prev => ({ ...prev, showOnTrain: !prev.showOnTrain }))}
+                        className={`relative w-12 h-7 rounded-full transition-colors duration-300 flex items-center px-1 shrink-0 ${newMember.showOnTrain ? 'bg-[#0f9d58]' : 'bg-gray-300'}`}
+                      >
+                        <motion.div
+                          layout
+                          transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                          className="w-5 h-5 bg-white rounded-full shadow-md"
+                          animate={{ x: newMember.showOnTrain ? 20 : 0 }}
+                        />
+                      </button>
                     </div>
 
                     <div className="flex gap-3 mt-4">

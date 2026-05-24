@@ -13,6 +13,7 @@ interface TeamMember {
   instagram?: string;
   twitter?: string;
   globe?: string;
+  showOnTrain?: boolean;
 }
 
 interface TeamYear {
@@ -287,7 +288,7 @@ export default function TeamTrainSection({
             const expandedWidth = isMobile
               ? Math.max(collapsedWidth, (yearGroup.members.length * 130) + ((yearGroup.members.length - 1) * 16) + 80)
               : Math.max(collapsedWidth, (yearGroup.members.length * 180) + ((yearGroup.members.length - 1) * 32) + 200);
-            const leadMember = yearGroup.members[0];
+            const leadMember = yearGroup.members.find((m) => m.showOnTrain === true) || yearGroup.members[0];
 
             return (
               <div key={idx} className="flex items-end shrink-0 z-10 drop-shadow-xl relative">

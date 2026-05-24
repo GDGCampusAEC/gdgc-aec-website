@@ -28,11 +28,26 @@ export async function PATCH(req, { params }) {
     if (updateData.year !== undefined && updateData.year !== null) {
       updateData.year = parseInt(updateData.year);
     }
+    if (updateData.showOnTrain !== undefined) {
+      updateData.showOnTrain = updateData.showOnTrain === true;
+    }
 
     await docRef.update({
       ...updateData,
       updatedAt: new Date().toISOString(),
     })
+
+    if (updateData.showOnTrain === true) {
+      const year = updateData.year !== undefined ? updateData.year : docSnap.data().year;
+      const snapshot = await db.collection('members').where('year', '==', year).get();
+      const batch = db.batch();
+      snapshot.docs.forEach(doc => {
+        if (doc.id !== id) {
+          batch.update(doc.ref, { showOnTrain: false });
+        }
+      });
+      await batch.commit();
+    }
 
     const updatedDoc=await docRef.get();
     
