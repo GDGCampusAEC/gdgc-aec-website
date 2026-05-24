@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trash2, Plus, LogOut, LayoutDashboard, Users, CalendarDays, Server, CheckCircle2, Loader2, Pencil, Camera, Upload } from "lucide-react";
+import { Trash2, Plus, LogOut, LayoutDashboard, Users, CalendarDays, Server, CheckCircle2, Loader2, Pencil, Camera, Upload, BookOpen, ExternalLink } from "lucide-react";
 import { robustParseDate } from "@/lib/dateUtils";
 
 export default function AdminPage() {
   const [secret, setSecret] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
-  const [activeTab, setActiveTab] = useState<"events" | "team" | "gallery">("events");
+  const [activeTab, setActiveTab] = useState<"events" | "team" | "gallery" | "courses">("events");
 
   const [events, setEvents] = useState<any[]>([]);
   const [newEvent, setNewEvent] = useState({
@@ -43,6 +43,15 @@ export default function AdminPage() {
     size: "col-span-1"
   });
   const [editingGalleryId, setEditingGalleryId] = useState<string | null>(null);
+
+  const [courses, setCourses] = useState<any[]>([]);
+  const [newCourse, setNewCourse] = useState({
+    title: "",
+    description: "",
+    image: "",
+    link: ""
+  });
+  const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -82,14 +91,16 @@ export default function AdminPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [eventsRes, teamRes, galleryRes] = await Promise.all([
+      const [eventsRes, teamRes, galleryRes, coursesRes] = await Promise.all([
         fetch("/api/events"),
         fetch("/api/team"),
-        fetch("/api/gallery")
+        fetch("/api/gallery"),
+        fetch("/api/courses")
       ]);
       if (eventsRes.ok) setEvents(await eventsRes.json());
       if (teamRes.ok) setTeam(await teamRes.json());
       if (galleryRes.ok) setGallery(await galleryRes.json());
+      if (coursesRes.ok) setCourses(await coursesRes.json());
     } catch (err) {
       setError("API Offline. Showing local cache.");
     } finally {
@@ -153,7 +164,9 @@ export default function AdminPage() {
       ? "gdgc-aec/events"
       : activeTab === "team"
         ? "gdgc-aec/team"
-        : "gdgc-aec/gallery";
+        : activeTab === "courses"
+          ? "gdgc-aec/courses"
+          : "gdgc-aec/gallery";
 
     formData.append("folder", destinationFolder);
 
@@ -413,10 +426,67 @@ export default function AdminPage() {
     } catch (err: any) { setError(err.message); }
   };
 
+  // ── Courses CRUD ────────────────────────────────────────
+  const handleSubmitCourse = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    try {
+      const url = editingCourseId ? `/api/courses/${editingCourseId}` : "/api/courses";
+      const method = editingCourseId ? "PATCH" : "POST";
+
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json", "x-admin-secret": secret },
+        body: JSON.stringify(newCourse),
+      });
+      if (!res.ok) throw new Error(`Failed to ${editingCourseId ? "update" : "add"} course`);
+      const saved = await res.json();
+
+      if (editingCourseId) {
+        setCourses(courses.map((c) => (c.id === editingCourseId ? saved : c)));
+        showSuccess("Course updated.");
+      } else {
+        setCourses([saved, ...courses]);
+        showSuccess("Course published.");
+      }
+      cancelEditCourse();
+    } catch (err: any) { setError(err.message); }
+  };
+
+  const startEditCourse = (course: any) => {
+    setNewCourse({
+      title: course.title || "",
+      description: course.description || "",
+      image: course.image || "",
+      link: course.link || ""
+    });
+    setEditingCourseId(course.id);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const cancelEditCourse = () => {
+    setNewCourse({ title: "", description: "", image: "", link: "" });
+    setEditingCourseId(null);
+  };
+
+  const deleteCourse = async (id: string) => {
+    try {
+      const res = await fetch(`/api/courses/${id}`, {
+        method: "DELETE",
+        headers: { "x-admin-secret": secret },
+      });
+      if (!res.ok) throw new Error("Failed to delete course");
+      setCourses(courses.filter((c) => c.id !== id));
+      showSuccess("Course removed.");
+    } catch (err: any) { setError(err.message); }
+  };
+  // ────────────────────────────────────────────────────────
+
   useEffect(() => {
     cancelEdit();
     cancelEditMember();
     cancelEditGallery();
+    cancelEditCourse();
   }, [activeTab]);
 
   const deleteMember = async (id: string) => {
@@ -499,15 +569,15 @@ export default function AdminPage() {
         </AnimatePresence>
 
         <div className="flex justify-center mb-12">
-          <div className="bg-gray-100/80 p-1 rounded-full flex shadow-inner">
-            {(["events", "team", "gallery"] as const).map((tab) => (
+          <div className="bg-gray-100/80 p-1 rounded-full flex shadow-inner gap-0.5 flex-wrap justify-center">
+            {(["events", "team", "gallery", "courses"] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-8 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2 ${activeTab === tab ? "bg-[#d3e3fd] text-blue-900 shadow-sm" : "text-gray-500 hover:text-gray-700 hover:bg-gray-200/50"
+                className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2 ${activeTab === tab ? "bg-[#d3e3fd] text-blue-900 shadow-sm" : "text-gray-500 hover:text-gray-700 hover:bg-gray-200/50"
                   }`}
               >
-                {tab === "events" ? <CalendarDays size={16} /> : tab === "team" ? <Users size={16} /> : <Camera size={16} />}
+                {tab === "events" ? <CalendarDays size={16} /> : tab === "team" ? <Users size={16} /> : tab === "gallery" ? <Camera size={16} /> : <BookOpen size={16} />}
                 {tab.charAt(0).toUpperCase() + tab.slice(1)}
               </button>
             ))}
@@ -518,7 +588,7 @@ export default function AdminPage() {
 
           <div className="lg:col-span-7 xl:col-span-8 space-y-4">
             <h2 className="text-xl font-normal text-gray-800 mb-6 flex items-center gap-2">
-              <Server size={20} className="text-[#4285f4]" /> Active {activeTab === "events" ? "Schedules" : activeTab === "team" ? "Roster" : "Vault Images"}
+              <Server size={20} className="text-[#4285f4]" /> Active {activeTab === "events" ? "Schedules" : activeTab === "team" ? "Roster" : activeTab === "gallery" ? "Vault Images" : "Courses"}
             </h2>
 
             {loading ? (
@@ -642,6 +712,37 @@ export default function AdminPage() {
                       </motion.div>
                     );
                   })}
+                  {activeTab === "courses" && courses.map((course, index) => (
+                    <motion.div key={course.id || index} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} transition={{ delay: index * 0.05 }} className="group bg-white p-4 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-md transition-all flex justify-between items-center">
+                      <div className="flex items-center gap-4">
+                        {course.image ? (
+                          <img src={course.image} alt={course.title} className="w-14 h-14 rounded-2xl object-cover border border-gray-100 flex-shrink-0" />
+                        ) : (
+                          <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+                            <BookOpen size={24} className="text-[#4285f4]" />
+                          </div>
+                        )}
+                        <div>
+                          <h3 className="text-base font-medium text-gray-900">{course.title}</h3>
+                          <p className="text-sm text-gray-500 line-clamp-1 mb-1.5">{course.description}</p>
+                          {course.link && (
+                            <a href={course.link} target="_blank" rel="noopener noreferrer" className="text-[9px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded font-semibold tracking-wide flex items-center gap-1 w-fit hover:underline">
+                              <ExternalLink size={10} /> Visit Course
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => startEditCourse(course)} className="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#4285f4] hover:bg-blue-50 transition-colors" title="Edit Course">
+                          <Pencil size={18} />
+                        </button>
+                        <button onClick={() => deleteCourse(course.id)} className="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#db4437] hover:bg-[#fce8e6] transition-colors" title="Delete Course">
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    </motion.div>
+                  ))}
+
                 </AnimatePresence>
               </motion.div>
             )}
@@ -650,7 +751,7 @@ export default function AdminPage() {
           <div className="lg:col-span-5 xl:col-span-4 sticky top-28">
             <div className="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-8">
               <h2 className="text-xl font-normal text-gray-800 mb-6 flex items-center gap-2">
-                <LayoutDashboard size={20} className="text-[#f4b400]" /> {isEditing ? (activeTab === "events" ? "Edit Event" : activeTab === "team" ? "Edit Profile" : "Edit Photo") : `Create ${activeTab === "events" ? "Event" : activeTab === "team" ? "Profile" : "Vault Item"}`}
+                <LayoutDashboard size={20} className="text-[#f4b400]" /> {editingCourseId && activeTab === "courses" ? "Edit Course" : isEditing ? (activeTab === "events" ? "Edit Event" : activeTab === "team" ? "Edit Profile" : "Edit Photo") : `Create ${activeTab === "events" ? "Event" : activeTab === "team" ? "Profile" : activeTab === "courses" ? "Course" : "Vault Item"}`}
               </h2>
 
               <AnimatePresence mode="wait">
@@ -892,7 +993,7 @@ export default function AdminPage() {
                       </button>
                     </div>
                   </motion.form>
-                ) : (
+                ) : activeTab === "gallery" ? (
                   <motion.form key="gallery-form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onSubmit={handleSubmitGallery} className="space-y-5">
                     <div className="relative bg-gray-50 rounded-t-xl border-b-2 border-gray-300 focus-within:border-[#0f9d58] transition-colors px-4 pt-6 pb-2">
                       <input type="text" required value={newGalleryItem.title} onChange={(e) => setNewGalleryItem({ ...newGalleryItem, title: e.target.value })} className="w-full bg-transparent outline-none peer text-gray-900" />
@@ -961,7 +1062,62 @@ export default function AdminPage() {
                       </button>
                     </div>
                   </motion.form>
-                )}
+                ) : activeTab === "courses" ? (
+                  <motion.form key="courses-form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onSubmit={handleSubmitCourse} className="space-y-5">
+
+                    <div className="relative bg-gray-50 rounded-t-xl border-b-2 border-gray-300 focus-within:border-[#4285f4] transition-colors px-4 pt-6 pb-2">
+                      <input type="text" required value={newCourse.title} onChange={(e) => setNewCourse({ ...newCourse, title: e.target.value })} className="w-full bg-transparent outline-none peer text-gray-900" />
+                      <label className={`absolute left-4 transition-all duration-200 pointer-events-none text-gray-500 font-medium ${newCourse.title ? 'text-xs top-2 text-[#4285f4]' : 'text-sm top-4 peer-focus:text-xs peer-focus:top-2 peer-focus:text-[#4285f4]'}`}>Course Title</label>
+                    </div>
+
+                    <div className="relative bg-gray-50 rounded-t-xl border-b-2 border-gray-300 focus-within:border-[#4285f4] transition-colors px-4 pt-6 pb-2">
+                      <textarea required value={newCourse.description} onChange={(e) => setNewCourse({ ...newCourse, description: e.target.value })} className="w-full bg-transparent outline-none peer text-gray-900 resize-none h-24" />
+                      <label className={`absolute left-4 transition-all duration-200 pointer-events-none text-gray-500 font-medium ${newCourse.description ? 'text-xs top-2 text-[#4285f4]' : 'text-sm top-4 peer-focus:text-xs peer-focus:top-2 peer-focus:text-[#4285f4]'}`}>Description</label>
+                    </div>
+
+                    <div className="relative bg-gray-50 rounded-t-xl border-b-2 border-gray-300 focus-within:border-[#4285f4] transition-colors px-4 pt-6 pb-2">
+                      <input type="text" value={newCourse.link} onChange={(e) => setNewCourse({ ...newCourse, link: e.target.value })} className="w-full bg-transparent outline-none peer text-gray-900" />
+                      <label className={`absolute left-4 transition-all duration-200 pointer-events-none text-gray-500 font-medium ${newCourse.link ? 'text-xs top-2 text-[#4285f4]' : 'text-sm top-4 peer-focus:text-xs peer-focus:top-2 peer-focus:text-[#4285f4]'}`}>Course Link (URL)</label>
+                    </div>
+
+                    <div className="bg-gray-50 rounded-t-xl border-b-2 border-gray-300 focus-within:border-[#4285f4] px-4 py-3 flex flex-col justify-center">
+                      <span className="text-xs text-gray-500 font-medium mb-1 flex items-center gap-1"><Upload size={12} /> Thumbnail Image</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        disabled={loading}
+                        onChange={async (e) => {
+                          if (e.target.files && e.target.files[0]) {
+                            try {
+                              setLoading(true);
+                              setError(null);
+                              const url = await uploadToImageKit(e.target.files[0]);
+                              setNewCourse({ ...newCourse, image: url });
+                              showSuccess("Course thumbnail hosted.");
+                            } catch (err: any) {
+                              setError(err.message);
+                            } finally {
+                              setLoading(false);
+                            }
+                          }
+                        }}
+                        className="w-full text-sm text-gray-500 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50 cursor-pointer"
+                      />
+                      {newCourse.image && <p className="text-[10px] text-green-600 font-medium mt-1 truncate">CDN URL: {newCourse.image}</p>}
+                    </div>
+
+                    <div className="flex gap-3 mt-4">
+                      {editingCourseId && (
+                        <button type="button" onClick={cancelEditCourse} className="flex-grow bg-gray-100 text-gray-600 py-3.5 rounded-full font-medium hover:bg-gray-200 transition-all">
+                          Cancel
+                        </button>
+                      )}
+                      <button type="submit" disabled={loading} className={`${editingCourseId ? 'flex-[2]' : 'w-full'} bg-[#4285f4] text-white py-3.5 rounded-full font-medium hover:bg-[#3367d6] hover:shadow-md active:scale-[0.98] transition-all flex justify-center items-center gap-2 disabled:opacity-50`}>
+                        {editingCourseId ? <CheckCircle2 size={18} /> : <Plus size={18} />} {editingCourseId ? "Update Course" : "Publish Course"}
+                      </button>
+                    </div>
+                  </motion.form>
+                ) : null}
               </AnimatePresence>
             </div>
           </div>

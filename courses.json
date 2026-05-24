@@ -1,0 +1,35 @@
+[
+    {
+        "id": "cs229-ml-stanford",
+        "title": "Stanford CS229: Machine Learning",
+        "description": "Led by Andrew Ng, this course provides a broad introduction to machine learning and statistical pattern recognition. Topics include supervised learning, generative learning algorithms, neural networks, SVMs, and unsupervised learning.",
+        "instructor": "Andrew Ng · Stanford University",
+        "category": "Machine Learning",
+        "playlistId": "PLoROMvodv4rMiGQp3WXShtMGgzqpfVfbU",
+        "firstVideoId": "jGwO_UgTS7I",
+        "link": "https://youtube.com/playlist?list=PLoROMvodv4rMiGQp3WXShtMGgzqpfVfbU",
+        "image": "/thumbnails/cs229-ml.jpg"
+    },
+    {
+        "id": "cs230-dl-stanford",
+        "title": "Stanford CS230: Deep Learning",
+        "description": "Graduate course by Andrew Ng covering Convolutional Networks, RNNs, LSTM, Adam, Dropout, BatchNorm, Xavier/He initialization, and practical deep learning engineering.",
+        "instructor": "Andrew Ng · Stanford University",
+        "category": "Deep Learning",
+        "playlistId": "PLoROMvodv4rOABXSygHTsbvUz4G_YQhOb",
+        "firstVideoId": "PySo_6S4ZAg",
+        "link": "https://youtube.com/playlist?list=PLoROMvodv4rOABXSygHTsbvUz4G_YQhOb",
+        "image": "/thumbnails/cs230-dl.jpg"
+    },
+    {
+        "id": "soft-computing-iit",
+        "title": "Introduction to Soft Computing",
+        "description": "NPTEL course by Prof. Debasis Samanta (IIT Kharagpur) covering fuzzy logic, neural networks, genetic algorithms and evolutionary computation for intelligent systems.",
+        "instructor": "Prof. Debasis Samanta · IIT Kharagpur",
+        "category": "Soft Computing",
+        "playlistId": "PLJ5C_6qdAvBFqAYS0P9INAogIMklG8E-9",
+        "firstVideoId": "JEkXNcuFkeo",
+        "link": "https://youtube.com/playlist?list=PLJ5C_6qdAvBFqAYS0P9INAogIMklG8E-9",
+        "image": "/thumbnails/soft-computing.jpg"
+    }
+]
