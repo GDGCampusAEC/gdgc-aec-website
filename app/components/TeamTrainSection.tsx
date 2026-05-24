@@ -105,6 +105,27 @@ export default function TeamTrainSection({
     return () => observer.disconnect();
   }, []);
 
+  const touchStartRef = useRef({ x: 0, y: 0 });
+
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    const touch = e.touches[0];
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - touchStartRef.current.x;
+    const deltaY = touch.clientY - touchStartRef.current.y;
+
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      if (e.cancelable) {
+        e.preventDefault();
+      }
+      window.scrollBy(0, -deltaX * 1.5);
+    }
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+  };
+
   useEffect(() => {
     async function fetchTeam() {
       try {
@@ -151,6 +172,12 @@ export default function TeamTrainSection({
     offset: ["start start", "end end"]
   });
 
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 45,
+    damping: 20,
+    mass: 0.8
+  });
+
   const maxShift = trainWidth > 0 && windowWidth > 0
     ? Math.min(0, -(trainWidth - windowWidth + 100))
     : -(teamYears.length * 60 * 16); // fallback
@@ -158,31 +185,35 @@ export default function TeamTrainSection({
 
   const distance = Math.abs(maxShift - startX);
 
-  const trainX = useTransform(scrollYProgress, [0, 1], [startX, maxShift]);
-  const wheelRotation = useTransform(scrollYProgress, [0, 1], [0, -1800]);
+  const trainX = useTransform(smoothProgress, [0, 1], [startX, maxShift]);
+  const wheelRotation = useTransform(smoothProgress, [0, 1], [0, -1800]);
 
   const maxGroundShift = maxShift * -0.5;
-  const groundX = useTransform(scrollYProgress, [0, 1], [0, maxGroundShift]);
+  const groundX = useTransform(smoothProgress, [0, 1], [0, maxGroundShift]);
 
-  const skyX = useTransform(scrollYProgress, [0, 1], ["0%", "-10%"]);
-  const mountainsX = useTransform(scrollYProgress, [0, 1], ["0%", "-30%"]);
+  const skyX = useTransform(smoothProgress, [0, 1], ["0%", "-10%"]);
+  const mountainsX = useTransform(smoothProgress, [0, 1], ["0%", "-30%"]);
 
   return (
     <section
       ref={targetRef}
       className="relative bg-[#FDFBF7]"
-style={{
-  height: compact
-    ? "100vh"
-    : trainWidth > 0
-    ? `calc(${distance}px + 100vh)`
-    : `${teamYears.length * 100}vh`,
-}}
+      style={{
+        height: compact
+          ? "100vh"
+          : trainWidth > 0
+          ? `calc(${distance}px + 100vh)`
+          : `${teamYears.length * 100}vh`,
+      }}
     >
-      <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-end pb-10 md:pb-24">
+      <div 
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-end pb-10 md:pb-24"
+      >
 
         <div className="absolute top-32 left-1/2 -translate-x-1/2 flex flex-col items-center text-gray-400 animate-bounce z-50">
-          <span className="text-sm font-bold uppercase tracking-widest mb-2 text-gray-500">Scroll to ride</span>
+          <span className="text-xs sm:text-sm font-bold uppercase tracking-widest mb-2 text-gray-500 text-center whitespace-nowrap">Swipe or Scroll to ride</span>
           <ChevronDown className="w-6 h-6" />
         </div>
 
@@ -251,11 +282,11 @@ style={{
 
           {teamYears.map((yearGroup, idx) => {
             const isExpanded = expandedYear === yearGroup.yop;
-            const collapsedWidth = 360;
-            const expandedWidth = Math.max(
-              collapsedWidth,
-              (yearGroup.members.length * 180) + ((yearGroup.members.length - 1) * 32) + 200
-            );
+            const isMobile = windowWidth < 768;
+            const collapsedWidth = isMobile ? 260 : 360;
+            const expandedWidth = isMobile
+              ? Math.max(collapsedWidth, (yearGroup.members.length * 130) + ((yearGroup.members.length - 1) * 16) + 80)
+              : Math.max(collapsedWidth, (yearGroup.members.length * 180) + ((yearGroup.members.length - 1) * 32) + 200);
             const leadMember = yearGroup.members[0];
 
             return (
@@ -273,8 +304,8 @@ style={{
                           setExpandedYear(isExpanded ? null : yearGroup.yop);
                         }
                       }}
-                  className={`relative px-4 py-6 bg-gradient-to-br ${yearGroup.color} rounded-[2rem] border border-white/30 flex flex-col items-center justify-center shadow-2xl cursor-pointer shrink-0 transition-[width] duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] transform-gpu will-change-[width] hover:brightness-105`}
-                  style={{ width: isExpanded ? `${expandedWidth}px` : `${collapsedWidth}px`, height: '420px' }}
+                  className={`relative px-4 py-6 bg-gradient-to-br ${yearGroup.color} rounded-[2rem] border border-white/30 flex flex-col items-center justify-center shadow-2xl cursor-pointer shrink-0 transition-[width] duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)] transform-gpu will-change-[width] hover:brightness-105`}
+                  style={{ width: isExpanded ? `${expandedWidth}px` : `${collapsedWidth}px`, height: isMobile ? '340px' : '420px' }}
                 >
 
                   <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-white text-gray-900 px-6 py-2 rounded-xl font-black text-base shadow-[4px_4px_0px_0px_rgba(0,0,0,0.8)] border-2 border-gray-900 whitespace-nowrap z-30">
@@ -284,70 +315,70 @@ style={{
                   <div className="relative w-full h-full flex items-center justify-center">
 
                     <div className={`absolute inset-0 w-full h-full flex flex-col items-center justify-center transition-all duration-300 ${isExpanded ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100 delay-200'}`}>
-                      <div className="w-44 aspect-[3/4] bg-white/10 backdrop-blur-md rounded-2xl p-2 border border-white/20 shadow-[0_12px_40px_rgba(0,0,0,0.25)] relative overflow-hidden mb-3">
+                      <div className="w-32 md:w-44 aspect-[3/4] bg-white/10 backdrop-blur-md rounded-2xl p-2 border border-white/20 shadow-[0_12px_40px_rgba(0,0,0,0.25)] relative overflow-hidden mb-3">
                         <img src={leadMember.img} alt={leadMember.name} className="w-full h-full object-cover rounded-xl" />
                       </div>
 
-                      <h3 className="font-bold text-white text-base text-center drop-shadow-md">{leadMember.name}</h3>
-                      <p className="text-white/90 text-[10px] text-center font-bold tracking-widest uppercase bg-black/20 backdrop-blur-sm border border-white/10 px-3 py-1 rounded-full mt-1">
+                      <h3 className="font-bold text-white text-sm md:text-base text-center drop-shadow-md">{leadMember.name}</h3>
+                      <p className="text-white/90 text-[9px] md:text-[10px] text-center font-bold tracking-widest uppercase bg-black/20 backdrop-blur-sm border border-white/10 px-3 py-1 rounded-full mt-1">
                         {leadMember.role}
                       </p>
 
-                      <p className="text-white/80 text-[9px] font-bold uppercase tracking-widest mt-4 bg-white/10 border border-white/10 px-4 py-1.5 rounded-full animate-pulse">
+                      <p className="text-white/80 text-[8px] md:text-[9px] font-bold uppercase tracking-widest mt-4 bg-white/10 border border-white/10 px-4 py-1.5 rounded-full animate-pulse">
                         Tap to view team
                       </p>
                     </div>
 
-                    <div className={`absolute inset-0 w-full h-full flex gap-8 items-center justify-center transition-opacity duration-300 ${isExpanded ? 'opacity-100 delay-200' : 'opacity-0 pointer-events-none'}`}>
+                    <div className={`absolute inset-0 w-full h-full flex gap-4 md:gap-8 items-center justify-center transition-opacity duration-300 ${isExpanded ? 'opacity-100 delay-200' : 'opacity-0 pointer-events-none'}`}>
                       {yearGroup.members.map((member, mIdx) => (
-                        <div key={mIdx} className="flex flex-col items-center w-[160px] md:w-[180px] shrink-0 group">
+                        <div key={mIdx} className="flex flex-col items-center w-[110px] md:w-[180px] shrink-0 group">
 
-                          <div className="w-full aspect-[3/4] flip-container mb-4 transition-all duration-500 group-hover:-translate-y-2 z-10">
+                          <div className="w-full aspect-[3/4] flip-container mb-2 md:mb-4 transition-all duration-500 group-hover:-translate-y-2 z-10">
                             <div className="flip-card">
 
-                              <div className="flip-front w-full h-full p-2 bg-white/10 backdrop-blur-md border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.15)] overflow-hidden">
+                              <div className="flip-front w-full h-full p-1.5 md:p-2 bg-white/10 backdrop-blur-md border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.15)] overflow-hidden">
                                 <img src={member.img} alt={member.name} className="w-full h-full object-cover rounded-xl" />
                                 <div className="absolute top-0 left-[-150%] w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-[30deg] transition-all duration-700 group-hover:left-[150%] pointer-events-none" />
                               </div>
 
-                              <div className="flip-back w-full h-full p-4 bg-gray-900/90 backdrop-blur-md border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.15)] flex flex-col items-center justify-center gap-4 text-white">
-                                <div className="w-12 h-12 rounded-full overflow-hidden border border-white/30 shadow-inner">
+                              <div className="flip-back w-full h-full p-2 md:p-4 bg-gray-900/90 backdrop-blur-md border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.15)] flex flex-col items-center justify-center gap-2 md:gap-4 text-white overflow-hidden">
+                                <div className="w-8 h-8 md:w-12 md:h-12 rounded-full overflow-hidden border border-white/30 shadow-inner">
                                   <img src={member.img} alt={member.name} className="w-full h-full object-cover" />
                                 </div>
                                 <div className="text-center">
-                                  <span className="text-[9px] uppercase font-bold tracking-widest text-[#0f9d58]">Connect</span>
-                                  <p className="text-xs font-semibold mt-0.5 truncate max-w-[130px]">{member.name.split(" ")[0]}</p>
+                                  <span className="text-[8px] md:text-[9px] uppercase font-bold tracking-widest text-[#0f9d58]">Connect</span>
+                                  <p className="text-[10px] md:text-xs font-semibold mt-0.5 truncate max-w-[90px] md:max-w-[130px]">{member.name.split(" ")[0]}</p>
                                 </div>
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-1.5 md:gap-3">
                                   <a
                                     href={member.github || `https://github.com/search?q=${encodeURIComponent(member.name)}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     onClick={(e) => e.stopPropagation()}
-                                    className="p-2 rounded-full bg-white/10 hover:bg-white/20 hover:scale-110 border border-white/10 hover:border-white/30 text-white transition-all duration-300"
+                                    className="p-1 md:p-2 rounded-full bg-white/10 hover:bg-white/20 hover:scale-110 border border-white/10 hover:border-white/30 text-white transition-all duration-300"
                                     title="GitHub"
                                   >
-                                    <GithubIcon className="w-4 h-4" />
+                                    <GithubIcon className="w-3.5 h-3.5 md:w-4 md:h-4" />
                                   </a>
                                   <a
                                     href={member.linkedin || `https://www.linkedin.com/search/results/all/?keywords=${encodeURIComponent(member.name)}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     onClick={(e) => e.stopPropagation()}
-                                    className="p-2 rounded-full bg-white/10 hover:bg-white/20 hover:scale-110 border border-white/10 hover:border-white/30 text-[#4285f4] hover:text-[#4285f4] transition-all duration-300"
+                                    className="p-1 md:p-2 rounded-full bg-white/10 hover:bg-white/20 hover:scale-110 border border-white/10 hover:border-white/30 text-[#4285f4] hover:text-[#4285f4] transition-all duration-300"
                                     title="LinkedIn"
                                   >
-                                    <LinkedinIcon className="w-4 h-4" />
+                                    <LinkedinIcon className="w-3.5 h-3.5 md:w-4 md:h-4" />
                                   </a>
                                   <a
                                     href={member.instagram || member.twitter || member.globe || `https://instagram.com`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     onClick={(e) => e.stopPropagation()}
-                                    className="p-2 rounded-full bg-white/10 hover:bg-white/20 hover:scale-110 border border-white/10 hover:border-white/30 text-[#db4437] hover:text-[#db4437] transition-all duration-300"
+                                    className="p-1 md:p-2 rounded-full bg-white/10 hover:bg-white/20 hover:scale-110 border border-white/10 hover:border-white/30 text-[#db4437] hover:text-[#db4437] transition-all duration-300"
                                     title="Website / Social"
                                   >
-                                    <GlobeIcon className="w-4 h-4" />
+                                    <GlobeIcon className="w-3.5 h-3.5 md:w-4 md:h-4" />
                                   </a>
                                 </div>
                               </div>
@@ -355,8 +386,8 @@ style={{
                             </div>
                           </div>
 
-                          <h3 className="font-bold text-white text-sm md:text-base text-center tracking-wide drop-shadow-md">{member.name}</h3>
-                          <p className="text-white/90 text-[10px] md:text-xs text-center font-bold tracking-widest uppercase bg-black/20 backdrop-blur-sm border border-white/10 px-3 py-1.5 rounded-full mt-2 shadow-inner">
+                          <h3 className="font-bold text-white text-xs md:text-base text-center tracking-wide drop-shadow-md truncate max-w-full">{member.name}</h3>
+                          <p className="text-white/90 text-[8px] md:text-xs text-center font-bold tracking-widest uppercase bg-black/20 backdrop-blur-sm border border-white/10 px-2 py-0.5 md:px-3 md:py-1 rounded-full mt-1.5 shadow-inner truncate max-w-full">
                             {member.role}
                           </p>
                         </div>
@@ -365,11 +396,11 @@ style={{
 
                   </div>
 
-                  <div className="absolute -bottom-10 left-0 w-full flex justify-around px-8 z-20">
+                  <div className="absolute -bottom-8 md:-bottom-10 left-0 w-full flex justify-between px-8 md:px-12 z-20 pointer-events-none">
                     {[1, 2].map((wheel) => (
-                      <motion.div key={`car-wheel-${idx}-${wheel}`} style={{ rotate: wheelRotation }} className="w-16 h-16 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 border-4 border-gray-400 flex items-center justify-center shadow-lg shrink-0">
+                      <motion.div key={`car-wheel-${idx}-${wheel}`} style={{ rotate: wheelRotation }} className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 border-4 border-gray-400 flex items-center justify-center shadow-lg shrink-0 overflow-hidden pointer-events-auto">
                         <div className="w-full h-1.5 bg-gray-400 absolute"></div><div className="w-1.5 h-full bg-gray-400 absolute"></div>
-                        <div className="w-5 h-5 rounded-full bg-white z-10 shadow-sm"></div>
+                        <div className="w-4 h-4 md:w-5 md:h-5 rounded-full bg-white z-10 shadow-sm"></div>
                       </motion.div>
                     ))}
                   </div>

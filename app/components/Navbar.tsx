@@ -1,17 +1,17 @@
-
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { Home, Info, Users, Image, Calendar } from "lucide-react";
 
 const navLinks = [
-  { name: "Home", path: "/" },
-  { name: "About", path: "/#about" },
-  { name: "Teams", path: "/teams" },
-  { name: "Gallery", path: "/gallery" },
-  { name: "Events", path: "/events" },
+  { name: "Home", path: "/", icon: Home },
+  { name: "About", path: "/#about", icon: Info },
+  { name: "Teams", path: "/teams", icon: Users },
+  { name: "Gallery", path: "/gallery", icon: Image },
+  { name: "Events", path: "/events", icon: Calendar },
 ];
 
 export default function Navbar() {
@@ -57,11 +57,12 @@ export default function Navbar() {
   }, [pathname]);
 
   return (
-    <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-[90] w-full max-w-2xl px-4">
+    /* Changed max-w constraints to scale beautifully on narrow mobile devices */
+    <nav className="fixed top-4 sm:top-6 left-1/2 -translate-x-1/2 z-[90] w-full max-w-[92%] sm:max-w-2xl px-2 sm:px-4">
       <div
-        className={`backdrop-blur-md border transition-all duration-300 rounded-full px-2 py-2 flex items-center justify-between relative overflow-hidden ${
+        className={`backdrop-blur-md border transition-all duration-300 rounded-full p-1.5 flex items-center justify-around sm:justify-between relative overflow-hidden ${
           scrolled
-            ? "bg-white/95 border-gray-200/80 shadow-md scale-[1.02]"
+            ? "bg-white/95 border-gray-200/80 shadow-md scale-[1.01]"
             : "bg-white/80 border-gray-100 shadow-sm"
         }`}
         onMouseLeave={() => setHovered(null)}
@@ -69,6 +70,7 @@ export default function Navbar() {
         {navLinks.map((link) => {
           const isActive = active === link.name;
           const isHovered = hovered === link.name;
+          const Icon = link.icon;
 
           return (
             <Link
@@ -76,7 +78,11 @@ export default function Navbar() {
               href={link.path}
               onClick={() => setActive(link.name)}
               onMouseEnter={() => setHovered(link.name)}
-              className={`relative px-5 py-2 text-sm font-medium transition-colors duration-300 z-10 ${
+              /* Responsive Adjustments:
+                - Lowered padding from px-5 to px-2.5 on mobile, scales back up on sm screens.
+                - text-xs on mobile to save real estate, text-sm on desktop.
+              */
+              className={`relative flex items-center justify-center px-2.5 py-2 sm:px-5 text-xs sm:text-sm font-medium transition-colors duration-300 z-10 select-none ${
                 isActive
                   ? "text-white"
                   : isHovered
@@ -84,7 +90,12 @@ export default function Navbar() {
                   : "text-gray-600"
               }`}
             >
-              <span className="relative z-10">{link.name}</span>
+              <span className="relative z-10 flex items-center gap-1.5">
+                {/* Shows icon on mobile viewports (< 640px) */}
+                <Icon size={16} className="block sm:hidden" />
+                {/* Shows typography text label on tablets & desktops (>= 640px) */}
+                <span className="hidden sm:inline">{link.name}</span>
+              </span>
 
               {isActive && (
                 <motion.div

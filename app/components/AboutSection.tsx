@@ -12,7 +12,6 @@ export default function AboutSection() {
     { text: "WEB3", color: "bg-[#4285f4]", x: "70%", y: "-100%", rotate: 10, delay: 0.6 },
   ];
 
-
   const features = [
     { icon: <GraduationCap className="w-6 h-6 text-[#0f9d58]" />, title: "Learn", desc: "New skills and grow together" },
     { icon: <Users className="w-6 h-6 text-[#f4b400]" />, title: "Connect", desc: "Build a strong Developer Community" },
@@ -21,22 +20,17 @@ export default function AboutSection() {
   ];
 
   return (
-    <section id="about" className="relative w-full max-w-7xl mx-auto mt-20 px-4 py-24 z-30 bg-[#FDFBF7]">
-    {/* // <section id="about"className="relative w-full max-w-7xl mx-auto px-6 md:px-10 py-24 z-30 bg-[#fcf9f2] rounded-[3rem] shadow-[0_20px_80px_rgba(0,0,0,0.08)] border border-orange-100/40 overflow-hidden"> */}
-      {/* <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent pointer-events-none" /> */}
+    <section id="about" className="bg-[#fffdf5] relative w-full max-w-7xl mx-auto mt-20 px-4 py-24 z-30">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
-
+        {/* Left Column: Graphics and Visual Elements */}
         <div className="relative flex flex-col items-center justify-center h-[500px]">
-
-
           <motion.div
             animate={{ y: [-15, 15, -15] }}
             transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
             className="relative w-64 md:w-80 z-20"
           >
             <img src="/balloon.svg" alt="Hot Air Balloon" className="w-full h-auto drop-shadow-xl" />
-
 
             {tags.map((tag, idx) => (
               <motion.div
@@ -61,8 +55,7 @@ export default function AboutSection() {
             <img src="/gdgc core team photo.jpeg" alt="GDGC AEC Team" className="w-full h-auto bg-gray-200 aspect-video object-cover" />
           </motion.div>
 
-
-         <img
+          <img
             src="/cloud-white-3.svg"
             alt="clouds"
             className="absolute bottom-15 w-[220px] sm:w-[300px] md:w-[400px] z-10 drop-shadow-sm scale-110"
@@ -81,11 +74,11 @@ export default function AboutSection() {
           />
         </div>
 
-
-
-        <div className="flex flex-col gap-8 bg-[#fcf9f2] p-8 md:p-12 rounded-3xl shadow-sm border border-orange-50/50">
+        {/* Right Column: Text Information Display Card */}
+        {/* Changed background directly to `#fdfbf7` to match your global soft cream body setting */}
+        <div className="flex flex-col gap-8 bg-[#fdfbf7] p-8 md:p-12 rounded-3xl shadow-xl border border-orange-100/50">
           <h2 className="text-2xl md:text-3xl font-medium leading-relaxed text-gray-800">
-            GDGC are campus-based groups specifically designed to support aspiring developers on university campuses to learn and build successfully with <span className="text-[#0f9d58] font-bold">Google technologies.</span>
+            <span className="font-bold">GDGC AEC</span> is a campus-based community designed to help aspiring developers learn, collaborate, and build innovative solutions using <span className="text-[#0f9d58] font-bold">Google technologies.</span>
           </h2>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-6 border-t border-gray-200">

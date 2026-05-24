@@ -171,7 +171,7 @@ const BottomWhiteClouds = () => (
   </motion.div>
 );
 
-// Arranged coordinates symmetrically in an arc pattern to fit 4 elements seamlessly
+// Original spacious coordinates restored
 const socialLinks = [
   {
     id: "x",
@@ -260,16 +260,16 @@ export default function HeroSection() {
           and create impact together.
         </p>
 
-        <div className="flex flex-wrap justify-center gap-4 items-center">
+        {/* Changed layout from flex-wrap row to flex-col to stack buttons vertically */}
+        <div className="flex flex-col sm:flex-row justify-center gap-4 items-center">
           <Link
-            href="#events"
+            href="/events"
             className="bg-white/40 backdrop-blur-sm border border-gray-900 text-gray-900 px-6 py-3 rounded-full text-sm font-semibold hover:bg-white/70 transition-all duration-300 hover:scale-105"
           >
             Upcoming Event
           </Link>
 
           <div className="relative inline-flex items-center justify-center z-[90] pointer-events-auto">
-            {/* Replaced standard <button> with Framer Motion <motion.button> for clean hover behaviors */}
             <motion.button
               type="button"
               onClick={() => setShowSocials(!showSocials)}
@@ -280,8 +280,9 @@ export default function HeroSection() {
               Join GDG
               <span className="bg-white text-gray-900 rounded-full p-0.5 transition-transform duration-300">
                 <ArrowRight
-                  className={`w-4 h-4 transition-transform duration-300 ${showSocials ? "rotate-180" : "rotate-0"
-                    }`}
+                  className={`w-4 h-4 transition-transform duration-300 ${
+                    showSocials ? "rotate-180" : "rotate-0"
+                  }`}
                 />
               </span>
             </motion.button>
@@ -304,7 +305,12 @@ export default function HeroSection() {
                       target="_blank"
                       rel="noopener noreferrer"
                       initial={{ opacity: 0, x: 0, y: 0, scale: 0.5 }}
-                      animate={{ opacity: 1, x: link.x, y: link.y, scale: 1 }}
+                      animate={{
+                        opacity: 1,
+                        x: link.x,
+                        y: link.y,
+                        scale: 1,
+                      }}
                       exit={{ opacity: 0, x: 0, y: 0, scale: 0.5 }}
                       transition={{
                         duration: 0.35,
@@ -340,7 +346,7 @@ export default function HeroSection() {
 
         <motion.div
           style={{ y: sunY, x: "-50%" }}
-          className="absolute bottom-[0%] sm:bottom-[-2%] md:bottom-[-5%] left-[50%] z-20 w-[280px] sm:w-[380px] md:w-[500px]"
+          className="absolute bottom-[-9%] sm:bottom-[-2%] md:bottom-[-5%] left-[50%] z-20 w-[280px] sm:w-[380px] md:w-[500px]"
         >
           <ConcentricSun className="w-full" />
         </motion.div>

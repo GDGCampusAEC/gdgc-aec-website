@@ -147,14 +147,14 @@ export default function AdminPage() {
     formData.append("expire", authData.expire);
     formData.append("token", authData.token);
     formData.append("useUniqueFileName", "true");
-    
+
     // Explicitly targeting the gdgc-aec folder structures you created
-    const destinationFolder = activeTab === "events" 
-      ? "gdgc-aec/events" 
-      : activeTab === "team" 
-      ? "gdgc-aec/team" 
-      : "gdgc-aec/gallery";
-      
+    const destinationFolder = activeTab === "events"
+      ? "gdgc-aec/events"
+      : activeTab === "team"
+        ? "gdgc-aec/team"
+        : "gdgc-aec/gallery";
+
     formData.append("folder", destinationFolder);
 
     const uploadRes = await fetch("https://upload.imagekit.io/api/v1/files/upload", {
@@ -613,13 +613,13 @@ export default function AdminPage() {
                             <p className="text-xs text-[#0f9d58] font-semibold uppercase tracking-wider mb-1">
                               Size: <span className="text-gray-500 font-medium normal-case">
                                 {item.size === "col-span-1" ? "Standard (1x1)" :
-                                 item.size === "md:col-span-2" ? "Wide (2x1)" :
-                                 item.size === "md:col-span-2 md:row-span-2" ? "Large Feature (2x2)" :
-                                 item.size === "col-span-1 md:row-span-2" ? "Tall (1x2)" :
-                                 item.size === "md:col-span-3" ? "Landscape Medium (3x1)" :
-                                 item.size === "md:col-span-3 md:row-span-2" ? "Landscape 16:9 (3x2)" :
-                                 item.size === "md:col-span-4" ? "Panoramic Wide (4x1)" :
-                                 item.size === "md:col-span-4 md:row-span-2" ? "Panoramic Feature (4x2)" : "Custom Size"}
+                                  item.size === "md:col-span-2" ? "Wide (2x1)" :
+                                    item.size === "md:col-span-2 md:row-span-2" ? "Large Feature (2x2)" :
+                                      item.size === "col-span-1 md:row-span-2" ? "Tall (1x2)" :
+                                        item.size === "md:col-span-3" ? "Landscape Medium (3x1)" :
+                                          item.size === "md:col-span-3 md:row-span-2" ? "Landscape 16:9 (3x2)" :
+                                            item.size === "md:col-span-4" ? "Panoramic Wide (4x1)" :
+                                              item.size === "md:col-span-4 md:row-span-2" ? "Panoramic Feature (4x2)" : "Custom Size"}
                               </span>
                             </p>
                             <p className="text-xs text-gray-500 font-medium">
@@ -700,9 +700,9 @@ export default function AdminPage() {
 
                     {/* Integrated ImageKit File Picker for Hero Image */}
                     <div className="bg-gray-50 rounded-t-xl border-b-2 border-gray-300 focus-within:border-[#4285f4] px-4 py-3 flex flex-col justify-center">
-                      <span className="text-xs text-gray-500 font-medium mb-1 flex items-center gap-1"><Upload size={12}/> Hero Image File</span>
-                      <input 
-                        type="file" 
+                      <span className="text-xs text-gray-500 font-medium mb-1 flex items-center gap-1"><Upload size={12} /> Hero Image File</span>
+                      <input
+                        type="file"
                         accept="image/*"
                         disabled={loading}
                         onChange={async (e) => {
@@ -719,8 +719,8 @@ export default function AdminPage() {
                               setLoading(false);
                             }
                           }
-                        }} 
-                        className="w-full text-sm text-gray-500 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50 cursor-pointer" 
+                        }}
+                        className="w-full text-sm text-gray-500 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50 cursor-pointer"
                       />
                       {newEvent.image && <p className="text-[10px] text-green-600 font-medium mt-1 truncate">CDN URL: {newEvent.image}</p>}
                     </div>
@@ -728,35 +728,73 @@ export default function AdminPage() {
                     <div className="space-y-3">
                       <label className="text-xs text-gray-500 font-bold uppercase tracking-widest px-1">Gallery Images (Optional URL fallbacks)</label>
                       {newEvent.gallery.map((url, index) => (
-                        <div key={index} className="relative bg-gray-50 rounded-t-xl border-b-2 border-gray-300 focus-within:border-[#4285f4] transition-colors px-4 pt-6 pb-2 flex gap-2">
-                          <input
-                            type="text"
-                            value={url}
-                            onChange={(e) => {
-                              const newGallery = [...newEvent.gallery];
-                              newGallery[index] = e.target.value;
-                              if (index === newGallery.length - 1 && e.target.value.trim() !== "") {
-                                newGallery.push("");
-                              }
-                              setNewEvent({ ...newEvent, gallery: newGallery });
-                            }}
-                            className="w-full bg-transparent outline-none peer text-gray-900"
-                          />
-                          <label className={`absolute left-4 transition-all duration-200 pointer-events-none text-gray-500 font-medium ${url ? 'text-xs top-2 text-[#4285f4]' : 'text-sm top-4 peer-focus:text-xs peer-focus:top-2 peer-focus:text-[#4285f4]'}`}>Image URL {index + 1}</label>
+                        <div key={index} className="bg-gray-50 rounded-t-xl border-b-2 border-gray-300 focus-within:border-[#4285f4] px-4 py-3 flex flex-col justify-center gap-1.5 relative transition-colors">
+                          <div className="flex justify-between items-center w-full">
+                            <span className="text-xs text-gray-500 font-medium flex items-center gap-1">
+                              <Upload size={12} /> Gallery Image {index + 1}
+                            </span>
+                            {newEvent.gallery.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const newGallery = newEvent.gallery.filter((_, i) => i !== index);
+                                  if (newGallery.length === 0) newGallery.push("");
+                                  setNewEvent({ ...newEvent, gallery: newGallery });
+                                }}
+                                className="text-gray-400 hover:text-red-500 hover:bg-red-50 p-1 rounded-full transition-all duration-200"
+                                title="Remove Image"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            )}
+                          </div>
 
-                          {newEvent.gallery.length > 1 && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const newGallery = newEvent.gallery.filter((_, i) => i !== index);
-                                if (newGallery.length === 0) newGallery.push("");
+                          <input
+                            type="file"
+                            accept="image/*"
+                            disabled={loading}
+                            onChange={async (e) => {
+                              if (e.target.files && e.target.files[0]) {
+                                try {
+                                  setLoading(true);
+                                  setError(null);
+                                  const uploadedUrl = await uploadToImageKit(e.target.files[0]);
+                                  
+                                  const newGallery = [...newEvent.gallery];
+                                  newGallery[index] = uploadedUrl;
+                                  if (index === newGallery.length - 1) {
+                                    newGallery.push("");
+                                  }
+                                  setNewEvent({ ...newEvent, gallery: newGallery });
+                                  showSuccess(`Gallery image ${index + 1} hosted successfully.`);
+                                } catch (err: any) {
+                                  setError(err.message);
+                                } finally {
+                                  setLoading(false);
+                                }
+                              }
+                            }}
+                            className="w-full text-sm text-gray-500 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50 cursor-pointer"
+                          />
+
+                          <div className="relative w-full mt-1">
+                            <input
+                              type="text"
+                              value={url}
+                              onChange={(e) => {
+                                const newGallery = [...newEvent.gallery];
+                                newGallery[index] = e.target.value;
+                                if (index === newGallery.length - 1 && e.target.value.trim() !== "") {
+                                  newGallery.push("");
+                                }
                                 setNewEvent({ ...newEvent, gallery: newGallery });
                               }}
-                              className="text-gray-400 hover:text-red-500 transition-colors"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          )}
+                              placeholder="Or paste an image URL here..."
+                              className="w-full bg-transparent outline-none text-xs text-gray-700 border-b border-gray-200 pb-1 focus:border-[#4285f4] transition-colors"
+                            />
+                          </div>
+
+                          {url && <p className="text-[10px] text-green-600 font-medium mt-0.5 truncate">CDN URL: {url}</p>}
                         </div>
                       ))}
                     </div>
@@ -800,12 +838,12 @@ export default function AdminPage() {
                         <input type="number" required value={newMember.year} onChange={(e) => setNewMember({ ...newMember, year: e.target.value })} className="w-full bg-transparent outline-none peer text-gray-900" />
                         <label className={`absolute left-4 transition-all duration-200 pointer-events-none text-gray-500 font-medium ${newMember.year ? 'text-xs top-2 text-[#0f9d58]' : 'text-sm top-4 peer-focus:text-xs peer-focus:top-2 peer-focus:text-[#0f9d58]'}`}>Class Year</label>
                       </div>
-                      
+
                       {/* Integrated ImageKit File Picker for Team Avatars */}
                       <div className="bg-gray-50 rounded-t-xl border-b-2 border-gray-300 focus-within:border-[#0f9d58] px-4 py-2 flex flex-col justify-center">
-                        <span className="text-xs text-gray-500 font-medium mb-1 flex items-center gap-1"><Upload size={12}/> Avatar Upload</span>
-                        <input 
-                          type="file" 
+                        <span className="text-xs text-gray-500 font-medium mb-1 flex items-center gap-1"><Upload size={12} /> Avatar Upload</span>
+                        <input
+                          type="file"
                           accept="image/*"
                           disabled={loading}
                           onChange={async (e) => {
@@ -823,7 +861,7 @@ export default function AdminPage() {
                               }
                             }
                           }}
-                          className="w-full text-xs text-gray-500 file:mr-2 file:py-0.5 file:px-2 file:rounded-full file:border-0 file:text-[10px] file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 disabled:opacity-50 cursor-pointer" 
+                          className="w-full text-xs text-gray-500 file:mr-2 file:py-0.5 file:px-2 file:rounded-full file:border-0 file:text-[10px] file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 disabled:opacity-50 cursor-pointer"
                         />
                       </div>
                     </div>
@@ -863,9 +901,9 @@ export default function AdminPage() {
 
                     {/* Integrated ImageKit File Picker for Media Library/Gallery */}
                     <div className="bg-gray-50 rounded-t-xl border-b-2 border-gray-300 focus-within:border-[#0f9d58] px-4 py-3 flex flex-col justify-center">
-                      <span className="text-xs text-gray-500 font-medium mb-1 flex items-center gap-1"><Upload size={12}/> Select Vault Image</span>
-                      <input 
-                        type="file" 
+                      <span className="text-xs text-gray-500 font-medium mb-1 flex items-center gap-1"><Upload size={12} /> Select Vault Image</span>
+                      <input
+                        type="file"
                         accept="image/*"
                         disabled={loading}
                         onChange={async (e) => {
@@ -882,7 +920,7 @@ export default function AdminPage() {
                               setLoading(false);
                             }
                           }
-                        }} 
+                        }}
                         className="w-full text-sm text-gray-500 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 disabled:opacity-50 cursor-pointer"
                       />
                       {newGalleryItem.src && <p className="text-[10px] text-green-600 font-medium mt-1 truncate">CDN URL: {newGalleryItem.src}</p>}

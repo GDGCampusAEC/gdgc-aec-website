@@ -7,7 +7,7 @@ import GallerySection from "@/app/components/GallerySection";
 
 export default function Home() {
   return (
-    <main className="relative w-full min-h-screen bg-[#FFFDF5] overflow-x-hidden font-sans">
+    <main className="relative w-full min-h-screen bg-[#FFFDF5] overflow-x-clip font-sans">
 
       <section id="home">
         <HeroSection />
@@ -15,7 +15,7 @@ export default function Home() {
 
       <section
         id="about"
-        className="relative z-[80] bg-white"
+        className="relative z-[80]"
       >
         <AboutSection />
       </section>
@@ -25,19 +25,8 @@ export default function Home() {
       </section>
 
       <section id="teams">
-        <TeamTrainSection compact homepageMode />
+        <TeamTrainSection homepageMode />
       </section>
-
-  {/* View Full Team Button */}
-  {/* <div className="absolute top-10 right-10 z-[100]">
-    <a
-      href="/teams"
-      className="bg-black/80 backdrop-blur-md text-white px-6 py-3 rounded-full text-sm font-bold hover:bg-black transition-all shadow-xl border border-white/10"
-    >
-      View Full Team →
-    </a>
-  </div> */}
-
     </main>
   );
 }
