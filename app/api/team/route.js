@@ -38,12 +38,28 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Name, role, and year are required fields' }, { status: 400 });
     }
   
-    const docRef= await db.collection('members').add({
+    const memberData = {
       ...body,
+      year: parseInt(body.year),
+      showOnTrain: body.showOnTrain === true,
       createdAt: new Date().toISOString(),
-    })
+    };
 
-    return NextResponse.json({ id: docRef.id, ...body}, { status: 201 });
+    const docRef = await db.collection('members').add(memberData);
+
+    if (memberData.showOnTrain) {
+      const year = memberData.year;
+      const snapshot = await db.collection('members').where('year', '==', year).get();
+      const batch = db.batch();
+      snapshot.docs.forEach(doc => {
+        if (doc.id !== docRef.id) {
+          batch.update(doc.ref, { showOnTrain: false });
+        }
+      });
+      await batch.commit();
+    }
+
+    return NextResponse.json({ id: docRef.id, ...memberData }, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
