@@ -304,17 +304,6 @@ export default function CoursesPage() {
                 <CourseCard key={course.id} course={course} index={i} />
               ))}
             </div>
-
-            {/* Count */}
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              className="text-center text-sm text-gray-400 font-medium mt-12 flex items-center justify-center gap-2"
-            >
-              <Sparkles size={14} className="text-[#f4b400]" />
-              Showing {filtered.length} of {allCourses.length} course{allCourses.length !== 1 ? "s" : ""}
-            </motion.p>
           </>
         )}
       </section>
