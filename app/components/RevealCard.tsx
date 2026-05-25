@@ -3,6 +3,132 @@
 import React, { useState, useEffect, useRef } from "react";
 import { toPng } from "html-to-image";
 
+// Curated list of Legendary, Mythical, and highly cool/popular Pokémon
+const LEGENDARY_POKEMON = [
+  // Generation 1
+  { id: 150, name: "mewtwo", type: "legendary" },
+  { id: 151, name: "mew", type: "mythical" },
+  { id: 6, name: "charizard", type: "cool" },
+  { id: 94, name: "gengar", type: "cool" },
+  { id: 144, name: "articuno", type: "legendary" },
+  { id: 145, name: "zapdos", type: "legendary" },
+  { id: 146, name: "moltres", type: "legendary" },
+  { id: 149, name: "dragonite", type: "cool" },
+
+  // Generation 2
+  { id: 243, name: "raikou", type: "legendary" },
+  { id: 244, name: "entei", type: "legendary" },
+  { id: 245, name: "suicune", type: "legendary" },
+  { id: 248, name: "tyranitar", type: "cool" },
+  { id: 249, name: "lugia", type: "legendary" },
+  { id: 250, name: "ho-oh", type: "legendary" },
+  { id: 251, name: "celebi", type: "mythical" },
+
+  // Generation 3
+  { id: 373, name: "salamence", type: "cool" },
+  { id: 376, name: "metagross", type: "cool" },
+  { id: 380, name: "latias", type: "legendary" },
+  { id: 381, name: "latios", type: "legendary" },
+  { id: 382, name: "kyogre", type: "legendary" },
+  { id: 383, name: "groudon", type: "legendary" },
+  { id: 384, name: "rayquaza", type: "legendary" },
+  { id: 385, name: "jirachi", type: "mythical" },
+  { id: 386, name: "deoxys", type: "mythical" },
+
+  // Generation 4
+  { id: 445, name: "garchomp", type: "cool" },
+  { id: 448, name: "lucario", type: "cool" },
+  { id: 483, name: "dialga", type: "legendary" },
+  { id: 484, name: "palkia", type: "legendary" },
+  { id: 485, name: "heatran", type: "legendary" },
+  { id: 486, name: "regigigas", type: "legendary" },
+  { id: 487, name: "giratina", type: "legendary" },
+  { id: 488, name: "cresselia", type: "legendary" },
+  { id: 491, name: "darkrai", type: "mythical" },
+  { id: 493, name: "arceus", type: "mythical" },
+
+  // Generation 5
+  { id: 638, name: "cobalion", type: "legendary" },
+  { id: 639, name: "terrakion", type: "legendary" },
+  { id: 640, name: "virizion", type: "legendary" },
+  { id: 641, name: "tornadus", type: "legendary" },
+  { id: 642, name: "thundurus", type: "legendary" },
+  { id: 643, name: "reshiram", type: "legendary" },
+  { id: 644, name: "zekrom", type: "legendary" },
+  { id: 645, name: "landorus", type: "legendary" },
+  { id: 646, name: "kyurem", type: "legendary" },
+  { id: 647, name: "keldeo", type: "mythical" },
+  { id: 649, name: "genesect", type: "mythical" },
+
+  // Generation 6
+  { id: 658, name: "greninja", type: "cool" },
+  { id: 716, name: "xerneas", type: "legendary" },
+  { id: 717, name: "yveltal", type: "legendary" },
+  { id: 718, name: "zygarde", type: "legendary" },
+  { id: 719, name: "diancie", type: "mythical" },
+  { id: 720, name: "hoopa", type: "mythical" },
+  { id: 721, name: "volcanion", type: "mythical" },
+
+  // Generation 7
+  { id: 791, name: "solgaleo", type: "legendary" },
+  { id: 792, name: "lunala", type: "legendary" },
+  { id: 800, name: "necrozma", type: "legendary" },
+  { id: 802, name: "marshadow", type: "mythical" },
+  { id: 807, name: "zeraora", type: "mythical" },
+
+  // Generation 8
+  { id: 888, name: "zacian", type: "legendary" },
+  { id: 889, name: "zamazenta", type: "legendary" },
+  { id: 890, name: "eternatus", type: "legendary" },
+  { id: 893, name: "zarude", type: "mythical" },
+  { id: 894, name: "regieleki", type: "legendary" },
+  { id: 895, name: "regidrago", type: "legendary" },
+
+  // Generation 9
+  { id: 1007, name: "koraidon", type: "legendary" },
+  { id: 1008, name: "miraidon", type: "legendary" },
+  { id: 1017, name: "ogerpon", type: "legendary" },
+  { id: 1024, name: "terapagos", type: "legendary" },
+];
+
+const getPokemonTheme = (id: number) => {
+  const match = LEGENDARY_POKEMON.find((p) => p.id === id);
+  const type = match ? match.type : "legendary";
+
+  if (type === "mythical") {
+    return {
+      name: "Mythical",
+      bgGradient: "from-[#1E1B4B] via-[#311042] to-[#4C1D95]",
+      glowColor: "from-[#EC4899]/40 to-[#8B5CF6]/50",
+      textColor: "text-[#D946EF]",
+      badgeBg: "bg-[#D946EF]/10 border-[#D946EF]/30 text-[#F472B6]",
+      iconColor: "#D946EF",
+      ambientBg: "bg-gradient-to-t from-[#8B5CF6]/30 via-transparent to-transparent",
+    };
+  } else if (type === "cool") {
+    return {
+      name: "Ultra-Rare",
+      bgGradient: "from-[#0F172A] via-[#1E293B] to-[#0284C7]/20",
+      glowColor: "from-[#38BDF8]/40 to-[#0284C7]/50",
+      textColor: "text-[#0284C7]",
+      badgeBg: "bg-[#0284C7]/10 border-[#0284C7]/30 text-[#38BDF8]",
+      iconColor: "#38BDF8",
+      ambientBg: "bg-gradient-to-t from-[#0284C7]/30 via-transparent to-transparent",
+    };
+  } else {
+    // legendary
+    return {
+      name: "Legendary",
+      bgGradient: "from-[#1C1917] via-[#2E1A05] to-[#D97706]/20",
+      glowColor: "from-[#F59E0B]/55 to-[#D97706]/65",
+      textColor: "text-[#F59E0B]",
+      badgeBg: "bg-[#F59E0B]/10 border-[#F59E0B]/30 text-[#FBBF24]",
+      iconColor: "#FBBF24",
+      ambientBg: "bg-gradient-to-t from-[#F59E0B]/30 via-transparent to-transparent",
+    };
+  }
+};
+
 export default function RevealCard() {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -11,9 +137,9 @@ export default function RevealCard() {
   const [name, setName] = useState("");
   const [isDownloading, setIsDownloading] = useState(false);
 
-  // Random Pokemon states
-  const [pokemonId, setPokemonId] = useState<number>(25);
-  const [pokemonName, setPokemonName] = useState("pikachu");
+  // Random Pokemon states - initialized to Mewtwo
+  const [pokemonId, setPokemonId] = useState<number>(150);
+  const [pokemonName, setPokemonName] = useState("mewtwo");
 
   const ticketRef = useRef<HTMLDivElement>(null);
 
@@ -59,11 +185,11 @@ export default function RevealCard() {
     setStep(2);
 
     try {
-      // Random Pokemon from Gen 1
-      const randomId = Math.floor(Math.random() * 1000) + 1;
+      // Pick a random entry from our legendary/cool list
+      const randomEntry = LEGENDARY_POKEMON[Math.floor(Math.random() * LEGENDARY_POKEMON.length)];
 
       const response = await fetch(
-        `https://pokeapi.co/api/v2/pokemon/${randomId}`
+        `https://pokeapi.co/api/v2/pokemon/${randomEntry.id}`
       );
 
       const data = await response.json();
@@ -73,9 +199,9 @@ export default function RevealCard() {
     } catch (error) {
       console.error("Failed to fetch Pokemon:", error);
 
-      // fallback
-      setPokemonId(25);
-      setPokemonName("pikachu");
+      // fallback to Mewtwo
+      setPokemonId(150);
+      setPokemonName("mewtwo");
     }
 
     setTimeout(() => {
@@ -99,8 +225,8 @@ export default function RevealCard() {
       const link = document.createElement("a");
 
       link.download = `GDGC-AEC-Pass-${name
-        .replace(/\s+/g, "-")
-        .toLowerCase()}.png`;
+          .replace(/\s+/g, "-")
+          .toLowerCase()}.png`;
 
       link.href = dataUrl;
 
@@ -120,7 +246,9 @@ export default function RevealCard() {
     day: "numeric",
   }).toUpperCase();
 
-  const pokemonUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`;
+  const pokemonUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonId}.png`;
+
+  const theme = getPokemonTheme(pokemonId);
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#FFFDF5]/85 backdrop-blur-xl px-3 py-6 sm:p-6 select-none font-sans overflow-hidden" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
@@ -183,36 +311,39 @@ export default function RevealCard() {
           </div>
 
           <div className="w-full h-full grid grid-cols-1 md:grid-cols-5 relative z-10">
+             {/* LEFT SECTION (Premium Companion Display) */}
+            <div className={`col-span-1 md:col-span-2 relative min-h-[220px] md:h-full bg-gradient-to-b ${theme.bgGradient} md:border-r border-b md:border-b-0 border-slate-100/10 flex flex-col items-center justify-center p-4 overflow-hidden`}>
 
-            {/* LEFT SECTION (Wild Pokemon Display) */}
-            <div className="col-span-1 md:col-span-2 relative min-h-[220px] md:h-full bg-gradient-to-b from-slate-50/50 to-[#34A853]/10 md:border-r border-b md:border-b-0 border-slate-100 flex flex-col items-center justify-center p-4 overflow-hidden">
+              {/* Dynamic ambient color overlay */}
+              <div className={`absolute inset-0 ${theme.ambientBg} pointer-events-none`} />
 
-              {/* Background ambient color */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#34A853]/20 via-transparent to-transparent pointer-events-none" />
-
-              <div className="relative w-32 h-32 sm:w-48 sm:h-48 flex items-center justify-center group z-10">
-                {/* Glow */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-[#4285F4]/30 to-[#34A853]/40 blur-2xl rounded-full group-hover:scale-110 transition-transform duration-700" />
-
-                {/* Pokemon */}
-                <img
-                  src={pokemonUrl}
-                  alt="Pokemon"
-                  crossOrigin="anonymous"
-                  className="w-full h-full object-contain relative z-20 drop-shadow-xl animate-float scale-125"
-                  style={{ imageRendering: "pixelated" }}
-                />
+              {/* Rarity Premium Badge */}
+              <div className="absolute top-4 left-4 z-20">
+                <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border shadow-lg backdrop-blur-md ${theme.badgeBg}`}>
+                  ✦ {theme.name}
+                </span>
               </div>
 
-              {/* Wild Grass Decor */}
-              {/* Background Tall Grass */}
-              <svg viewBox="0 0 100 20" className="absolute bottom-[-1px] left-0 w-full h-16 sm:h-24 fill-[#34A853]/20 z-10 pointer-events-none" preserveAspectRatio="none">
-                <path d="M0 20 L5 8 L10 20 L15 12 L20 20 L27 4 L33 20 L38 10 L44 20 L50 6 L56 20 L62 14 L68 20 L75 5 L82 20 L88 12 L94 20 L100 8 V20 H0 Z" />
-              </svg>
-              {/* Foreground Short Grass */}
-              <svg viewBox="0 0 100 20" className="absolute bottom-[-1px] left-0 w-full h-8 sm:h-12 fill-[#34A853]/40 z-30 pointer-events-none" preserveAspectRatio="none">
-                <path d="M0 20 L4 10 L8 20 L13 6 L18 20 L24 14 L30 20 L35 8 L40 20 L47 4 L53 20 L59 12 L65 20 L72 8 L78 20 L84 14 L90 20 L95 10 L100 20 V20 H0 Z" />
-              </svg>
+              {/* Rotating Constellations Background */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden opacity-30">
+                <div className="w-56 h-56 rounded-full border border-white/10 animate-[spin_20s_linear_infinite]" />
+                <div className="absolute w-72 h-72 rounded-full border border-white/5 border-dashed animate-[spin_45s_linear_infinite_reverse]" />
+                <div className="absolute w-40 h-40 rounded-full bg-gradient-to-tr from-white/5 to-transparent pointer-events-none" />
+              </div>
+
+              {/* Pokémon Display Area */}
+              <div className="relative w-32 h-32 sm:w-48 sm:h-48 flex items-center justify-center group z-10">
+                {/* Glow ring */}
+                <div className={`absolute inset-0 bg-gradient-to-tr ${theme.glowColor} blur-2xl rounded-full group-hover:scale-120 transition-transform duration-750`} />
+
+                {/* Pokemon Official Artwork */}
+                <img
+                  src={pokemonUrl}
+                  alt={pokemonName}
+                  crossOrigin="anonymous"
+                  className="w-full h-full object-contain relative z-20 drop-shadow-[0_10px_15px_rgba(0,0,0,0.3)] animate-float scale-110 group-hover:scale-120 transition-transform duration-500"
+                />
+              </div>
             </div>
 
             {/* RIGHT SECTION */}
@@ -368,8 +499,8 @@ export default function RevealCard() {
                           className="w-9 h-9 drop-shadow-sm hover:rotate-180 transition-transform duration-700 ease-in-out"
                           xmlns="http://www.w3.org/2000/svg"
                         >
-                          {/* Top Half (Red) */}
-                          <path d="M 50 5 A 45 45 0 0 1 95 50 L 5 50 A 45 45 0 0 1 50 5 Z" fill="#EA4335" />
+                          {/* Top Half (Dynamic rarity color) */}
+                          <path d="M 50 5 A 45 45 0 0 1 95 50 L 5 50 A 45 45 0 0 1 50 5 Z" fill={theme.iconColor} />
 
                           {/* Bottom Half (White) */}
                           <path d="M 5 50 A 45 45 0 0 0 95 50 L 5 50 Z" fill="#F8FAFC" />
@@ -387,14 +518,17 @@ export default function RevealCard() {
                       </div>
 
                       {/* Pokemon Info */}
-                      <div className="text-[10px] sm:text-[11px] text-slate-500 leading-tight">
+                      <div className="text-[10px] sm:text-[11px] text-slate-500 leading-tight flex flex-col items-start">
+                        <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wider border ${theme.badgeBg} mb-1`}>
+                          ⚡ {theme.name}
+                        </span>
                         <p className="uppercase font-bold tracking-wider text-[8px] sm:text-[9px] mb-0.5 text-slate-400">
                           Pokemon
                         </p>
                         <p className="font-extrabold text-[#4285F4] uppercase font-mono tracking-widest">
                           #{pokemonId.toString().padStart(3, "0")}
                         </p>
-                        <p className="font-black text-slate-700 capitalize text-xs tracking-wide mt-1">
+                        <p className="font-black text-slate-700 capitalize text-xs tracking-wide mt-0.5">
                           {pokemonName}
                         </p>
                       </div>
