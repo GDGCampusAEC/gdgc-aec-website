@@ -9,7 +9,6 @@ import RevealCard from "@/app/components/RevealCard";
 export default function Home() {
   return (
     <main className="relative w-full min-h-screen bg-[#FFFDF5] overflow-x-clip font-sans">
-      <RevealCard />
       <section id="home">
         <HeroSection />
       </section>

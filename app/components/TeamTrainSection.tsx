@@ -174,9 +174,9 @@ export default function TeamTrainSection({
   });
 
   const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 45,
-    damping: 20,
-    mass: 0.8
+    stiffness: 80,   
+    damping: 25,     
+    mass: 0.2       
   });
 
   const maxShift = trainWidth > 0 && windowWidth > 0
@@ -186,8 +186,11 @@ export default function TeamTrainSection({
 
   const distance = Math.abs(maxShift - startX);
 
+  
+
+  
   const trainX = useTransform(smoothProgress, [0, 1], [startX, maxShift]);
-  const wheelRotation = useTransform(smoothProgress, [0, 1], [0, -1800]);
+  const wheelRotation = useTransform(smoothProgress, [0, 1], [0, -720]);
 
   const maxGroundShift = maxShift * -0.5;
   const groundX = useTransform(smoothProgress, [0, 1], [0, maxGroundShift]);
@@ -200,16 +203,16 @@ export default function TeamTrainSection({
       ref={targetRef}
       className="relative bg-[#FDFBF7]"
       style={{
-        height: compact
-          ? "100vh"
-          : homepageMode
-          ? windowWidth < 768
-            ? "125vh"
-            : "100vh"
-          : trainWidth > 0
-          ? `calc(${distance}px + 100vh)`
-          : `${teamYears.length * 100}vh`,
-      }}
+      height: compact
+        ? "100vh"
+        : homepageMode
+        ? windowWidth < 768
+          ? "125vh"
+          : "100vh"
+        : trainWidth > 0
+        ? `calc(${distance}px + 100vh)` 
+        : `${teamYears.length * 100}vh`,
+    }}
     >
       <div 
         onTouchStart={handleTouchStart}
