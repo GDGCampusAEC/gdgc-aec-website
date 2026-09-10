@@ -1,0 +1,87 @@
+@property --angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.button {
+  --border-width: 2px;
+  --background: #ffffff;
+
+  position: relative;
+  isolation: isolate;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 32px;
+  padding: 0.75rem 1.25rem;
+
+  border: var(--border-width) solid transparent;
+  border-radius: 9999px;
+
+  background:
+    linear-gradient(
+      var(--background),
+      var(--background)
+    ) padding-box,
+
+    conic-gradient(
+      from var(--angle),
+
+      rgb(52 168 82 / 0) 10deg,
+      rgb(52 168 82 / 1) 38.9738deg,
+      rgb(255 211 20 / 1) 62.3678deg,
+      rgb(255 70 65 / 1) 87.0062deg,
+      rgb(49 134 255 / 1) 107.428deg,
+      rgb(49 134 255 / 0.5) 150deg,
+      rgb(49 134 255 / 0) 200deg,
+      rgb(52 168 82 / 0) 360deg
+    ) border-box;
+
+  color: #001d35;
+
+  font: inherit;
+  line-height: 1.25;
+  text-align: center;
+
+  cursor: pointer;
+  overflow: hidden;
+
+  animation: rotate-gradient 8s linear infinite;
+}
+
+.button > span {
+  position: relative;
+  z-index: 1;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes rotate-gradient {
+  from {
+    --angle: 0deg;
+  }
+
+  to {
+    --angle: 360deg;
+  }
+}
+
+.button:focus-visible {
+  outline: 2px solid #3179ed;
+  outline-offset: 3px;
+}
+
+.button:hover {
+  --background: #eff4fb;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    animation: none;
+  }
+}
