@@ -545,7 +545,7 @@ export default function RecruitmentApplyPage() {
             </div>
           )}
 
-          {step === 2 && !FIRST_YEAR_DOMAIN_HIDDEN && (
+          {step === 2 && (!FIRST_YEAR_DOMAIN_HIDDEN || form.year !== "1st Year") && (
             <div className="space-y-5">
               <div className="rounded-[2rem] bg-[#202124] p-5 text-white sm:p-7">
                 <div className="flex items-start justify-between gap-5">
@@ -674,7 +674,7 @@ export default function RecruitmentApplyPage() {
             </div>
           )}
 
-          {step === 2 && FIRST_YEAR_DOMAIN_HIDDEN && (
+          {step === 2 && FIRST_YEAR_DOMAIN_HIDDEN && form.year === "1st Year" && (
             <div className="rounded-[2rem] bg-[#e6f4ea] p-5 shadow-[0_12px_40px_rgba(60,64,67,0.06)] ring-1 ring-[#e8eaed] sm:p-8">
               <div className="flex items-start gap-4">
                 <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#188038] text-white">
