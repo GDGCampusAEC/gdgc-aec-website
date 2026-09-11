@@ -69,7 +69,9 @@ export async function POST(request: Request) {
     const roles = Array.isArray(body.roles)
       ? body.roles.map((role: unknown) => String(role).trim()).filter(Boolean)
       : [];
-    if (!roles.length || roles.some((role) => !RECRUITMENT_ROLES.includes(role as (typeof RECRUITMENT_ROLES)[number]))) {
+
+    const isYear1st = String(body.year ?? "").trim() === "1st Year";
+    if (!isYear1st && (!roles.length || roles.some((role) => !RECRUITMENT_ROLES.includes(role as (typeof RECRUITMENT_ROLES)[number])))) {
       return buildError("Please choose valid interested roles.", 400);
     }
 
@@ -108,7 +110,7 @@ export async function POST(request: Request) {
       roll: rollRaw,
       rollNormalized,
       department,
-      roles: [...new Set(roles)],
+      roles: isYear1st ? [] : [...new Set(roles)],
       email,
       phone,
       whyJoin,
@@ -138,7 +140,7 @@ export async function POST(request: Request) {
     );
   } catch (error: any) {
     if (error?.message === "DUPLICATE_ROLL") {
-      return buildError("An application with this roll number has already been submitted.", 409);
+      return buildError("An application with this university roll number has already been submitted.", 409);
     }
 
     console.error("Recruitment POST Error:", error);

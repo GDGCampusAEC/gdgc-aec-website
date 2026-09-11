@@ -1,14 +1,14 @@
 export const RECRUITMENT_CYCLE = "2026-27";
 
 export const RECRUITMENT_ROLES = [
-  "Web Development",
+  "Web Technologies",
   "App Development",
-  "Cloud Technologies",
   "Competitive Programming",
   "Graphic Design",
   "AI & ML",
-  "Content",
   "Social Media & Outreach",
+  "Cloud Technologies",
+  "Content",
   "DevOps",
   "Web3 & Blockchain",
 ] as const;
@@ -31,9 +31,7 @@ export const RECRUITMENT_DEPARTMENTS = [
 export const RECRUITMENT_YEARS = [
   "1st Year",
   "2nd Year",
-  "3rd Year",
-  "4th Year",
-  "Alumni",
+  "3rd Year"
 ] as const;
 
 export type RecruitmentRole = (typeof RECRUITMENT_ROLES)[number];

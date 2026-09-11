@@ -40,6 +40,8 @@ const initialForm: FormState = {
 
 const TOTAL_STEPS = 3;
 
+const FIRST_YEAR_DOMAIN_HIDDEN = true;
+
 const stepContent = [
   {
     number: "01",
@@ -138,7 +140,6 @@ export default function RecruitmentApplyPage() {
         };
       }
 
-      // HARD FRONTEND LIMIT
       if (prev.roles.length >= 3) {
         return prev;
       }
@@ -172,11 +173,13 @@ export default function RecruitmentApplyPage() {
     }
 
     if (currentStep === 2) {
-      if (!form.roles.length) {
+      const isYear1st = form.year === "1st Year";
+      
+      if (!isYear1st && !form.roles.length) {
         return "Please select at least one role.";
       }
 
-      if (form.roles.length > 3) {
+      if (!isYear1st && form.roles.length > 3) {
         return "You can select a maximum of 3 roles.";
       }
     }
@@ -228,6 +231,12 @@ export default function RecruitmentApplyPage() {
       return;
     }
 
+    let newStep = step + 1;
+    
+    if (FIRST_YEAR_DOMAIN_HIDDEN && step === 2 && form.year === "1st Year") {
+      newStep = 3;
+    }
+
     setStep((current) => Math.min(current + 1, TOTAL_STEPS));
     window.scrollTo({
       top: 0,
@@ -237,6 +246,12 @@ export default function RecruitmentApplyPage() {
 
   const goBack = () => {
     setError(null);
+
+    let newStep = step - 1;
+    
+    if (FIRST_YEAR_DOMAIN_HIDDEN && step === 3 && form.year === "1st Year") {
+      newStep = 1;
+    }
 
     setStep((current) => Math.max(current - 1, 1));
 
@@ -260,7 +275,9 @@ export default function RecruitmentApplyPage() {
       return;
     }
 
-    if (form.roles.length > 3) {
+    const isYear1st = form.year === "1st Year";
+    
+    if (!isYear1st && form.roles.length > 3) {
       setError("You can select a maximum of 3 roles.");
       return;
     }
@@ -272,7 +289,7 @@ export default function RecruitmentApplyPage() {
       year: form.year,
       roll: normalizeRollNumber(form.roll.trim()),
       department: form.department,
-      roles: form.roles,
+      roles: isYear1st ? [] : form.roles,
       email: form.email.trim(),
       phone: form.phone.trim(),
       whyJoin: form.whyJoin.trim(),
@@ -303,7 +320,7 @@ export default function RecruitmentApplyPage() {
       if (!response.ok) {
         if (response.status === 409) {
           setError(
-            "An application with this roll number has already been submitted.",
+            "An application with this university roll number has already been submitted.",
           );
           return;
         }
@@ -457,7 +474,7 @@ export default function RecruitmentApplyPage() {
                 </Select>
 
                 <Input
-                  label="Roll Number"
+                  label="University Roll Number"
                   required
                   value={form.roll}
                   onChange={(e) =>
@@ -528,7 +545,7 @@ export default function RecruitmentApplyPage() {
             </div>
           )}
 
-          {step === 2 && (
+          {step === 2 && !FIRST_YEAR_DOMAIN_HIDDEN && (
             <div className="space-y-5">
               <div className="rounded-[2rem] bg-[#202124] p-5 text-white sm:p-7">
                 <div className="flex items-start justify-between gap-5">
@@ -657,6 +674,26 @@ export default function RecruitmentApplyPage() {
             </div>
           )}
 
+          {step === 2 && FIRST_YEAR_DOMAIN_HIDDEN && (
+            <div className="rounded-[2rem] bg-[#e6f4ea] p-5 shadow-[0_12px_40px_rgba(60,64,67,0.06)] ring-1 ring-[#e8eaed] sm:p-8">
+              <div className="flex items-start gap-4">
+                <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#188038] text-white">
+                  <Check size={20} strokeWidth={2} />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold text-[#202124]">
+                    Domain Selection for 1st Year Students
+                  </h2>
+                  <p className="mt-2 text-sm leading-6 text-[#5f6368]">
+                    As a first-year student, you will be guided to the domain
+                    selection in your second year. For now, please proceed to
+                    the final step to share your motivation for joining GDGC.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {step === 3 && (
             <div className="space-y-5">
               <div className="rounded-[2rem] bg-white p-5 shadow-[0_12px_40px_rgba(60,64,67,0.06)] ring-1 ring-[#e8eaed] sm:p-8">
@@ -752,8 +789,7 @@ export default function RecruitmentApplyPage() {
 
                 <div className="mt-5">
                   <span className="mb-3 block text-sm font-medium text-[#3c4043]">
-                    Are you a core member of another club or
-                    society?
+                    Are you a sub/core committee member of another club/society?
                   </span>
 
                   <div className="flex gap-2.5">

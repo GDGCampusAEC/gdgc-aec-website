@@ -642,17 +642,6 @@ export default function RecruitmentPage() {
           </div>
         </div>
       </section>
-
- 
-      <div className="fixed inset-x-0 bottom-0 z-50 border-t border-[#dadce0]/80 bg-white/90 p-3 backdrop-blur-xl sm:hidden">
-        <Link
-          href="/recruitment/apply"
-          className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[#1a73e8] text-sm font-semibold text-white shadow-lg"
-        >
-          Apply for the Core Team
-          <ArrowRight size={17} />
-        </Link>
-      </div>
     </main>
   );
 }
