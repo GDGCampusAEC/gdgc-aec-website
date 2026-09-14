@@ -277,7 +277,7 @@ export default function HeroSection() {
               whileTap={{ scale: 0.98 }}
               className="bg-gray-900 text-white px-6 py-3 rounded-full text-sm font-semibold flex items-center gap-3 hover:bg-gray-800 transition-all duration-300 relative z-20 cursor-pointer shadow-md hover:shadow-lg"
             >
-              Join GDG
+              Connect with Us
               <span className="bg-white text-gray-900 rounded-full p-0.5 transition-transform duration-300">
                 <ArrowRight
                   className={`w-4 h-4 transition-transform duration-300 ${
