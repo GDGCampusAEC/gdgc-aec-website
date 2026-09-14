@@ -9,6 +9,7 @@ export const RECRUITMENT_ROLES = [
   "Social Media & Outreach",
   "Cloud Technologies",
   "Content",
+  "Cyber Security",
   "DevOps",
   "Web3 & Blockchain",
 ] as const;
