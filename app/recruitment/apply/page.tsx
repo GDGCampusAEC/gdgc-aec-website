@@ -477,10 +477,13 @@ export default function RecruitmentApplyPage() {
                   label="University Roll Number"
                   required
                   value={form.roll}
-                  onChange={(e) =>
-                    updateField("roll", e.target.value)
-                  }
-                  placeholder="e.g. 23CSE123"
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (/^\d*$/.test(value)) {
+                      updateField("roll", value);
+                    }
+                  }}
+                  placeholder="roll no."
                   autoComplete="off"
                 />
 
