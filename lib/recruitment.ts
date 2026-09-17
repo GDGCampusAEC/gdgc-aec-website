@@ -25,6 +25,7 @@ export const RECRUITMENT_DEPARTMENTS = [
   "ME",
   "CE",
   "BBA",
+  "BCA",
   "MBA",
   "Other",
 ] as const;
