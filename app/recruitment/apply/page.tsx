@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import {ArrowLeft,ArrowRight,Check,CheckCircle2,ChevronLeft,Loader2} from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, CheckCircle2, ChevronLeft, Loader2 } from "lucide-react";
 
-import {RECRUITMENT_DEPARTMENTS,RECRUITMENT_ROLES,RECRUITMENT_YEARS,isValidUrl,normalizeRollNumber} from "@/lib/recruitment";
+import { RECRUITMENT_DEPARTMENTS, RECRUITMENT_OPEN, RECRUITMENT_ROLES, RECRUITMENT_YEARS, isValidUrl, normalizeRollNumber } from "@/lib/recruitment";
+import { notFound } from "next/navigation";
 
 type FormState = {
   name: string;
@@ -110,6 +111,10 @@ function Select({
 }
 
 export default function RecruitmentApplyPage() {
+
+  if (!RECRUITMENT_OPEN) {
+    notFound();
+  }
   const [form, setForm] = useState<FormState>(initialForm);
 
   const [step, setStep] = useState(1);
@@ -174,7 +179,7 @@ export default function RecruitmentApplyPage() {
 
     if (currentStep === 2) {
       const isYear1st = form.year === "1st Year";
-      
+
       if (!isYear1st && !form.roles.length) {
         return "Please select at least one role.";
       }
@@ -232,7 +237,7 @@ export default function RecruitmentApplyPage() {
     }
 
     let newStep = step + 1;
-    
+
     if (FIRST_YEAR_DOMAIN_HIDDEN && step === 2 && form.year === "1st Year") {
       newStep = 3;
     }
@@ -248,7 +253,7 @@ export default function RecruitmentApplyPage() {
     setError(null);
 
     let newStep = step - 1;
-    
+
     if (FIRST_YEAR_DOMAIN_HIDDEN && step === 3 && form.year === "1st Year") {
       newStep = 1;
     }
@@ -276,7 +281,7 @@ export default function RecruitmentApplyPage() {
     }
 
     const isYear1st = form.year === "1st Year";
-    
+
     if (!isYear1st && form.roles.length > 3) {
       setError("You can select a maximum of 3 roles.");
       return;
@@ -327,7 +332,7 @@ export default function RecruitmentApplyPage() {
 
         setError(
           data.error ||
-            "Unable to submit application. Please try again.",
+          "Unable to submit application. Please try again.",
         );
 
         return;
@@ -566,11 +571,10 @@ export default function RecruitmentApplyPage() {
                   </div>
 
                   <div
-                    className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-lg font-bold ${
-                      form.roles.length === 3
+                    className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-lg font-bold ${form.roles.length === 3
                         ? "bg-[#34a853] text-white"
                         : "bg-white/10 text-white"
-                    }`}
+                      }`}
                   >
                     {form.roles.length}/3
                   </div>
@@ -619,23 +623,21 @@ export default function RecruitmentApplyPage() {
                         type="button"
                         disabled={disabled}
                         onClick={() => toggleRole(role)}
-                        className={`group flex min-h-[62px] items-center gap-3 rounded-2xl border p-3.5 text-left transition-all duration-200 ${
-                          selected
+                        className={`group flex min-h-[62px] items-center gap-3 rounded-2xl border p-3.5 text-left transition-all duration-200 ${selected
                             ? "border-[#1a73e8] bg-[#e8f0fe] shadow-[0_0_0_3px_rgba(26,115,232,0.08)]"
                             : disabled
                               ? "cursor-not-allowed border-[#e8eaed] bg-[#f8fafd] opacity-40"
                               : "border-[#dadce0] bg-white hover:border-[#bdc1c6] hover:bg-[#f8fafd]"
-                        }`}
+                          }`}
                       >
                         <span
-                          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-xs font-bold ${
-                            selected
+                          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-xs font-bold ${selected
                               ? "bg-[#1a73e8] text-white"
                               : accentColors[
-                                  index %
-                                    accentColors.length
-                                ]
-                          }`}
+                              index %
+                              accentColors.length
+                              ]
+                            }`}
                         >
                           {selected ? (
                             <Check size={17} />
@@ -648,11 +650,10 @@ export default function RecruitmentApplyPage() {
                         </span>
 
                         <span
-                          className={`text-sm font-semibold ${
-                            selected
+                          className={`text-sm font-semibold ${selected
                               ? "text-[#174ea6]"
                               : "text-[#3c4043]"
-                          }`}
+                            }`}
                         >
                           {role}
                         </span>
@@ -801,11 +802,10 @@ export default function RecruitmentApplyPage() {
                           "yes",
                         )
                       }
-                      className={`min-h-11 rounded-full px-6 text-sm font-semibold transition ${
-                        form.otherClubCoreMember === "yes"
+                      className={`min-h-11 rounded-full px-6 text-sm font-semibold transition ${form.otherClubCoreMember === "yes"
                           ? "bg-[#1a73e8] text-white"
                           : "border border-[#dadce0] bg-white text-[#3c4043] hover:bg-[#f8fafd]"
-                      }`}
+                        }`}
                     >
                       Yes
                     </button>
@@ -818,11 +818,10 @@ export default function RecruitmentApplyPage() {
                           "no",
                         )
                       }
-                      className={`min-h-11 rounded-full px-6 text-sm font-semibold transition ${
-                        form.otherClubCoreMember === "no"
+                      className={`min-h-11 rounded-full px-6 text-sm font-semibold transition ${form.otherClubCoreMember === "no"
                           ? "bg-[#202124] text-white"
                           : "border border-[#dadce0] bg-white text-[#3c4043] hover:bg-[#f8fafd]"
-                      }`}
+                        }`}
                     >
                       No
                     </button>
@@ -849,8 +848,8 @@ export default function RecruitmentApplyPage() {
             </div>
           )}
 
-              {/* DESKTOP NAVIGATION */}
-         
+          {/* DESKTOP NAVIGATION */}
+
 
           <div className="mt-7 hidden items-center justify-between sm:flex">
             {step > 1 ? (
@@ -904,9 +903,9 @@ export default function RecruitmentApplyPage() {
         </form>
       </div>
 
-     
-          {/* MOBILE STICKY NAVIGATION */}
-     
+
+      {/* MOBILE STICKY NAVIGATION */}
+
 
       <div className="fixed inset-x-0 bottom-0 z-50 border-t border-[#dadce0] bg-white/95 p-3 backdrop-blur-xl sm:hidden">
         <div className="mx-auto flex max-w-5xl gap-2">

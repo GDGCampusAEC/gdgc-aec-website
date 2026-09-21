@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import {ArrowDown,ArrowRight,BookOpen,Briefcase,Check,Code2,Lightbulb,PlusIcon,Rocket,Users,Zap} from "lucide-react";
+import { ArrowDown, ArrowRight, BookOpen, Briefcase, Check, Code2, Lightbulb, PlusIcon, Rocket, Users, Zap } from "lucide-react";
 import { RECRUITMENT_ROLES } from "@/lib/recruitment";
 import Image from "next/image";
-
+import { notFound } from "next/navigation";
+import { RECRUITMENT_OPEN } from "@/lib/recruitment";
 
 const whyJoin = [
   {
@@ -136,6 +137,11 @@ function ColorShape({
 }
 
 export default function RecruitmentPage() {
+
+  if (!RECRUITMENT_OPEN) {
+    notFound();
+  }
+  
   return (
     <main className="min-h-screen overflow-hidden bg-[#fbfaff] text-[#202124]">
       <section className="relative isolate">
@@ -159,7 +165,7 @@ export default function RecruitmentPage() {
         />
 
         <div className="relative mx-auto max-w-7xl px-5 pb-14 pt-28 sm:px-8 sm:pb-20 sm:pt-36 lg:px-12 lg:pt-40">
-          
+
           <div className="mb-8 flex items-center gap-3 sm:mb-10">
             <div className="flex -space-x-1.5">
               <span className="h-3.5 w-3.5 rounded-full bg-[#4285f4]" />
@@ -387,7 +393,7 @@ export default function RecruitmentPage() {
         </div>
       </section>
 
-     
+
       <section className="bg-white">
         <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-24 lg:px-12">
           <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">

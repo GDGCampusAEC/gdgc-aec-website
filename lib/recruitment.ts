@@ -1,5 +1,7 @@
 export const RECRUITMENT_CYCLE = "2026-27";
 
+export const RECRUITMENT_OPEN = false;
+
 export const RECRUITMENT_ROLES = [
   "Web Technologies",
   "App Development",
