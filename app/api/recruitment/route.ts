@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/firebaseAdmin";
 import {
   RECRUITMENT_CYCLE,
+  RECRUITMENT_OPEN,
   RECRUITMENT_ROLES,
   isValidUrl,
   normalizeRollNumber,
@@ -40,6 +41,17 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  if (!RECRUITMENT_OPEN) {
+    return Response.json(
+      {
+        error: "Recruitment is currently closed.",
+      },
+      {
+        status: 410,
+      }
+    );
+  }
+  
   if (!db) return buildError("Firebase not configured", 503);
 
   try {
