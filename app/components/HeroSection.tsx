@@ -244,7 +244,7 @@ export default function HeroSection() {
         className="relative z-[70] flex flex-col items-center text-center px-6"
       >
         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-[#1e8e3e] leading-tight">
-          Google Developers Group
+          Google Developers Group ON  CAMPUS 
           <br />
           Asansol Engineering College
         </h1>
