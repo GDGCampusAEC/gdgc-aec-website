@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Calendar,
@@ -10,6 +11,8 @@ import {
   X,
   ShieldCheck,
   GitPullRequest,
+  ExternalLink,
+  ArrowUpRight,
 } from "lucide-react";
 import { ContributionRecord } from "@/lib/openOrbit/types";
 
@@ -24,6 +27,22 @@ interface LeaderboardData {
   entries?: any[];
   lastSuccessfulSyncAt?: string | null;
   message?: string;
+}
+
+function GithubIcon({ className = "w-4 h-4" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+    >
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+      />
+    </svg>
+  );
 }
 
 function SparkleStar({
@@ -111,6 +130,21 @@ export default function LeaderboardPage() {
   } | null>(null);
   const [userContributions, setUserContributions] = useState<ContributionRecord[]>([]);
   const [loadingContribs, setLoadingContribs] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (selectedUser) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = prev;
+      };
+    }
+  }, [selectedUser]);
 
   useEffect(() => {
     async function fetchLeaderboard() {
@@ -161,6 +195,8 @@ export default function LeaderboardPage() {
 
   const topThree = filteredEntries.slice(0, 3);
   const remainingEntries = filteredEntries.slice(3);
+
+  const TARGET_REPO_URL = "https://github.com/GDGCampusAEC/gdgc-aec-website";
 
   return (
     <main className="min-h-screen bg-[#FDFBF7] text-slate-800 font-sans pt-28 sm:pt-32 pb-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden selection:bg-[#56CF16]/20">
@@ -216,13 +252,33 @@ export default function LeaderboardPage() {
             </motion.h1>
           </div>
 
+          {/* Compact pill-shaped box with black border containing Contributing Repository link */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.12 }}
+            className="relative z-10 px-2"
+          >
+            <a
+              href={TARGET_REPO_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1 rounded-full bg-white hover:bg-slate-50 text-black border-[1.5px] border-black shadow-2xs transition-all group hover:scale-[1.02] cursor-pointer"
+            >
+              <span className="text-xs sm:text-[13px] font-semibold text-black tracking-tight select-none">
+                Contributing Repository
+              </span>
+              <ArrowUpRight size={14} className="text-black stroke-[2.2] shrink-0 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </a>
+          </motion.div>
+
           <motion.p
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.14 }}
             className="max-w-2xl text-sm sm:text-base text-slate-600 font-medium leading-relaxed px-4"
           >
-            Contribute to official GDGC AEC repositories, submit merged pull requests, and climb the live community leaderboard!
+            Contribute to official GDGC AEC repository, submit  pull requests, and climb the live community leaderboard!
           </motion.p>
         </div>
 
@@ -339,7 +395,7 @@ export default function LeaderboardPage() {
                         </div>
 
                         <p className="text-[11px] text-slate-500 font-medium">
-                          Contribute to repositories, raise PRs and earn points!
+                          Contribute to repository, raise PRs and earn points!
                         </p>
                       </div>
                     </div>
@@ -878,100 +934,128 @@ export default function LeaderboardPage() {
           </div>
         )}
 
-        <AnimatePresence>
-          {selectedUser && (
-            <div className="fixed inset-0 z-50 bg-black/65 backdrop-blur-xs flex items-center justify-center p-4">
-              <motion.div
-                initial={{ scale: 0.95, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.95, opacity: 0 }}
-                className="bg-white rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden max-h-[85vh] flex flex-col border border-slate-200"
-              >
-                <div className="bg-gradient-to-r from-[#0D2A18] via-[#091F11] to-[#06140A] text-white p-5 sm:p-6 flex items-center justify-between">
-                  <div className="flex items-center gap-3.5">
-                    <img
-                      src={selectedUser.avatarUrl || `https://github.com/${selectedUser.username}.png`}
-                      alt={selectedUser.username}
-                      className="w-12 h-12 rounded-full border-2 border-[#54CE18] object-cover shadow-sm"
-                    />
-                    <div>
-                      <h3 className="font-extrabold text-white text-base">
-                        @{selectedUser.username}
-                      </h3>
-                      <p className="text-xs font-bold text-emerald-400">
-                        {selectedUser.points} Total Points Earned
-                      </p>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => setSelectedUser(null)}
-                    className="p-1.5 text-slate-300 hover:text-white rounded-full hover:bg-white/10 transition-colors"
+        {mounted &&
+          typeof document !== "undefined" &&
+          createPortal(
+            <AnimatePresence>
+              {selectedUser && (
+                <motion.div
+                  key="contributor-modal-backdrop"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.18 }}
+                  onClick={() => setSelectedUser(null)}
+                  className="fixed inset-0 z-[100] bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto"
+                >
+                  <motion.div
+                    key="contributor-modal-dialog"
+                    initial={{ scale: 0.95, opacity: 0, y: 12 }}
+                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                    exit={{ scale: 0.95, opacity: 0, y: 12 }}
+                    transition={{ duration: 0.2 }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="bg-white rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden max-h-[85vh] flex flex-col border border-slate-200 relative opacity-100"
+                    style={{ backgroundColor: "#ffffff" }}
                   >
-                    <X size={20} />
-                  </button>
-                </div>
-
-                <div className="p-5 sm:p-6 flex-1 overflow-y-auto space-y-3">
-                  {loadingContribs ? (
-                    <div className="py-12 text-center text-xs text-slate-400">
-                      Loading contribution records...
-                    </div>
-                  ) : userContributions.length === 0 ? (
-                    <div className="py-12 text-center text-xs text-slate-400">
-                      No individual PR records found.
-                    </div>
-                  ) : (
-                    userContributions.map((contrib) => (
-                      <a
-                        key={contrib.githubPRId}
-                        href={contrib.prUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="block p-3.5 rounded-2xl border border-slate-100 bg-[#FCFDFB] hover:bg-[#F3FBEF] hover:border-[#DCF3D0] transition-all group"
-                      >
-                        <div className="flex items-center justify-between gap-2 mb-1">
-                          <span className="font-bold text-xs text-slate-900 group-hover:text-emerald-700 flex items-center gap-1.5 truncate">
-                            <GitPullRequest size={14} className="text-[#34A853] shrink-0" />
-                            #{contrib.prNumber} {contrib.prTitle}
-                          </span>
-                          <span
-                            className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider shrink-0 ${
-                              contrib.difficulty === "easy"
-                                ? "bg-emerald-100 text-emerald-800"
-                                : contrib.difficulty === "medium"
-                                ? "bg-blue-100 text-blue-800"
-                                : "bg-red-100 text-red-800"
-                            }`}
-                          >
-                            {contrib.difficulty === "easy"
-                              ? "Level 1"
-                              : contrib.difficulty === "medium"
-                              ? "Level 2"
-                              : "Level 3"}{" "}
-                            (+{contrib.points})
-                          </span>
+                    {/* Header */}
+                    <div className="bg-gradient-to-r from-[#0D2A18] via-[#091F11] to-[#06140A] text-white p-5 sm:p-6 flex items-center justify-between shrink-0">
+                      <div className="flex items-center gap-3.5">
+                        <img
+                          src={selectedUser.avatarUrl || `https://github.com/${selectedUser.username}.png`}
+                          alt={selectedUser.username}
+                          className="w-12 h-12 rounded-full border-2 border-[#54CE18] object-cover shadow-sm bg-slate-900"
+                        />
+                        <div>
+                          <h3 className="font-extrabold text-white text-base">
+                            @{selectedUser.username}
+                          </h3>
+                          <p className="text-xs font-bold text-emerald-400">
+                            {selectedUser.points} Total Points Earned
+                          </p>
                         </div>
-                        <p className="text-[11px] text-slate-400 font-medium">
-                          Merged on {new Date(contrib.mergedAt).toLocaleDateString()}
-                        </p>
-                      </a>
-                    ))
-                  )}
-                </div>
+                      </div>
 
-                <div className="p-4 border-t border-slate-100 flex justify-end bg-slate-50/50">
-                  <button
-                    onClick={() => setSelectedUser(null)}
-                    className="px-5 py-2 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold transition-colors"
-                  >
-                    Close
-                  </button>
-                </div>
-              </motion.div>
-            </div>
+                      <button
+                        onClick={() => setSelectedUser(null)}
+                        aria-label="Close dialog"
+                        className="p-1.5 text-slate-300 hover:text-white rounded-full hover:bg-white/10 transition-colors cursor-pointer"
+                      >
+                        <X size={20} />
+                      </button>
+                    </div>
+
+                    {/* Modal Content with solid white opaque background */}
+                    <div
+                      className="p-5 sm:p-6 flex-1 overflow-y-auto space-y-3 bg-white opacity-100"
+                      style={{ backgroundColor: "#ffffff" }}
+                    >
+                      {loadingContribs ? (
+                        <div className="py-12 text-center text-xs text-slate-400">
+                          Loading contribution records...
+                        </div>
+                      ) : userContributions.length === 0 ? (
+                        <div className="py-12 text-center text-xs text-slate-400">
+                          No individual PR records found.
+                        </div>
+                      ) : (
+                        userContributions.map((contrib) => (
+                          <a
+                            key={contrib.githubPRId}
+                            href={contrib.prUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="block p-3.5 rounded-2xl border border-slate-200 bg-[#FAFCF8] hover:bg-[#F0F9ED] hover:border-[#BDEAA6] transition-all group shadow-2xs"
+                            style={{ backgroundColor: "#fafcf8" }}
+                          >
+                            <div className="flex items-center justify-between gap-2 mb-1">
+                              <span className="font-bold text-xs text-slate-900 group-hover:text-emerald-700 flex items-center gap-1.5 truncate">
+                                <GitPullRequest size={14} className="text-[#34A853] shrink-0" />
+                                #{contrib.prNumber} {contrib.prTitle}
+                              </span>
+                              <span
+                                className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider shrink-0 ${
+                                  contrib.difficulty === "easy"
+                                    ? "bg-emerald-100 text-emerald-800"
+                                    : contrib.difficulty === "medium"
+                                    ? "bg-blue-100 text-blue-800"
+                                    : "bg-red-100 text-red-800"
+                                }`}
+                              >
+                                {contrib.difficulty === "easy"
+                                  ? "Level 1"
+                                  : contrib.difficulty === "medium"
+                                  ? "Level 2"
+                                  : "Level 3"}{" "}
+                                (+{contrib.points})
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-slate-400 font-medium">
+                              Merged on {new Date(contrib.mergedAt).toLocaleDateString()}
+                            </p>
+                          </a>
+                        ))
+                      )}
+                    </div>
+
+                    {/* Modal Footer with solid background */}
+                    <div
+                      className="p-4 border-t border-slate-200 flex justify-end bg-slate-50 shrink-0"
+                      style={{ backgroundColor: "#f8fafc" }}
+                    >
+                      <button
+                        onClick={() => setSelectedUser(null)}
+                        className="px-5 py-2 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold transition-colors cursor-pointer"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>,
+            document.body
           )}
-        </AnimatePresence>
       </div>
     </main>
   );
