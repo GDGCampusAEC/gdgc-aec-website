@@ -1,15 +1,17 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trash2, Plus, LogOut, LayoutDashboard, Users, CalendarDays, Server, CheckCircle2, Loader2, Pencil, Camera, Upload, BookOpen, ExternalLink } from "lucide-react";
+import { Trash2, Plus, LogOut, LayoutDashboard, Users, CalendarDays, Server, CheckCircle2, Loader2, Pencil, Camera, Upload, BookOpen, ExternalLink, Trophy } from "lucide-react";
 import { robustParseDate } from "@/lib/dateUtils";
+import OpenOrbitAdmin from "./components/OpenOrbitAdmin";
 
 export default function AdminPage() {
   const [secret, setSecret] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
-  const [activeTab, setActiveTab] = useState<"events" | "team" | "gallery" | "courses" | "recruitment">("events");
+  const [activeTab, setActiveTab] = useState<"events" | "team" | "gallery" | "courses" | "recruitment" | "open-orbit">("events");
 
   const [events, setEvents] = useState<any[]>([]);
   const [recruitment, setRecruitment] = useState<any[]>([]);
@@ -66,8 +68,15 @@ export default function AdminPage() {
   const [editingMemberId, setEditingMemberId] = useState<string | null>(null);
 
   useEffect(() => {
+    // Purge any persistent storage so admin access is never auto-granted across browser sessions
+    try {
+      localStorage.removeItem("gdgc_admin_secret");
+    } catch {
+      // Ignore
+    }
+
     async function verifySession() {
-      const savedSecret = localStorage.getItem("gdgc_admin_secret");
+      const savedSecret = sessionStorage.getItem("gdgc_admin_secret");
       if (savedSecret) {
         try {
           const decodedSecret = atob(savedSecret);
@@ -81,10 +90,10 @@ export default function AdminPage() {
             setSecret(decodedSecret);
             setIsAuthenticated(true);
           } else {
-            localStorage.removeItem("gdgc_admin_secret");
+            sessionStorage.removeItem("gdgc_admin_secret");
           }
         } catch (e) {
-          localStorage.removeItem("gdgc_admin_secret");
+          sessionStorage.removeItem("gdgc_admin_secret");
         }
       }
     }
@@ -155,7 +164,7 @@ export default function AdminPage() {
       });
       if (res.ok) {
         setIsAuthenticated(true);
-        localStorage.setItem("gdgc_admin_secret", btoa(secret));
+        sessionStorage.setItem("gdgc_admin_secret", btoa(secret));
       } else {
         const data = await res.json();
         setError(data.error || "Invalid Secret Key");
@@ -171,6 +180,7 @@ export default function AdminPage() {
   const handleLogout = () => {
     setIsAuthenticated(false);
     setSecret("");
+    sessionStorage.removeItem("gdgc_admin_secret");
     localStorage.removeItem("gdgc_admin_secret");
   };
 
@@ -616,9 +626,21 @@ export default function AdminPage() {
           </div>
           <h1 className="text-4xl font-normal tracking-tight">GDGC Workspace</h1>
         </div>
-        <button onClick={handleLogout} className="text-gray-500 hover:text-red-500 hover:bg-red-50 px-4 py-2 rounded-full transition-colors flex items-center gap-2 font-medium text-sm">
-          <LogOut size={16} /> Disconnect
-        </button>
+        <div className="flex items-center gap-3">
+          <a
+            href="/leaderboard"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-gray-700 hover:text-[#4285f4] hover:bg-blue-50 px-4 py-2 rounded-full transition-colors flex items-center gap-1.5 font-medium text-sm border border-gray-200 bg-white shadow-2xs"
+          >
+            <Trophy size={16} className="text-[#f4b400]" />
+            <span>Public Leaderboard</span>
+            <ExternalLink size={13} className="text-gray-400 ml-0.5" />
+          </a>
+          <button onClick={handleLogout} className="text-gray-500 hover:text-red-500 hover:bg-red-50 px-4 py-2 rounded-full transition-colors flex items-center gap-2 font-medium text-sm">
+            <LogOut size={16} /> Disconnect
+          </button>
+        </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -633,20 +655,23 @@ export default function AdminPage() {
 
         <div className="flex justify-center mb-12">
           <div className="bg-gray-100/80 p-1 rounded-full flex shadow-inner gap-0.5 flex-wrap justify-center">
-            {(["events", "team", "gallery", "courses", "recruitment"] as const).map((tab) => (
+            {(["events", "team", "gallery", "courses", "recruitment", "open-orbit"] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2 ${activeTab === tab ? "bg-[#d3e3fd] text-blue-900 shadow-sm" : "text-gray-500 hover:text-gray-700 hover:bg-gray-200/50"
                   }`}
               >
-                {tab === "events" ? <CalendarDays size={16} /> : tab === "team" ? <Users size={16} /> : tab === "gallery" ? <Camera size={16} /> : tab === "courses" ? <BookOpen size={16} /> : <Users size={16} />}
-                {tab === "recruitment" ? "Recruitment" : tab.charAt(0).toUpperCase() + tab.slice(1)}
+                {tab === "events" ? <CalendarDays size={16} /> : tab === "team" ? <Users size={16} /> : tab === "gallery" ? <Camera size={16} /> : tab === "courses" ? <BookOpen size={16} /> : tab === "open-orbit" ? <Trophy size={16} /> : <Users size={16} />}
+                {tab === "recruitment" ? "Recruitment" : tab === "open-orbit" ? "Open Orbit" : tab.charAt(0).toUpperCase() + tab.slice(1)}
               </button>
             ))}
           </div>
         </div>
 
+        {activeTab === "open-orbit" ? (
+          <OpenOrbitAdmin secret={secret} showSuccess={showSuccess} setError={setError} />
+        ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
           <div className="lg:col-span-7 xl:col-span-8 space-y-4">
@@ -1162,6 +1187,7 @@ export default function AdminPage() {
           </div>
 
         </div>
+        )}
       </div>
     </div>
   );

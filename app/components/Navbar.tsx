@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Home, Info, Users, Image, Calendar, BookOpen } from "lucide-react";
+import { Home, Info, Users, Image, Calendar, BookOpen, Trophy } from "lucide-react";
 
 const navLinks = [
   { name: "Home", path: "/", icon: Home },
@@ -13,6 +13,7 @@ const navLinks = [
   { name: "Gallery", path: "/gallery", icon: Image },
   { name: "Events", path: "/events", icon: Calendar },
   { name: "Courses", path: "/courses", icon: BookOpen },
+  { name: "Leaderboard", path: "/leaderboard", icon: Trophy },
 ];
 
 export default function Navbar() {
