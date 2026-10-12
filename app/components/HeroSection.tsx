@@ -4,6 +4,7 @@ import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion"
 import Link from "next/link";
 import { ArrowRight, Globe } from "lucide-react";
 import { useState } from "react";
+import Image from "next/image";
 
 const ConcentricSun = ({ className }: { className?: string }) => (
   <div className={`flex justify-center ${className}`}>
@@ -337,10 +338,13 @@ export default function HeroSection() {
           style={{ x: birdX, y: birdY }}
           className="absolute top-[34%] left-[8%] sm:left-[10%] md:left-[14%] z-[60] w-24 sm:w-32 md:w-44"
         >
-          <img
+          <Image
             src="/gallery-1.gif"
             alt="Flapping Bird"
+            width={640}
+            height={640}
             className="w-full h-auto drop-shadow-xl"
+            unoptimized
           />
         </motion.div>
 

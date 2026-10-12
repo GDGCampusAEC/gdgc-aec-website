@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { isEventUpcoming } from "@/lib/dateUtils";
 import CinematicLightbox from "@/app/components/CinematicLightbox";
+import Image from "next/image";
 
 interface EventData {
   id?: string;
@@ -271,7 +272,14 @@ export default function EventDetailPage() {
             onClick={() => openGallery(0)}
             className="md:col-span-2 md:row-span-2 rounded-[2rem] overflow-hidden relative group h-[400px] md:h-full cursor-pointer"
           >
-            <img src={activeEvent.gallery[0]} alt="Event hero" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+            <Image
+              src={activeEvent.gallery[0]}
+              alt="Event hero"
+              fill
+              sizes="(max-width: 768px) 100vw, 66vw"
+              className="object-cover transition-transform duration-700 group-hover:scale-105"
+              unoptimized
+            />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-100 transition-opacity duration-300 group-hover:opacity-90" />
             
             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -340,7 +348,15 @@ export default function EventDetailPage() {
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-3">
                   {activeEvent.speakers.map((speaker, i) => (
-                    <img key={i} src={speaker.img} alt={speaker.name} className="w-10 h-10 rounded-full border-2 border-white object-cover shadow-sm" />
+                    <Image
+                      key={i}
+                      src={speaker.img}
+                      alt={speaker.name}
+                      width={40}
+                      height={40}
+                      className="w-10 h-10 rounded-full border-2 border-white object-cover shadow-sm"
+                      unoptimized
+                    />
                   ))}
                 </div>
                 <div className="w-10 h-10 rounded-full border-2 border-dashed border-gray-200 flex items-center justify-center bg-gray-50 text-gray-400">
@@ -386,9 +402,12 @@ export default function EventDetailPage() {
                   onClick={() => openGallery(idx)}
                   className={`group relative cursor-pointer overflow-hidden rounded-[2rem] bg-gray-100 ${idx === 0 || idx === 3 ? 'md:col-span-2 aspect-[2/1]' : 'aspect-square'}`}
                 >
-                  <img
+                  <Image
                     src={img} alt={`Gallery ${idx + 1}`}
-                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+                    fill
+                    sizes="(max-width: 768px) 50vw, 25vw"
+                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+                    unoptimized
                   />
                   <div className="absolute inset-0 bg-gray-900/0 group-hover:bg-gray-900/10 transition-colors duration-500 flex items-center justify-center">
                     <div className="w-14 h-14 rounded-full bg-white/30 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 ease-out shadow-xl">

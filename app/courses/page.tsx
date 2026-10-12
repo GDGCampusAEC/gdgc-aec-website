@@ -11,6 +11,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import coursesStatic from "@/courses.json";
+import Image from "next/image";
 
 interface Course {
   id: string;
@@ -72,14 +73,15 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
       <div className="relative overflow-hidden h-48 flex-shrink-0 bg-gray-50">
         {thumb && !imgError ? (
           <>
-            <img
+            <Image
               src={thumb}
               alt={course.title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              className="object-cover group-hover:scale-105 transition-transform duration-500"
               onError={() => setImgError(true)}
-              loading={index < 3 ? "eager" : "lazy"}
-              // @ts-ignore — fetchPriority is valid HTML but TS types lag behind
-              fetchPriority={index < 3 ? "high" : "auto"}
+              priority={index < 3}
+              unoptimized
             />
             {/* Play overlay */}
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">

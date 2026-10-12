@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { toPng } from "html-to-image";
+import Image from "next/image";
 
 // Curated list of Legendary, Mythical, and highly cool/popular Pokémon
 const LEGENDARY_POKEMON = [
@@ -351,11 +352,14 @@ export default function RevealCard() {
                 <div className={`absolute inset-0 bg-gradient-to-tr ${theme.glowColor} blur-2xl rounded-full group-hover:scale-120 transition-transform duration-750`} />
 
                 {/* Pokemon Official Artwork */}
-                <img
+                <Image
                   src={pokemonUrl}
                   alt={pokemonName}
+                  fill
+                  sizes="(max-width: 640px) 100vw, 320px"
+                  className="object-contain relative z-20 drop-shadow-[0_10px_15px_rgba(0,0,0,0.3)] animate-float scale-110 group-hover:scale-120 transition-transform duration-500"
+                  unoptimized
                   crossOrigin="anonymous"
-                  className="w-full h-full object-contain relative z-20 drop-shadow-[0_10px_15px_rgba(0,0,0,0.3)] animate-float scale-110 group-hover:scale-120 transition-transform duration-500"
                 />
               </div>
             </div>
@@ -371,9 +375,11 @@ export default function RevealCard() {
                 >
                   {/* Header */}
                   <div className="flex items-center gap-3 sm:gap-4 group cursor-default">
-                    <img
+                    <Image
                       src="/gdsc-logo.png"
                       alt="GDGC Logo"
+                      width={300}
+                      height={300}
                       className="w-10 h-10 sm:w-12 sm:h-12 object-contain"
                     />
 
@@ -452,9 +458,11 @@ export default function RevealCard() {
                   {/* Header */}
                   <div className="flex justify-between items-start gap-4">
                     <div className="flex items-center gap-3">
-                      <img
+                      <Image
                         src="/gdsc-logo.png"
                         alt="GDGC Logo"
+                        width={300}
+                        height={300}
                         className="w-10 h-10 sm:w-12 sm:h-12 object-contain"
                       />
 

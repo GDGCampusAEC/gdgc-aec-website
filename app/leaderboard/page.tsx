@@ -15,6 +15,7 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import { ContributionRecord } from "@/lib/openOrbit/types";
+import Image from "next/image";
 
 interface LeaderboardData {
   enabled: boolean;
@@ -515,9 +516,11 @@ export default function LeaderboardPage() {
                       <SparkleStar className="w-3.5 h-3.5 absolute top-20 right-6 opacity-40" fill="#64748B" />
 
                       <div className="relative mt-2 mb-3">
-                        <img
-                          src={topThree[1].avatarUrl || `https://github.com/${topThree[1].githubUsername}.png`}
+                        <Image
+                          src={topThree[1].avatarUrl || `https://avatars.githubusercontent.com/${topThree[1].githubUsername}`}
                           alt={topThree[1].githubUsername}
+                          width={80}
+                          height={80}
                           className="w-20 h-20 rounded-full border-4 border-slate-200 ring-4 ring-slate-100 shadow-sm object-cover"
                         />
                       </div>
@@ -577,9 +580,11 @@ export default function LeaderboardPage() {
 
                       <div className="relative mt-2 mb-3">
                         <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-[#54CE18]/30 to-[#FBBF24]/30 blur-xs" />
-                        <img
-                          src={topThree[0].avatarUrl || `https://github.com/${topThree[0].githubUsername}.png`}
+                        <Image
+                          src={topThree[0].avatarUrl || `https://avatars.githubusercontent.com/${topThree[0].githubUsername}`}
                           alt={topThree[0].githubUsername}
+                          width={96}
+                          height={96}
                           className="relative w-24 h-24 rounded-full border-4 border-[#FBBF24] ring-4 ring-[#54CE18]/30 shadow-md object-cover"
                         />
                       </div>
@@ -640,9 +645,11 @@ export default function LeaderboardPage() {
                       <SparkleStar className="w-3.5 h-3.5 absolute top-20 left-6 opacity-35" fill="#7A3E1D" />
 
                       <div className="relative mt-2 mb-3">
-                        <img
-                          src={topThree[2].avatarUrl || `https://github.com/${topThree[2].githubUsername}.png`}
+                        <Image
+                          src={topThree[2].avatarUrl || `https://avatars.githubusercontent.com/${topThree[2].githubUsername}`}
                           alt={topThree[2].githubUsername}
+                          width={80}
+                          height={80}
                           className="w-20 h-20 rounded-full border-4 border-[#C67D48] ring-4 ring-[#C67D48]/20 shadow-sm object-cover"
                         />
                       </div>
@@ -700,9 +707,11 @@ export default function LeaderboardPage() {
                     >
                       <CrownBadge rank={2} />
                       <div className="relative mt-2 mb-3">
-                        <img
-                          src={topThree[1].avatarUrl || `https://github.com/${topThree[1].githubUsername}.png`}
+                        <Image
+                          src={topThree[1].avatarUrl || `https://avatars.githubusercontent.com/${topThree[1].githubUsername}`}
                           alt={topThree[1].githubUsername}
+                          width={80}
+                          height={80}
                           className="w-20 h-20 rounded-full border-4 border-slate-200 ring-4 ring-slate-100 shadow-sm object-cover"
                         />
                       </div>
@@ -747,9 +756,11 @@ export default function LeaderboardPage() {
                     >
                       <CrownBadge rank={1} />
                       <div className="relative mt-2 mb-3">
-                        <img
-                          src={topThree[0].avatarUrl || `https://github.com/${topThree[0].githubUsername}.png`}
+                        <Image
+                          src={topThree[0].avatarUrl || `https://avatars.githubusercontent.com/${topThree[0].githubUsername}`}
                           alt={topThree[0].githubUsername}
+                          width={96}
+                          height={96}
                           className="w-24 h-24 rounded-full border-4 border-[#FBBF24] ring-4 ring-[#54CE18]/30 shadow-md object-cover"
                         />
                       </div>
@@ -800,9 +811,11 @@ export default function LeaderboardPage() {
                     >
                       <CrownBadge rank={1} />
                       <div className="relative mt-2 mb-3">
-                        <img
-                          src={topThree[0].avatarUrl || `https://github.com/${topThree[0].githubUsername}.png`}
+                        <Image
+                          src={topThree[0].avatarUrl || `https://avatars.githubusercontent.com/${topThree[0].githubUsername}`}
                           alt={topThree[0].githubUsername}
+                          width={96}
+                          height={96}
                           className="w-24 h-24 rounded-full border-4 border-[#FBBF24] ring-4 ring-[#54CE18]/30 shadow-md object-cover"
                         />
                       </div>
@@ -880,9 +893,11 @@ export default function LeaderboardPage() {
                           {rank}
                         </div>
 
-                        <img
-                          src={item.avatarUrl || `https://github.com/${item.githubUsername}.png`}
+                        <Image
+                          src={item.avatarUrl || `https://avatars.githubusercontent.com/${item.githubUsername}`}
                           alt={item.githubUsername}
+                          width={44}
+                          height={44}
                           className="w-8 h-8 sm:w-11 sm:h-11 rounded-full border border-slate-200 object-cover shrink-0"
                         />
 
@@ -961,9 +976,11 @@ export default function LeaderboardPage() {
                     {/* Header */}
                     <div className="bg-gradient-to-r from-[#0D2A18] via-[#091F11] to-[#06140A] text-white p-5 sm:p-6 flex items-center justify-between shrink-0">
                       <div className="flex items-center gap-3.5">
-                        <img
-                          src={selectedUser.avatarUrl || `https://github.com/${selectedUser.username}.png`}
+                        <Image
+                          src={selectedUser.avatarUrl || `https://avatars.githubusercontent.com/${selectedUser.username}`}
                           alt={selectedUser.username}
+                          width={48}
+                          height={48}
                           className="w-12 h-12 rounded-full border-2 border-[#54CE18] object-cover shadow-sm bg-slate-900"
                         />
                         <div>

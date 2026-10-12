@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Trash2, Plus, LogOut, LayoutDashboard, Users, CalendarDays, Server, CheckCircle2, Loader2, Pencil, Camera, Upload, BookOpen, ExternalLink, Trophy } from "lucide-react";
 import { robustParseDate } from "@/lib/dateUtils";
 import OpenOrbitAdmin from "./components/OpenOrbitAdmin";
+import Image from "next/image";
 
 export default function AdminPage() {
   const [secret, setSecret] = useState("");
@@ -796,7 +797,14 @@ export default function AdminPage() {
                   {activeTab === "team" && team.map((member, index) => (
                     <motion.div key={member._id || member.id || index} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} transition={{ delay: index * 0.05 }} className="group bg-white p-4 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-md transition-all flex justify-between items-center">
                       <div className="flex items-center gap-4">
-                        <img src={member.img && member.img.trim() !== "" && !member.img.startsWith("/assets/team-") ? member.img : "/assets/default-avatar.svg"} alt={member.name} className="w-14 h-14 rounded-full object-cover border border-gray-100" />
+                        <Image
+                          src={member.img && member.img.trim() !== "" && !member.img.startsWith("/assets/team-") ? member.img : "/assets/default-avatar.svg"}
+                          alt={member.name}
+                          width={56}
+                          height={56}
+                          className="w-14 h-14 rounded-full object-cover border border-gray-100"
+                          unoptimized
+                        />
                         <div>
                           <h3 className="text-base font-medium text-gray-900">{member.name}</h3>
                           <p className="text-sm text-[#0f9d58] font-medium mb-1.5">{member.role} <span className="text-gray-400 ml-2">Class of {member.year}</span></p>
@@ -825,7 +833,14 @@ export default function AdminPage() {
                     return (
                       <motion.div key={item.id || index} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} transition={{ delay: index * 0.05 }} className="group bg-white p-4 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-md transition-all flex justify-between items-center">
                         <div className="flex items-center gap-4">
-                          <img src={item.src} alt={item.title} className="w-14 h-14 rounded-2xl object-cover border border-gray-100" />
+                          <Image
+                            src={item.src}
+                            alt={item.title}
+                            width={56}
+                            height={56}
+                            className="w-14 h-14 rounded-2xl object-cover border border-gray-100"
+                            unoptimized
+                          />
                           <div>
                             <h3 className="text-base font-medium text-gray-900">{item.title}</h3>
                             <p className="text-xs text-[#0f9d58] font-semibold uppercase tracking-wider mb-1">
@@ -864,7 +879,14 @@ export default function AdminPage() {
                     <motion.div key={course.id || index} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} transition={{ delay: index * 0.05 }} className="group bg-white p-4 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-md transition-all flex justify-between items-center">
                       <div className="flex items-center gap-4">
                         {course.image ? (
-                          <img src={course.image} alt={course.title} className="w-14 h-14 rounded-2xl object-cover border border-gray-100 flex-shrink-0" />
+                          <Image
+                            src={course.image}
+                            alt={course.title}
+                            width={56}
+                            height={56}
+                            className="w-14 h-14 rounded-2xl object-cover border border-gray-100 flex-shrink-0"
+                            unoptimized
+                          />
                         ) : (
                           <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center flex-shrink-0">
                             <BookOpen size={24} className="text-[#4285f4]" />

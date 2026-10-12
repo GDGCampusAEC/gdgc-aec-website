@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Globe } from "lucide-react";
+import Image from "next/image";
 
 const footerLinks = [
   { name: "Home", path: "/" },
@@ -107,9 +108,11 @@ export default function Footer() {
           {/* Column 1: Brand details */}
           <div className="flex flex-col items-center md:items-start">
             <Link href="/" className="flex items-center gap-3.5 mb-5 group hover:opacity-95 transition-all duration-300">
-              <img
+              <Image
                 src="/gdsc-logo.png"
                 alt="GDG On Campus Asansol Engineering College"
+                width={300}
+                height={300}
                 className="h-12 w-auto object-contain"
               />
               <div className="flex flex-col text-left">
