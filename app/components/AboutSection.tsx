@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { GraduationCap, Users, Code, Star } from "lucide-react";
+import Image from "next/image";
 
 export default function AboutSection() {
 
@@ -30,7 +31,13 @@ export default function AboutSection() {
             transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
             className="relative w-64 md:w-80 z-20"
           >
-            <img src="/balloon.svg" alt="Hot Air Balloon" className="w-full h-auto drop-shadow-xl" />
+            <Image
+              src="/balloon.svg"
+              alt="Hot Air Balloon"
+              width={474}
+              height={656}
+              className="w-full h-auto drop-shadow-xl"
+            />
 
             {tags.map((tag, idx) => (
               <motion.div
@@ -52,24 +59,36 @@ export default function AboutSection() {
             whileHover={{ rotate: -2, scale: 1.05 }}
             transition={{ type: "spring", stiffness: 300 }}
           >
-            <img src="/gdgc core team photo.jpeg" alt="GDGC AEC Team" className="w-full h-auto bg-gray-200 aspect-video object-cover" />
+            <Image
+              src="/gdgc core team photo.jpeg"
+              alt="GDGC AEC Team"
+              width={1280}
+              height={960}
+              className="w-full h-auto bg-gray-200 aspect-video object-cover"
+            />
           </motion.div>
 
-          <img
+          <Image
             src="/cloud-white-3.svg"
             alt="clouds"
+            width={588}
+            height={253}
             className="absolute bottom-15 w-[220px] sm:w-[300px] md:w-[400px] z-10 drop-shadow-sm scale-110"
           />
 
-          <img
+          <Image
             src="/cloud-white-3.svg"
             alt="clouds"
+            width={588}
+            height={253}
             className="absolute bottom-0 left-20 w-[180px] sm:w-[240px] md:w-[300px] z-10 drop-shadow-sm scale-110"
           />
 
-          <img
+          <Image
             src="/cloud-white-3.svg"
             alt="clouds"
+            width={588}
+            height={253}
             className="absolute top-110 right-10 w-[120px] sm:w-[160px] md:w-[200px] z-10 drop-shadow-sm scale-110 rotate-[8deg]"
           />
         </div>

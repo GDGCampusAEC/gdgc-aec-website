@@ -3,6 +3,7 @@
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
+import Image from "next/image";
 
 interface TeamMember {
   name: string;
@@ -324,7 +325,13 @@ export default function TeamTrainSection({
 
                     <div className={`absolute inset-0 w-full h-full flex flex-col items-center justify-center transition-all duration-300 ${isExpanded ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100 delay-200'}`}>
                       <div className="w-32 md:w-44 aspect-[3/4] bg-white/10 backdrop-blur-md rounded-2xl p-2 border border-white/20 shadow-[0_12px_40px_rgba(0,0,0,0.25)] relative overflow-hidden mb-3">
-                        <img src={leadMember.img} alt={leadMember.name} className="w-full h-full object-cover rounded-xl" />
+                        <Image
+                          src={leadMember.img}
+                          alt={leadMember.name}
+                          fill
+                          sizes="(max-width: 768px) 176px, 176px"
+                          className="object-cover rounded-xl"
+                        />
                       </div>
 
                       <h3 className="font-bold text-white text-sm md:text-base text-center drop-shadow-md">{leadMember.name}</h3>
@@ -366,13 +373,25 @@ export default function TeamTrainSection({
                             <div className="flip-card">
 
                               <div className="flip-front w-full h-full p-1.5 md:p-2 bg-white/10 backdrop-blur-md border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.15)] overflow-hidden">
-                                <img src={member.img} alt={member.name} className="w-full h-full object-cover rounded-xl" />
+                                <Image
+                                  src={member.img}
+                                  alt={member.name}
+                                  fill
+                                  sizes="(max-width: 768px) 128px, 128px"
+                                  className="object-cover rounded-xl"
+                                />
                                 <div className="absolute top-0 left-[-150%] w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-[30deg] transition-all duration-700 group-hover:left-[150%] pointer-events-none" />
                               </div>
 
                               <div className="flip-back w-full h-full p-2 md:p-4 bg-gray-900/90 backdrop-blur-md border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.15)] flex flex-col items-center justify-center gap-2 md:gap-4 text-white overflow-hidden">
                                 <div className="w-8 h-8 md:w-12 md:h-12 rounded-full overflow-hidden border border-white/30 shadow-inner">
-                                  <img src={member.img} alt={member.name} className="w-full h-full object-cover" />
+                                  <Image
+                                    src={member.img}
+                                    alt={member.name}
+                                    fill
+                                    sizes="(max-width: 768px) 96px, 96px"
+                                    className="object-cover"
+                                  />
                                 </div>
                                 <div className="text-center">
                                   <span className="text-[8px] md:text-[9px] uppercase font-bold tracking-widest text-[#0f9d58]">Connect</span>

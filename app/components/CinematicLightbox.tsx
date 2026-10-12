@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import Image from "next/image";
 
 interface CinematicLightboxProps {
   isOpen: boolean;
@@ -101,10 +102,13 @@ export default function CinematicLightbox({
                   : "ring-1 ring-white/10 scale-90 opacity-40 hover:opacity-80 hover:scale-95"
               }`}
             >
-              <img
+              <Image
                 src={img}
                 className="w-full h-full object-cover"
                 alt={`Thumbnail ${idx}`}
+                fill
+                sizes="64px"
+                unoptimized
               />
             </button>
           ))}
