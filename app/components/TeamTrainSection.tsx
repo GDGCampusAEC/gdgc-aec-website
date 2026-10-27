@@ -4,6 +4,7 @@ import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 import Image from "next/image";
+import FallbackImage from "./FallbackImage";
 
 interface TeamMember {
   name: string;
@@ -51,26 +52,26 @@ const defaultTeamYears: TeamYear[] = [
     yop: "Class of 2026",
     color: "from-[#0f9d58] to-[#0b703e]",
     members: [
-      { name: "Souvik Majee", role: "Lead Web Dev", img: "/assets/team-1.jpg" },
-      { name: "Member 2", role: "UI/UX", img: "/assets/team-2.jpg" },
-      { name: "Member 3", role: "App Dev", img: "/assets/team-3.jpg" },
-      { name: "Member 4", role: "Cloud", img: "/assets/team-4.jpg" },
-      { name: "Member 5", role: "AI/ML", img: "/assets/team-5.jpg" },
+      { name: "Souvik Majee", role: "Lead Web Dev", img: "/assets/default-avatar.svg" },
+      { name: "Member 2", role: "UI/UX", img: "/assets/default-avatar.svg" },
+      { name: "Member 3", role: "App Dev", img: "/assets/default-avatar.svg" },
+      { name: "Member 4", role: "Cloud", img: "/assets/default-avatar.svg" },
+      { name: "Member 5", role: "AI/ML", img: "/assets/default-avatar.svg" },
     ],
   },
   {
     yop: "Class of 2025",
     color: "from-[#4285f4] to-[#2c5ea8]",
     members: [
-      { name: "Member 6", role: "Cloud Lead", img: "/assets/team-4.jpg" },
-      { name: "Member 5", role: "AI/ML Lead", img: "/assets/team-5.jpg" },
+      { name: "Member 6", role: "Cloud Lead", img: "/assets/default-avatar.svg" },
+      { name: "Member 5", role: "AI/ML Lead", img: "/assets/default-avatar.svg" },
     ],
   },
   {
     yop: "Class of 2024",
     color: "from-[#f4b400] to-[#b38500]",
     members: [
-      { name: "Member 7", role: "Founder", img: "/assets/team-1.jpg" },
+      { name: "Member 7", role: "Founder", img: "/assets/default-avatar.svg" },
     ],
   },
 ];
@@ -325,9 +326,12 @@ export default function TeamTrainSection({
 
                     <div className={`absolute inset-0 w-full h-full flex flex-col items-center justify-center transition-all duration-300 ${isExpanded ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100 delay-200'}`}>
                       <div className="w-32 md:w-44 aspect-[3/4] bg-white/10 backdrop-blur-md rounded-2xl p-2 border border-white/20 shadow-[0_12px_40px_rgba(0,0,0,0.25)] relative overflow-hidden mb-3">
-                        <Image
+                        <FallbackImage
                           src={leadMember.img}
                           alt={leadMember.name}
+                          isAvatar
+                          initials={leadMember.name}
+                          fallbackSrc="/assets/default-avatar.svg"
                           fill
                           sizes="(max-width: 768px) 176px, 176px"
                           className="object-cover rounded-xl"
@@ -373,9 +377,12 @@ export default function TeamTrainSection({
                             <div className="flip-card">
 
                               <div className="flip-front w-full h-full p-1.5 md:p-2 bg-white/10 backdrop-blur-md border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.15)] overflow-hidden">
-                                <Image
+                                <FallbackImage
                                   src={member.img}
                                   alt={member.name}
+                                  isAvatar
+                                  initials={member.name}
+                                  fallbackSrc="/assets/default-avatar.svg"
                                   fill
                                   sizes="(max-width: 768px) 128px, 128px"
                                   className="object-cover rounded-xl"
@@ -385,9 +392,12 @@ export default function TeamTrainSection({
 
                               <div className="flip-back w-full h-full p-2 md:p-4 bg-gray-900/90 backdrop-blur-md border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.15)] flex flex-col items-center justify-center gap-2 md:gap-4 text-white overflow-hidden">
                                 <div className="w-8 h-8 md:w-12 md:h-12 rounded-full overflow-hidden border border-white/30 shadow-inner">
-                                  <Image
+                                  <FallbackImage
                                     src={member.img}
                                     alt={member.name}
+                                    isAvatar
+                                    initials={member.name}
+                                    fallbackSrc="/assets/default-avatar.svg"
                                     fill
                                     sizes="(max-width: 768px) 96px, 96px"
                                     className="object-cover"

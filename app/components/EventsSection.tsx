@@ -65,7 +65,7 @@ export default function EventsSection() {
           <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-2">Upcoming Events</h2>
           <p className="text-gray-500 font-medium">Join us to learn, build, and connect.</p>
         </div>
-        <Link href="#gallery" className="hidden md:flex items-center gap-1 font-bold text-[#0f9d58] hover:underline">
+        <Link href="/gallery" className="hidden md:flex items-center gap-1 font-bold text-[#0f9d58] hover:underline">
           View Past Gallery <ArrowUpRight className="w-5 h-5" />
         </Link>
       </div>

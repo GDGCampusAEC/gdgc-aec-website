@@ -11,6 +11,10 @@ const footerLinks = [
   { name: "About", path: "/#about" },
   { name: "Events", path: "/events" },
   { name: "Teams", path: "/teams" },
+  { name: "Gallery", path: "/gallery" },
+  { name: "Courses", path: "/courses" },
+  { name: "Projects", path: "/projects" },
+  { name: "Leaderboard", path: "/leaderboard" },
 ];
 
 // Symmetrical arc spreading outwards to the right side, perfectly mirroring the Hero section
