@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Home, Info, Users, Image, Calendar, BookOpen, Trophy } from "lucide-react";
+import ThemeToggle from "./ThemeToggle";
 
 const navLinks = [
   { name: "Home", path: "/", icon: Home },
@@ -172,6 +173,10 @@ export default function Navbar() {
             </Link>
           );
         })}
+
+        <div className="pl-1 pr-0.5 shrink-0 flex items-center">
+          <ThemeToggle />
+        </div>
       </div>
     </nav>
   );
