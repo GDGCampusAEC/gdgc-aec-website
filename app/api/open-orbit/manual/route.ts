@@ -18,8 +18,8 @@ export async function GET(req: Request) {
   try {
     const entries = await getManualLeaderboard();
     return NextResponse.json(entries);
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Failed to load manual leaderboard" }, { status: 500 });
+  } catch (err: unknown) {
+    return NextResponse.json({ error: err instanceof Error ? err.message : "Failed to load manual leaderboard" }, { status: 500 });
   }
 }
 
@@ -53,8 +53,8 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ success: true, entry: saved }, { status: 201 });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Failed to save manual entry" }, { status: 500 });
+  } catch (err: unknown) {
+    return NextResponse.json({ error: err instanceof Error ? err.message : "Failed to save manual entry" }, { status: 500 });
   }
 }
 
@@ -90,8 +90,8 @@ export async function PUT(req: Request) {
     });
 
     return NextResponse.json({ success: true, entry: saved });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Failed to update manual entry" }, { status: 500 });
+  } catch (err: unknown) {
+    return NextResponse.json({ error: err instanceof Error ? err.message : "Failed to update manual entry" }, { status: 500 });
   }
 }
 
@@ -110,7 +110,7 @@ export async function DELETE(req: Request) {
 
     await deleteManualLeaderboardEntry(id);
     return NextResponse.json({ success: true, deletedId: id });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Failed to delete manual entry" }, { status: 500 });
+  } catch (err: unknown) {
+    return NextResponse.json({ error: err instanceof Error ? err.message : "Failed to delete manual entry" }, { status: 500 });
   }
 }

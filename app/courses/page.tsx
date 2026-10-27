@@ -8,7 +8,6 @@ import {
   Search,
   Play,
   GraduationCap,
-  Sparkles,
 } from "lucide-react";
 import coursesStatic from "@/courses.json";
 import Image from "next/image";
@@ -149,13 +148,11 @@ export default function CoursesPage() {
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const [courses, setCourses] = useState<Course[]>(coursesStatic as Course[]);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     let active = true;
     async function fetchDynamicCourses() {
       try {
-        setLoading(true);
         const res = await fetch("/api/courses");
         if (res.ok) {
           const data = await res.json();
@@ -165,8 +162,6 @@ export default function CoursesPage() {
         }
       } catch (err) {
         console.warn("Unable to fetch dynamic courses, using static backup:", err);
-      } finally {
-        if (active) setLoading(false);
       }
     }
 

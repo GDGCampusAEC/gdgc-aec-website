@@ -120,8 +120,8 @@ export async function syncLatest(): Promise<SyncResult> {
       ...summary,
       timestamp: new Date().toISOString(),
     };
-  } catch (err: any) {
-    const errorMsg = err?.message || "Sync Latest failed";
+  } catch (err: unknown) {
+    const errorMsg = (err instanceof Error ? err.message : String(err)) || "Sync Latest failed";
     await updateCompetitionConfig({
       lastSyncStatus: "failed",
       lastSyncError: errorMsg,
@@ -296,8 +296,8 @@ export async function syncEverything(): Promise<SyncResult> {
       ...summary,
       timestamp: new Date().toISOString(),
     };
-  } catch (err: any) {
-    const errorMsg = err?.message || "Sync Everything failed";
+  } catch (err: unknown) {
+    const errorMsg = (err instanceof Error ? err.message : String(err)) || "Sync Everything failed";
     await updateCompetitionConfig({
       lastSyncStatus: "failed",
       lastSyncError: errorMsg,

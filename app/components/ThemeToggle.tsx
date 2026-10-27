@@ -8,19 +8,22 @@ export default function ThemeToggle() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem("gdgc-theme") as "light" | "dark" | null;
-    if (saved) {
-      setTheme(saved);
-      if (saved === "dark") {
+    const frame = requestAnimationFrame(() => {
+      const saved = localStorage.getItem("gdgc-theme") as "light" | "dark" | null;
+      if (saved) {
+        setTheme(saved);
+        if (saved === "dark") {
+          document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+        }
+      } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        setTheme("dark");
         document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
       }
-    } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      setTheme("dark");
-      document.documentElement.classList.add("dark");
-    }
-    setMounted(true);
+      setMounted(true);
+    });
+    return () => cancelAnimationFrame(frame);
   }, []);
 
   const toggleTheme = () => {

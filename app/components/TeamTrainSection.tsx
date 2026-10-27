@@ -3,7 +3,6 @@
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
-import Image from "next/image";
 import FallbackImage from "./FallbackImage";
 
 interface TeamMember {
@@ -91,16 +90,19 @@ export default function TeamTrainSection({
   const [windowWidth, setWindowWidth] = useState(1200);
 
   useEffect(() => {
-    setWindowWidth(window.innerWidth);
     const handleResize = () => setWindowWidth(window.innerWidth);
+    const frame = requestAnimationFrame(handleResize);
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
   useEffect(() => {
     if (!trainContainerRef.current) return;
     const observer = new ResizeObserver((entries) => {
-      for (let entry of entries) {
+      for (const entry of entries) {
         setTrainWidth(entry.contentRect.width);
       }
     });
@@ -137,7 +139,7 @@ export default function TeamTrainSection({
         const members = await res.json();
 
         if (members && members.length > 0) {
-          const grouped = members.reduce((acc: any, member: any) => {
+          const grouped = members.reduce((acc: Record<string, TeamMember[]>, member: TeamMember & { year?: string | number }) => {
             const yearStr = `Class of ${member.year}`;
             if (!acc[yearStr]) {
               acc[yearStr] = [];
@@ -197,7 +199,6 @@ export default function TeamTrainSection({
   const maxGroundShift = maxShift * -0.5;
   const groundX = useTransform(smoothProgress, [0, 1], [0, maxGroundShift]);
 
-  const skyX = useTransform(smoothProgress, [0, 1], ["0%", "-10%"]);
   const mountainsX = useTransform(smoothProgress, [0, 1], ["0%", "-30%"]);
 
   return (

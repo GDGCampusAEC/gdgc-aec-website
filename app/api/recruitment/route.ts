@@ -150,8 +150,8 @@ export async function POST(request: Request) {
       { message: "Application submitted successfully! Thank you for applying to GDGC AEC." },
       { status: 201 },
     );
-  } catch (error: any) {
-    if (error?.message === "DUPLICATE_ROLL") {
+  } catch (error: unknown) {
+    if (error instanceof Error && error.message === "DUPLICATE_ROLL") {
       return buildError("An application with this university roll number has already been submitted.", 409);
     }
 

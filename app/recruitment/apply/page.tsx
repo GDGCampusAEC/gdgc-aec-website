@@ -110,6 +110,11 @@ function Select({
 }
 
 export default function RecruitmentApplyPage() {
+  const [form, setForm] = useState<FormState>(initialForm);
+  const [step, setStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   if (!RECRUITMENT_OPEN) {
     return (
@@ -147,12 +152,6 @@ export default function RecruitmentApplyPage() {
       </main>
     );
   }
-  const [form, setForm] = useState<FormState>(initialForm);
-
-  const [step, setStep] = useState(1);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
 
   const updateField = <K extends keyof FormState>(
     field: K,

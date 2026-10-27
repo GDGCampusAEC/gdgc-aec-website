@@ -7,8 +7,6 @@ import {
   AlertCircle,
   Search,
   Download,
-  ExternalLink,
-  Tag,
   CheckCircle,
 } from "lucide-react";
 import Link from "next/link";
@@ -111,8 +109,9 @@ export default function EventsSection() {
         if (rawEvents.length > 0) {
           setEvents(rawEvents);
         }
-      } catch (error: any) {
-        console.warn("Using default events fallback:", error.message);
+      } catch (error: unknown) {
+        const err = error as Error;
+        console.warn("Using default events fallback:", err?.message);
         setDebugError(null);
       } finally {
         setLoading(false);
@@ -263,7 +262,8 @@ export default function EventsSection() {
             });
 
             return (
-              <div
+              <motion.div
+                variants={item}
                 key={event._id || event.id || event.slug}
                 className="relative h-full group bg-white border-2 border-gray-900 rounded-2xl p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between"
               >
@@ -357,7 +357,7 @@ export default function EventsSection() {
                     </Link>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </motion.div>
