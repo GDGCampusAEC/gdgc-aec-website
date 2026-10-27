@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   BookOpen,
@@ -148,8 +148,35 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 export default function CoursesPage() {
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("All");
+  const [courses, setCourses] = useState<Course[]>(coursesStatic as Course[]);
+  const [loading, setLoading] = useState(false);
 
-  const allCourses: Course[] = coursesStatic as Course[];
+  useEffect(() => {
+    let active = true;
+    async function fetchDynamicCourses() {
+      try {
+        setLoading(true);
+        const res = await fetch("/api/courses");
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0 && active) {
+            setCourses(data);
+          }
+        }
+      } catch (err) {
+        console.warn("Unable to fetch dynamic courses, using static backup:", err);
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+
+    fetchDynamicCourses();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const allCourses: Course[] = courses;
 
   const categories = ["All", ...Array.from(new Set(allCourses.map((c) => c.category).filter(Boolean))) as string[]];
 

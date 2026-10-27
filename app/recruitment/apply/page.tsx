@@ -2,10 +2,9 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ArrowLeft, ArrowRight, Check, CheckCircle2, ChevronLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, CheckCircle2, ChevronLeft, Clock, Loader2 } from "lucide-react";
 
 import { RECRUITMENT_DEPARTMENTS, RECRUITMENT_OPEN, RECRUITMENT_ROLES, RECRUITMENT_YEARS, isValidUrl, normalizeRollNumber } from "@/lib/recruitment";
-import { notFound } from "next/navigation";
 
 type FormState = {
   name: string;
@@ -113,7 +112,40 @@ function Select({
 export default function RecruitmentApplyPage() {
 
   if (!RECRUITMENT_OPEN) {
-    notFound();
+    return (
+      <main className="min-h-screen bg-[#FDFBF7] flex items-center justify-center px-4 py-24">
+        <div className="max-w-lg w-full bg-white border-2 border-gray-900 rounded-2xl p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-center">
+          <div className="w-16 h-16 rounded-full bg-amber-50 border-2 border-amber-200 text-amber-600 flex items-center justify-center mx-auto mb-5 shadow-sm">
+            <Clock size={32} />
+          </div>
+          <span className="inline-block px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber-700 bg-amber-100/80 rounded-full mb-3">
+            Applications Closed
+          </span>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-3">
+            Recruitment Window Ended
+          </h1>
+          <p className="text-gray-600 text-sm leading-relaxed mb-6">
+            Thank you for your interest in joining Google Developer Groups on Campus AEC!
+            The application window for this cohort is currently closed. We are actively reviewing
+            current submissions. Follow our channels for upcoming events and workshops!
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link
+              href="/recruitment"
+              className="inline-flex items-center justify-center px-5 py-2.5 rounded-full border-2 border-gray-900 bg-gray-900 text-white font-semibold text-sm hover:bg-gray-800 transition-all"
+            >
+              Recruitment Overview
+            </Link>
+            <Link
+              href="/events"
+              className="inline-flex items-center justify-center px-5 py-2.5 rounded-full border-2 border-gray-200 text-gray-700 font-semibold text-sm hover:bg-gray-100 transition-all"
+            >
+              Explore Events
+            </Link>
+          </div>
+        </div>
+      </main>
+    );
   }
   const [form, setForm] = useState<FormState>(initialForm);
 
@@ -242,7 +274,7 @@ export default function RecruitmentApplyPage() {
       newStep = 3;
     }
 
-    setStep((current) => Math.min(current + 1, TOTAL_STEPS));
+    setStep(Math.min(newStep, TOTAL_STEPS));
     window.scrollTo({
       top: 0,
       behavior: "smooth",
@@ -258,7 +290,7 @@ export default function RecruitmentApplyPage() {
       newStep = 1;
     }
 
-    setStep((current) => Math.max(current - 1, 1));
+    setStep(Math.max(newStep, 1));
 
     window.scrollTo({
       top: 0,
