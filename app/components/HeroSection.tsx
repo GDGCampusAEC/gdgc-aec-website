@@ -17,30 +17,34 @@ const ConcentricSun = ({ className }: { className?: string }) => (
 );
 
 // Google themed party popper confetti
+const CONFETTI_PARTICLES = Array.from({ length: 16 }, (_, i) => {
+  const angle = (i * 22.5) * (Math.PI / 180);
+  const distance = 60 + ((i * 37) % 60);
+  return {
+    x: Math.cos(angle) * distance,
+    y: Math.sin(angle) * distance,
+    color: ["#4285F4", "#EA4335", "#FBBC04", "#34A853"][i % 4],
+    rotate: `${i * 22.5 + 90}deg`,
+  };
+});
+
 const GoogleConfetti = () => {
-  const colors = ["#4285F4", "#EA4335", "#FBBC04", "#34A853"];
   return (
     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-0 h-0 pointer-events-none z-0">
-      {[...Array(16)].map((_, i) => {
-        const angle = (i * 22.5) * (Math.PI / 180);
-        const distance = 60 + Math.random() * 60;
-        const x = Math.cos(angle) * distance;
-        const y = Math.sin(angle) * distance;
-        return (
-          <motion.div
-            key={i}
-            initial={{ x: 0, y: 0, scale: 0, opacity: 1 }}
-            animate={{ x, y, scale: [0, 1, 0.5], opacity: [1, 1, 0] }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute w-1.5 h-4 rounded-full"
-            style={{
-              backgroundColor: colors[i % 4],
-              rotate: `${i * 22.5 + 90}deg`,
-              transformOrigin: "center",
-            }}
-          />
-        );
-      })}
+      {CONFETTI_PARTICLES.map((p, i) => (
+        <motion.div
+          key={i}
+          initial={{ x: 0, y: 0, scale: 0, opacity: 1 }}
+          animate={{ x: p.x, y: p.y, scale: [0, 1, 0.5], opacity: [1, 1, 0] }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="absolute w-1.5 h-4 rounded-full"
+          style={{
+            backgroundColor: p.color,
+            rotate: p.rotate,
+            transformOrigin: "center",
+          }}
+        />
+      ))}
     </div>
   );
 };

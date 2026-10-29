@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Trophy,
@@ -17,8 +17,6 @@ import {
   AlertCircle,
   ExternalLink,
   Layers,
-  Calendar,
-  Globe,
   Loader2,
 } from "lucide-react";
 import { CompetitionConfig, ManualLeaderboardEntry, SyncResult } from "@/lib/openOrbit/types";
@@ -76,27 +74,27 @@ export default function OpenOrbitAdmin({
     return inputValue.includes("Z") ? inputValue : `${inputValue}:00.000Z`;
   };
 
-  const headers = {
+  const headers = useMemo(() => ({
     "Content-Type": "application/json",
     "x-admin-secret": secret,
-  };
+  }), [secret]);
 
   // Load config & manual entries
-  const fetchConfig = async () => {
+  const fetchConfig = useCallback(async () => {
     try {
       setLoadingConfig(true);
       const res = await fetch("/api/open-orbit/config", { headers });
       if (!res.ok) throw new Error("Failed to fetch Open Orbit configuration");
       const data = await res.json();
       setConfig(data);
-    } catch (err: any) {
-      setError(err.message || "Failed to load competition config");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to load competition config");
     } finally {
       setLoadingConfig(false);
     }
-  };
+  }, [headers, setError]);
 
-  const fetchManualEntries = async () => {
+  const fetchManualEntries = useCallback(async () => {
     try {
       setLoadingManual(true);
       const res = await fetch("/api/open-orbit/manual", { headers });
@@ -109,12 +107,15 @@ export default function OpenOrbitAdmin({
     } finally {
       setLoadingManual(false);
     }
-  };
+  }, [headers]);
 
   useEffect(() => {
-    fetchConfig();
-    fetchManualEntries();
-  }, []);
+    const raf = requestAnimationFrame(() => {
+      fetchConfig();
+      fetchManualEntries();
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [fetchConfig, fetchManualEntries]);
 
   // Save config updates
   const handleSaveConfig = async (e: React.FormEvent) => {
@@ -134,8 +135,8 @@ export default function OpenOrbitAdmin({
 
       setConfig(data.config);
       showSuccess("Competition settings updated successfully.");
-    } catch (err: any) {
-      setError(err.message || "Failed to save configuration");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to save configuration");
     } finally {
       setSavingConfig(false);
     }
@@ -155,8 +156,8 @@ export default function OpenOrbitAdmin({
       if (!res.ok) throw new Error(data.error || "Failed to update visibility");
       setConfig(data.config);
       showSuccess(nextVal ? "Public Leaderboard is now VISIBLE." : "Public Leaderboard is now HIDDEN.");
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to toggle visibility");
     }
   };
 
@@ -173,8 +174,8 @@ export default function OpenOrbitAdmin({
       if (!res.ok) throw new Error(data.error || "Failed to update mode");
       setConfig(data.config);
       showSuccess(`Switched to ${mode.toUpperCase()} leaderboard mode.`);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to toggle mode");
     }
   };
 
@@ -195,8 +196,8 @@ export default function OpenOrbitAdmin({
       setSyncSummary(data);
       showSuccess(`Sync ${mode === "latest" ? "Latest" : "Everything"} completed!`);
       fetchConfig();
-    } catch (err: any) {
-      setError(err.message || "Sync failed");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Sync failed");
     } finally {
       setSyncing(null);
     }
@@ -230,8 +231,8 @@ export default function OpenOrbitAdmin({
         : 1;
       setManualForm({ rank: nextRank, githubUsername: "", githubUrl: "", totalPoints: "" });
       fetchManualEntries();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to save entry");
     }
   };
 
@@ -245,8 +246,8 @@ export default function OpenOrbitAdmin({
       if (!res.ok) throw new Error("Failed to delete entry");
       showSuccess("Participant removed.");
       fetchManualEntries();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to delete entry");
     }
   };
 
@@ -504,7 +505,7 @@ export default function OpenOrbitAdmin({
               </label>
               <select
                 value={config.status}
-                onChange={(e) => setConfig({ ...config, status: e.target.value as any })}
+                onChange={(e) => setConfig({ ...config, status: e.target.value as CompetitionConfig["status"] })}
                 className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#4285f4] outline-none bg-white"
               >
                 <option value="active">Active (Scoring & Sync allowed)</option>

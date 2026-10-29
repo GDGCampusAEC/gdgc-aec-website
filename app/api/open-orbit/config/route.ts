@@ -33,10 +33,10 @@ export async function GET(req: Request) {
     };
 
     return NextResponse.json(publicConfig);
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("[OpenOrbit Config GET Error]:", err);
     return NextResponse.json(
-      { error: err.message || "Failed to load competition configuration" },
+      { error: err instanceof Error ? err.message : "Failed to load competition configuration" },
       { status: 500 }
     );
   }
@@ -64,8 +64,8 @@ export async function PUT(req: Request) {
       try {
         parseGitHubRepoUrl(body.repositoryUrl);
         updates.repositoryUrl = body.repositoryUrl.trim();
-      } catch (e: any) {
-        return NextResponse.json({ error: `Invalid repository URL: ${e.message}` }, { status: 400 });
+      } catch (e: unknown) {
+        return NextResponse.json({ error: `Invalid repository URL: ${e instanceof Error ? e.message : "Invalid URL"}` }, { status: 400 });
       }
     }
 
@@ -128,7 +128,7 @@ export async function PUT(req: Request) {
 
     const updated = await updateCompetitionConfig(updates);
     return NextResponse.json({ success: true, config: updated });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Failed to update configuration" }, { status: 500 });
+  } catch (err: unknown) {
+    return NextResponse.json({ error: err instanceof Error ? err.message : "Failed to update configuration" }, { status: 500 });
   }
 }

@@ -151,7 +151,7 @@ export async function fetchGitHubAvatar(username: string): Promise<string | null
       const data = await res.json();
       return data.avatar_url || null;
     }
-  } catch (err) {
+  } catch {
     // Ignore network error on optional avatar fetch
   }
 

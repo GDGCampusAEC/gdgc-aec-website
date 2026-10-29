@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Home, Info, Users, Image, Calendar, BookOpen, Trophy } from "lucide-react";
+import ThemeToggle from "./ThemeToggle";
 
 const navLinks = [
   { name: "Home", path: "/", icon: Home },
@@ -73,8 +74,45 @@ export default function Navbar() {
     };
   }, [pathname]);
 
+  // Scroll-spy: highlight nav pill for section currently in view (homepage only)
+  useEffect(() => {
+    if (pathname !== "/") return;
+
+    const sectionIds = ["home", "about", "projects", "gallery", "teams"];
+    const sectionToLink: Record<string, string> = {
+      home: "Home",
+      about: "About",
+      projects: "Projects",
+      gallery: "Gallery",
+      teams: "Teams",
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const linkName = sectionToLink[entry.target.id];
+            if (linkName) setActive(linkName);
+          }
+        }
+      },
+      { rootMargin: "-40% 0px -50% 0px", threshold: 0 }
+    );
+
+    for (const id of sectionIds) {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    }
+
+    return () => observer.disconnect();
+  }, [pathname]);
+
+
   return (
-    <nav className="fixed left-1/2 top-4 z-[90] w-full max-w-[92%] -translate-x-1/2 px-2 transition-[top] duration-300 sm:top-6 sm:max-w-2xl sm:px-4">
+    <nav
+      aria-label="Main Navigation"
+      className="fixed left-1/2 top-4 z-[90] w-full max-w-[92%] -translate-x-1/2 px-2 transition-[top] duration-300 sm:top-6 sm:max-w-2xl sm:px-4"
+    >
       <div
         className={`relative flex items-center justify-around overflow-hidden rounded-full border p-1.5 backdrop-blur-md transition-all duration-300 sm:justify-between ${scrolled
             ? "scale-[1.01] border-gray-200/80 bg-white/95 shadow-md"
@@ -91,6 +129,7 @@ export default function Navbar() {
             <Link
               key={link.name}
               href={link.path}
+              aria-current={isActive ? "page" : undefined}
               onClick={() => setActive(link.name)}
               onMouseEnter={() => setHovered(link.name)}
               className={`relative z-10 flex select-none items-center justify-center px-2.5 py-2 text-xs font-medium transition-colors duration-300 sm:px-5 sm:text-sm ${isActive
@@ -134,6 +173,10 @@ export default function Navbar() {
             </Link>
           );
         })}
+
+        <div className="pl-1 pr-0.5 shrink-0 flex items-center">
+          <ThemeToggle />
+        </div>
       </div>
     </nav>
   );
