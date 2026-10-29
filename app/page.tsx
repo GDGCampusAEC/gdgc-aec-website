@@ -4,7 +4,7 @@ import HeroSection from "@/app/components/HeroSection";
 import AboutSection from "@/app/components/AboutSection";
 import TeamTrainSection from "@/app/components/TeamTrainSection";
 import GallerySection from "@/app/components/GallerySection";
-import ProjectsShowcaseSection from "@/app/components/ProjectsShowcaseSection";
+import RevealCard from "@/app/components/RevealCard";
 
 export default function Home() {
   return (
@@ -18,10 +18,6 @@ export default function Home() {
         className="relative z-[80]"
       >
         <AboutSection />
-      </section>
-
-      <section id="projects" className="relative">
-        <ProjectsShowcaseSection homepageMode />
       </section>
 
       <section id="gallery" className="relative">
