@@ -49,10 +49,10 @@ export async function GET(req: Request) {
         lastSuccessfulSyncAt: config.lastSuccessfulSyncAt,
       });
     }
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[OpenOrbit Leaderboard GET Error]:", err);
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Failed to load leaderboard" },
+      { error: err.message || "Failed to load leaderboard" },
       { status: 500 }
     );
   }

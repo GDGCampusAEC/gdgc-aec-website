@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     } else {
       return NextResponse.json({ error: "Invalid Admin Secret" }, { status: 401 });
     }
-  } catch {
+  } catch (error) {
     return NextResponse.json({ error: "Bad Request" }, { status: 400 });
   }
 }

@@ -1,78 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trash2, Plus, LogOut, LayoutDashboard, Users, CalendarDays, Server, CheckCircle2, Loader2, Pencil, Camera, Upload, BookOpen, ExternalLink, Trophy } from "lucide-react";
 import { robustParseDate } from "@/lib/dateUtils";
 import OpenOrbitAdmin from "./components/OpenOrbitAdmin";
 import Image from "next/image";
-
-interface AdminEvent {
-  id?: string;
-  _id?: string;
-  slug: string;
-  title: string;
-  date: string;
-  time?: string;
-  location?: string;
-  tag?: string;
-  tagColor?: string;
-  desc?: string;
-  description?: string;
-  longDescription?: string;
-  image?: string;
-  gallery?: string[];
-}
-
-interface RecruitmentApplication {
-  id?: string;
-  name?: string;
-  email?: string;
-  roll?: string;
-  phone?: string;
-  department?: string;
-  year?: string;
-  roles?: string[];
-  whyJoin?: string;
-  experience?: string;
-  links?: string;
-  linkedin?: string;
-  github?: string;
-  otherClubCoreMember?: string | boolean;
-  otherClubName?: string;
-  resumeUrl?: string;
-  status?: string;
-  createdAt?: string | number;
-}
-
-interface AdminTeamMember {
-  id?: string;
-  _id?: string;
-  name: string;
-  role: string;
-  year?: string | number;
-  img?: string;
-  github?: string;
-  linkedin?: string;
-  globe?: string;
-  showOnTrain?: boolean;
-}
-
-interface AdminGalleryItem {
-  id?: string;
-  title: string;
-  src: string;
-  eventSlug?: string;
-  size?: string;
-}
-
-interface AdminCourseItem {
-  id?: string;
-  title: string;
-  description: string;
-  image?: string;
-  link?: string;
-}
 
 export default function AdminPage() {
   const [secret, setSecret] = useState("");
@@ -80,9 +14,9 @@ export default function AdminPage() {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [activeTab, setActiveTab] = useState<"events" | "team" | "gallery" | "courses" | "recruitment" | "open-orbit">("events");
 
-  const [events, setEvents] = useState<AdminEvent[]>([]);
-  const [recruitment, setRecruitment] = useState<RecruitmentApplication[]>([]);
-  const [selectedApplication, setSelectedApplication] = useState<RecruitmentApplication | null>(null);
+  const [events, setEvents] = useState<any[]>([]);
+  const [recruitment, setRecruitment] = useState<any[]>([]);
+  const [selectedApplication, setSelectedApplication] = useState<any | null>(null);
   const [recruitmentSearch, setRecruitmentSearch] = useState("");
   const [recruitmentFilters, setRecruitmentFilters] = useState({ department: "", year: "", role: "" });
   const [newEvent, setNewEvent] = useState({
@@ -98,7 +32,7 @@ export default function AdminPage() {
     image: "",
     gallery: [""]
   });
-  const [team, setTeam] = useState<AdminTeamMember[]>([]);
+  const [team, setTeam] = useState<any[]>([]);
   const [newMember, setNewMember] = useState({
     name: "",
     role: "",
@@ -109,7 +43,7 @@ export default function AdminPage() {
     globe: "",
     showOnTrain: false
   });
-  const [gallery, setGallery] = useState<AdminGalleryItem[]>([]);
+  const [gallery, setGallery] = useState<any[]>([]);
   const [newGalleryItem, setNewGalleryItem] = useState({
     title: "",
     src: "",
@@ -118,7 +52,7 @@ export default function AdminPage() {
   });
   const [editingGalleryId, setEditingGalleryId] = useState<string | null>(null);
 
-  const [courses, setCourses] = useState<AdminCourseItem[]>([]);
+  const [courses, setCourses] = useState<any[]>([]);
   const [newCourse, setNewCourse] = useState({
     title: "",
     description: "",
@@ -159,7 +93,7 @@ export default function AdminPage() {
           } else {
             sessionStorage.removeItem("gdgc_admin_secret");
           }
-        } catch {
+        } catch (e) {
           sessionStorage.removeItem("gdgc_admin_secret");
         }
       }
@@ -167,7 +101,9 @@ export default function AdminPage() {
     verifySession();
   }, []);
 
-  const fetchData = useCallback(async () => {
+  useEffect(() => { if (isAuthenticated) fetchData(); }, [isAuthenticated]);
+
+  const fetchData = async () => {
     setLoading(true);
     try {
       const [eventsRes, teamRes, galleryRes, coursesRes, recruitmentRes] = await Promise.all([
@@ -186,21 +122,12 @@ export default function AdminPage() {
         setRecruitment(recruitmentData);
         setSelectedApplication(recruitmentData[0] ?? null);
       }
-    } catch {
+    } catch (err) {
       setError("API Offline. Showing local cache.");
     } finally {
       setLoading(false);
     }
-  }, [secret]);
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      const raf = requestAnimationFrame(() => {
-        fetchData();
-      });
-      return () => cancelAnimationFrame(raf);
-    }
-  }, [isAuthenticated, fetchData]);
+  };
 
   const downloadRecruitmentCsv = async () => {
     try {
@@ -216,8 +143,8 @@ export default function AdminPage() {
       document.body.removeChild(anchor);
       URL.revokeObjectURL(url);
       showSuccess("Recruitment CSV downloaded.");
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Unable to download recruitment CSV.");
+    } catch (err: any) {
+      setError(err.message || "Unable to download recruitment CSV.");
     }
   };
 
@@ -244,7 +171,7 @@ export default function AdminPage() {
         setError(data.error || "Invalid Secret Key");
         setSecret("");
       }
-    } catch {
+    } catch (err) {
       setError("Failed to connect to authentication server.");
     } finally {
       setIsAuthenticating(false);
@@ -370,10 +297,10 @@ export default function AdminPage() {
       }
 
       cancelEdit();
-    } catch (err: unknown) { setError(err instanceof Error ? err.message : "Failed to save event"); }
+    } catch (err: any) { setError(err.message); }
   };
 
-  const startEdit = (event: AdminEvent) => {
+  const startEdit = (event: any) => {
     setNewEvent({
       title: event.title || "",
       slug: event.slug || "",
@@ -419,7 +346,7 @@ export default function AdminPage() {
       if (!res.ok) throw new Error("Failed to delete event");
       setEvents(events.filter((ev) => ev.slug !== slug));
       showSuccess("Event archived successfully.");
-    } catch (err: unknown) { setError(err instanceof Error ? err.message : "Failed to delete event"); }
+    } catch (err: any) { setError(err.message); }
   };
 
   const handleSubmitMember = async (e: React.FormEvent) => {
@@ -441,7 +368,7 @@ export default function AdminPage() {
         let updatedTeam = team.map((m) => ((m._id || m.id) === editingMemberId ? savedMember : m));
         if (savedMember.showOnTrain) {
           updatedTeam = updatedTeam.map((m) => {
-            if ((m._id || m.id) !== editingMemberId && parseInt(String(m.year)) === parseInt(savedMember.year)) {
+            if ((m._id || m.id) !== editingMemberId && parseInt(m.year) === parseInt(savedMember.year)) {
               return { ...m, showOnTrain: false };
             }
             return m;
@@ -453,7 +380,7 @@ export default function AdminPage() {
         let updatedTeam = [savedMember, ...team];
         if (savedMember.showOnTrain) {
           updatedTeam = updatedTeam.map((m) => {
-            if ((m._id || m.id) !== savedMember.id && (m._id || m.id) !== savedMember._id && parseInt(String(m.year)) === parseInt(savedMember.year)) {
+            if ((m._id || m.id) !== savedMember.id && (m._id || m.id) !== savedMember._id && parseInt(m.year) === parseInt(savedMember.year)) {
               return { ...m, showOnTrain: false };
             }
             return m;
@@ -464,10 +391,10 @@ export default function AdminPage() {
       }
 
       cancelEditMember();
-    } catch (err: unknown) { setError(err instanceof Error ? err.message : "Failed to save team member"); }
+    } catch (err: any) { setError(err.message); }
   };
 
-  const startEditMember = (member: AdminTeamMember) => {
+  const startEditMember = (member: any) => {
     setNewMember({
       name: member.name || "",
       role: member.role || "",
@@ -479,7 +406,7 @@ export default function AdminPage() {
       showOnTrain: member.showOnTrain === true
     });
     setIsEditing(true);
-    setEditingMemberId(member._id || member.id || null);
+    setEditingMemberId(member._id || member.id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -522,10 +449,10 @@ export default function AdminPage() {
       }
 
       cancelEditGallery();
-    } catch (err: unknown) { setError(err instanceof Error ? err.message : "Failed to save gallery photo"); }
+    } catch (err: any) { setError(err.message); }
   };
 
-  const startEditGallery = (item: AdminGalleryItem) => {
+  const startEditGallery = (item: any) => {
     setNewGalleryItem({
       title: item.title || "",
       src: item.src || "",
@@ -533,7 +460,7 @@ export default function AdminPage() {
       size: item.size || "col-span-1"
     });
     setIsEditing(true);
-    setEditingGalleryId(item.id || null);
+    setEditingGalleryId(item.id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -548,8 +475,7 @@ export default function AdminPage() {
     setEditingGalleryId(null);
   };
 
-  const deleteGallery = async (id?: string) => {
-    if (!id) return;
+  const deleteGallery = async (id: string) => {
     try {
       const res = await fetch(`/api/gallery/${id}`, {
         method: "DELETE",
@@ -558,7 +484,7 @@ export default function AdminPage() {
       if (!res.ok) throw new Error("Failed to delete gallery photo");
       setGallery(gallery.filter((g) => g.id !== id));
       showSuccess("Gallery photo removed.");
-    } catch (err: unknown) { setError(err instanceof Error ? err.message : "Failed to delete gallery item"); }
+    } catch (err: any) { setError(err.message); }
   };
 
   // ── Courses CRUD ────────────────────────────────────────
@@ -585,17 +511,17 @@ export default function AdminPage() {
         showSuccess("Course published.");
       }
       cancelEditCourse();
-    } catch (err: unknown) { setError(err instanceof Error ? err.message : "Failed to save course"); }
+    } catch (err: any) { setError(err.message); }
   };
 
-  const startEditCourse = (course: AdminCourseItem) => {
+  const startEditCourse = (course: any) => {
     setNewCourse({
       title: course.title || "",
       description: course.description || "",
       image: course.image || "",
       link: course.link || ""
     });
-    setEditingCourseId(course.id || null);
+    setEditingCourseId(course.id);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -604,8 +530,7 @@ export default function AdminPage() {
     setEditingCourseId(null);
   };
 
-  const deleteCourse = async (id?: string) => {
-    if (!id) return;
+  const deleteCourse = async (id: string) => {
     try {
       const res = await fetch(`/api/courses/${id}`, {
         method: "DELETE",
@@ -614,7 +539,7 @@ export default function AdminPage() {
       if (!res.ok) throw new Error("Failed to delete course");
       setCourses(courses.filter((c) => c.id !== id));
       showSuccess("Course removed.");
-    } catch (err: unknown) { setError(err instanceof Error ? err.message : "Failed to delete course"); }
+    } catch (err: any) { setError(err.message); }
   };
   // ────────────────────────────────────────────────────────
 
@@ -625,8 +550,7 @@ export default function AdminPage() {
     cancelEditCourse();
   }, [activeTab]);
 
-  const deleteMember = async (id?: string) => {
-    if (!id) return;
+  const deleteMember = async (id: string) => {
     try {
       const res = await fetch(`/api/team/member/${id}`, {
         method: "DELETE",
@@ -635,7 +559,7 @@ export default function AdminPage() {
       if (!res.ok) throw new Error("Failed to delete member");
       setTeam(team.filter((m) => (m._id || m.id) !== id));
       showSuccess("Member removed from registry.");
-    } catch (err: unknown) { setError(err instanceof Error ? err.message : "Failed to delete member"); }
+    } catch (err: any) { setError(err.message); }
   };
 
   const filteredRecruitment = recruitment.filter((entry) => {
@@ -809,7 +733,7 @@ export default function AdminPage() {
                                 <div className="text-lg font-semibold text-slate-900">{application.name}</div>
                                 <div className="mt-1 text-sm text-slate-500">{application.roll} • {application.department} • {application.year}</div>
                               </div>
-                              <div className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">{application.createdAt ? new Date(application.createdAt).toLocaleDateString() : "Recent"}</div>
+                              <div className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">{new Date(application.createdAt || Date.now()).toLocaleDateString()}</div>
                             </div>
                             <div className="mt-3 flex flex-wrap gap-2">
                               {(Array.isArray(application.roles) ? application.roles : []).map((role: string) => (
@@ -1106,8 +1030,8 @@ export default function AdminPage() {
                                   const url = await uploadToImageKit(e.target.files[0]);
                                   setNewEvent({ ...newEvent, image: url });
                                   showSuccess("Hero banner pushed to imagekit repository.");
-                                } catch (err: unknown) {
-                                  setError(err instanceof Error ? err.message : "Upload failed");
+                                } catch (err: any) {
+                                  setError(err.message);
                                 } finally {
                                   setLoading(false);
                                 }
@@ -1133,7 +1057,7 @@ export default function AdminPage() {
                                 )}
                               </div>
 
-                              <input type="file" accept="image/*" disabled={loading} onChange={async (e) => { if (e.target.files && e.target.files[0]) { try { setLoading(true); setError(null); const uploadedUrl = await uploadToImageKit(e.target.files[0]); const newGallery = [...newEvent.gallery]; newGallery[index] = uploadedUrl; if (index === newGallery.length - 1) { newGallery.push(""); } setNewEvent({ ...newEvent, gallery: newGallery }); showSuccess(`Gallery image ${index + 1} hosted successfully.`); } catch (err: unknown) { setError(err instanceof Error ? err.message : "Upload failed"); } finally { setLoading(false); }} }} className="w-full text-sm text-gray-500 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50 cursor-pointer" />
+                              <input type="file" accept="image/*" disabled={loading} onChange={async (e) => { if (e.target.files && e.target.files[0]) { try { setLoading(true); setError(null); const uploadedUrl = await uploadToImageKit(e.target.files[0]); const newGallery = [...newEvent.gallery]; newGallery[index] = uploadedUrl; if (index === newGallery.length - 1) { newGallery.push(""); } setNewEvent({ ...newEvent, gallery: newGallery }); showSuccess(`Gallery image ${index + 1} hosted successfully.`); } catch (err: any) { setError(err.message); } finally { setLoading(false); }} }} className="w-full text-sm text-gray-500 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50 cursor-pointer" />
 
                               <div className="relative w-full mt-1">
                                 <input type="text" value={url} onChange={(e) => { const newGallery = [...newEvent.gallery]; newGallery[index] = e.target.value; if (index === newGallery.length - 1 && e.target.value.trim() !== "") { newGallery.push(""); } setNewEvent({ ...newEvent, gallery: newGallery }); }} placeholder="Or paste an image URL here..." className="w-full bg-transparent outline-none text-xs text-gray-700 border-b border-gray-200 pb-1 focus:border-[#4285f4] transition-colors" />
@@ -1180,7 +1104,7 @@ export default function AdminPage() {
                           </div>
                           <div className="bg-gray-50 rounded-t-xl border-b-2 border-gray-300 focus-within:border-[#0f9d58] px-4 py-2 flex flex-col justify-center">
                             <span className="text-xs text-gray-500 font-medium mb-1 flex items-center gap-1"><Upload size={12} /> Avatar Upload</span>
-                            <input type="file" accept="image/*" disabled={loading} onChange={async (e) => { if (e.target.files && e.target.files[0]) { try { setLoading(true); setError(null); const url = await uploadToImageKit(e.target.files[0]); setNewMember({ ...newMember, img: url }); showSuccess("Member avatar hosted successfully."); } catch (err: unknown) { setError(err instanceof Error ? err.message : "Upload failed"); } finally { setLoading(false); } } }} className="w-full text-xs text-gray-500 file:mr-2 file:py-0.5 file:px-2 file:rounded-full file:border-0 file:text-[10px] file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 disabled:opacity-50 cursor-pointer" />
+                            <input type="file" accept="image/*" disabled={loading} onChange={async (e) => { if (e.target.files && e.target.files[0]) { try { setLoading(true); setError(null); const url = await uploadToImageKit(e.target.files[0]); setNewMember({ ...newMember, img: url }); showSuccess("Member avatar hosted successfully."); } catch (err: any) { setError(err.message); } finally { setLoading(false); } } }} className="w-full text-xs text-gray-500 file:mr-2 file:py-0.5 file:px-2 file:rounded-full file:border-0 file:text-[10px] file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 disabled:opacity-50 cursor-pointer" />
                           </div>
                         </div>
                         <div className="grid grid-cols-3 gap-3">
@@ -1200,7 +1124,7 @@ export default function AdminPage() {
                         <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100 hover:border-gray-200/80 transition-all">
                           <div className="flex flex-col gap-0.5">
                             <span className="text-sm font-semibold text-gray-800">Featured on Train Cover</span>
-                            <span className="text-[11px] text-gray-500 font-medium">Display this member&apos;s card on the collapsed train car cover.</span>
+                            <span className="text-[11px] text-gray-500 font-medium">Display this member's card on the collapsed train car cover.</span>
                           </div>
                           <button type="button" onClick={() => setNewMember(prev => ({ ...prev, showOnTrain: !prev.showOnTrain }))} className={`relative w-12 h-7 rounded-full transition-colors duration-300 flex items-center px-1 shrink-0 ${newMember.showOnTrain ? 'bg-[#0f9d58]' : 'bg-gray-300'}`}>
                             <motion.div layout transition={{ type: "spring", stiffness: 500, damping: 30 }} className="w-5 h-5 bg-white rounded-full shadow-md" animate={{ x: newMember.showOnTrain ? 20 : 0 }} />
@@ -1221,7 +1145,7 @@ export default function AdminPage() {
                         </div>
                         <div className="bg-gray-50 rounded-t-xl border-b-2 border-gray-300 focus-within:border-[#0f9d58] px-4 py-3 flex flex-col justify-center">
                           <span className="text-xs text-gray-500 font-medium mb-1 flex items-center gap-1"><Upload size={12} /> Select Vault Image</span>
-                          <input type="file" accept="image/*" disabled={loading} onChange={async (e) => { if (e.target.files && e.target.files[0]) { try { setLoading(true); setError(null); const url = await uploadToImageKit(e.target.files[0]); setNewGalleryItem({ ...newGalleryItem, src: url }); showSuccess("Image locked into cloud media library."); } catch (err: unknown) { setError(err instanceof Error ? err.message : "Upload failed"); } finally { setLoading(false); } } }} className="w-full text-sm text-gray-500 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 disabled:opacity-50 cursor-pointer" />
+                          <input type="file" accept="image/*" disabled={loading} onChange={async (e) => { if (e.target.files && e.target.files[0]) { try { setLoading(true); setError(null); const url = await uploadToImageKit(e.target.files[0]); setNewGalleryItem({ ...newGalleryItem, src: url }); showSuccess("Image locked into cloud media library."); } catch (err: any) { setError(err.message); } finally { setLoading(false); } } }} className="w-full text-sm text-gray-500 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 disabled:opacity-50 cursor-pointer" />
                           {newGalleryItem.src && <p className="text-[10px] text-green-600 font-medium mt-1 truncate">CDN URL: {newGalleryItem.src}</p>}
                         </div>
                         <div className="bg-gray-50 rounded-t-xl border-b-2 border-gray-300 focus-within:border-[#0f9d58] px-4 py-2 flex flex-col justify-end">
@@ -1267,7 +1191,7 @@ export default function AdminPage() {
                         </div>
                         <div className="bg-gray-50 rounded-t-xl border-b-2 border-gray-300 focus-within:border-[#4285f4] px-4 py-3 flex flex-col justify-center">
                           <span className="text-xs text-gray-500 font-medium mb-1 flex items-center gap-1"><Upload size={12} /> Thumbnail Image</span>
-                          <input type="file" accept="image/*" disabled={loading} onChange={async (e) => { if (e.target.files && e.target.files[0]) { try { setLoading(true); setError(null); const url = await uploadToImageKit(e.target.files[0]); setNewCourse({ ...newCourse, image: url }); showSuccess("Course thumbnail hosted."); } catch (err: unknown) { setError(err instanceof Error ? err.message : "Upload failed"); } finally { setLoading(false); } } }} className="w-full text-sm text-gray-500 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50 cursor-pointer" />
+                          <input type="file" accept="image/*" disabled={loading} onChange={async (e) => { if (e.target.files && e.target.files[0]) { try { setLoading(true); setError(null); const url = await uploadToImageKit(e.target.files[0]); setNewCourse({ ...newCourse, image: url }); showSuccess("Course thumbnail hosted."); } catch (err: any) { setError(err.message); } finally { setLoading(false); } } }} className="w-full text-sm text-gray-500 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50 cursor-pointer" />
                           {newCourse.image && <p className="text-[10px] text-green-600 font-medium mt-1 truncate">CDN URL: {newCourse.image}</p>}
                         </div>
                         <div className="flex gap-3 mt-4">

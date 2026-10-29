@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Calendar, MapPin, Clock, ArrowLeft, Share2, 
-  Sparkles, Ticket, ArrowUpRight, 
+  Users, Sparkles, Ticket, ArrowUpRight, ChevronRight,
   Check, AlertCircle, Camera
 } from "lucide-react";
 import { isEventUpcoming } from "@/lib/dateUtils";
@@ -30,12 +30,51 @@ interface EventData {
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as any } }
 };
 
 const staggerContainer = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+};
+
+const swipeVariants = {
+  enter: (direction: number) => {
+    return {
+      x: direction > 0 ? 300 : -300,
+      opacity: 0,
+      scale: 0.85,
+      filter: "blur(12px)",
+    };
+  },
+  center: {
+    zIndex: 1,
+    x: 0,
+    opacity: 1,
+    scale: 1,
+    filter: "blur(0px)",
+    transition: {
+      x: { type: "spring" as any, stiffness: 300, damping: 30 },
+      opacity: { duration: 0.3 },
+      scale: { duration: 0.4, ease: [0.22, 1, 0.36, 1] as any },
+      filter: { duration: 0.4 }
+    }
+  },
+  exit: (direction: number) => {
+    return {
+      zIndex: 0,
+      x: direction < 0 ? 300 : -300,
+      opacity: 0,
+      scale: 0.85,
+      filter: "blur(12px)",
+      transition: {
+        x: { type: "spring" as any, stiffness: 300, damping: 30 },
+        opacity: { duration: 0.3 },
+        scale: { duration: 0.4 },
+        filter: { duration: 0.4 }
+      }
+    };
+  }
 };
 
 export default function EventDetailPage() {
@@ -48,6 +87,7 @@ export default function EventDetailPage() {
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  const [direction, setDirection] = useState(0);
   const [isCopied, setIsCopied] = useState(false);
 
   useEffect(() => {
@@ -61,9 +101,8 @@ export default function EventDetailPage() {
         if (!res.ok) throw new Error(res.status === 404 ? "Event not found" : `Server error`);
         const data = await res.json();
         if (!abortController.signal.aborted) setEvent(data);
-      } catch (err: unknown) {
-        const error = err as Error;
-        if (error.name !== 'AbortError') setError(error.message === "Event not found" ? error.message : "Failed to load event details.");
+      } catch (err: any) {
+        if (err.name !== 'AbortError') setError(err.message === "Event not found" ? err.message : "Failed to load event details.");
       } finally {
         if (!abortController.signal.aborted) setLoading(false);
       }
@@ -78,37 +117,6 @@ export default function EventDetailPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const activeEvent = useMemo(() => {
-    if (!event) return null;
-    return {
-      title: event.title,
-      tag: event.tag || (event.tags && event.tags[0]) || "Featured Event",
-      date: event.date,
-      time: event.time || "TBA",
-      location: event.location || "AEC Campus",
-      address: event.location || "Asansol Engineering College, Vivekananda Sarani",
-      description: event.longDescription || event.description || event.desc || "Join us for an immersive tech event designed to explore, build, and connect with like-minded developers and industry peers.",
-      host: { name: "GDGC AEC", role: "Organizer", initials: "GD" },
-      speakers: [
-        { name: "Dr. Sarah Chen", role: "AI Researcher", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80" },
-        { name: "Marcus Doe", role: "Cloud Architect", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80" }
-      ],
-      gallery: event.gallery && event.gallery.length > 0 ? event.gallery : [
-        event.image || "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80",
-        "https://images.unsplash.com/photo-1556761175-5973dc0f32b7?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80"
-      ]
-    };
-  }, [event]);
-
-  const navigateGallery = useCallback((newDirection: number) => {
-    if (selectedImageIndex === null || !activeEvent) return;
-    let nextIndex = selectedImageIndex + newDirection;
-    if (nextIndex >= activeEvent.gallery.length) nextIndex = 0;
-    if (nextIndex < 0) nextIndex = activeEvent.gallery.length - 1;
-    setSelectedImageIndex(nextIndex);
-  }, [selectedImageIndex, activeEvent]);
-
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (selectedImageIndex === null) return;
@@ -116,6 +124,7 @@ export default function EventDetailPage() {
       if (e.key === "ArrowLeft") navigateGallery(-1);
       if (e.key === "Escape") {
         setSelectedImageIndex(null);
+        setDirection(0);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -130,9 +139,39 @@ export default function EventDetailPage() {
       window.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "unset";
     };
-  }, [selectedImageIndex, navigateGallery]);
+  }, [selectedImageIndex]);
+
+  const activeEvent = event ? {
+    title: event.title,
+    tag: event.tag || (event.tags && event.tags[0]) || "Featured Event",
+    date: event.date,
+    time: event.time || "TBA",
+    location: event.location || "AEC Campus",
+    address: event.location || "Asansol Engineering College, Vivekananda Sarani",
+    description: event.longDescription || event.description || event.desc || "Join us for an immersive tech event designed to explore, build, and connect with like-minded developers and industry peers.",
+    host: { name: "GDGC AEC", role: "Organizer", initials: "GD" },
+    speakers: [
+      { name: "Dr. Sarah Chen", role: "AI Researcher", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80" },
+      { name: "Marcus Doe", role: "Cloud Architect", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80" }
+    ],
+    gallery: event.gallery && event.gallery.length > 0 ? event.gallery : [
+      event.image || "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1556761175-5973dc0f32b7?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80"
+    ]
+  } : null;
+
+  const navigateGallery = (newDirection: number) => {
+    if (selectedImageIndex === null || !activeEvent) return;
+    setDirection(newDirection);
+    let nextIndex = selectedImageIndex + newDirection;
+    if (nextIndex >= activeEvent.gallery.length) nextIndex = 0;
+    if (nextIndex < 0) nextIndex = activeEvent.gallery.length - 1;
+    setSelectedImageIndex(nextIndex);
+  };
 
   const openGallery = (index: number) => {
+    setDirection(0);
     setSelectedImageIndex(index);
   };
 

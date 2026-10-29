@@ -16,32 +16,7 @@ const defaultPhotos = [
   { id: "8", src: "https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=2070&auto=format&fit=crop", title: "Design Sprint", size: "col-span-1", eventSlug: "aec-hack-2026" },
 ];
 
-interface GalleryPhoto {
-  id: string;
-  src: string;
-  title: string;
-  size?: string;
-  eventSlug?: string;
-  desc?: string;
-}
-
-interface GalleryEvent {
-  id?: string;
-  slug?: string;
-  title?: string;
-  date?: string;
-  tag?: string;
-}
-
-function PerspectiveCard({
-  photo,
-  linkedEvent,
-  onClick,
-}: {
-  photo: GalleryPhoto;
-  linkedEvent?: GalleryEvent | null;
-  onClick: () => void;
-}) {
+function PerspectiveCard({ photo, linkedEvent, onClick }: { photo: any, linkedEvent: any, onClick: () => void }) {
   const router = useRouter();
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -117,9 +92,9 @@ function PerspectiveCard({
 
 export default function GallerySection() {
   const router = useRouter();
-  const [photos, setPhotos] = useState<GalleryPhoto[]>([]);
-  const [events, setEvents] = useState<GalleryEvent[]>([]);
-  const [selected, setSelected] = useState<GalleryPhoto | null>(null);
+  const [photos, setPhotos] = useState<any[]>([]);
+  const [events, setEvents] = useState<any[]>([]);
+  const [selected, setSelected] = useState<any>(null);
   useEffect(() => {
     if (selected) {
       document.body.style.overflow = "hidden";

@@ -25,10 +25,10 @@ export async function POST(req: Request) {
       const result = await syncLatest();
       return NextResponse.json(result);
     }
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[OpenOrbit Sync Error]:", err);
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Synchronization failed" },
+      { error: err.message || "Synchronization failed" },
       { status: 500 }
     );
   }

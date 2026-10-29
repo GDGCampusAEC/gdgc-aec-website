@@ -15,56 +15,8 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://gdgcaec.in"),
-  title: {
-    default: "GDG On Campus AEC | Google Developer Groups Asansol Engineering College",
-    template: "%s | GDG On Campus AEC",
-  },
-  description:
-    "Official community website for Google Developer Groups on Campus at Asansol Engineering College. Learn, build, connect, and grow with technology.",
-  keywords: [
-    "GDG",
-    "GDGC",
-    "Google Developer Groups",
-    "AEC",
-    "Asansol Engineering College",
-    "Tech Community",
-    "Workshops",
-    "Hackathons",
-    "Open Source",
-  ],
-  authors: [{ name: "GDGC AEC Team" }],
-  creator: "GDGC AEC",
-  publisher: "GDGC AEC",
-  openGraph: {
-    title: "GDG On Campus AEC | Google Developer Groups",
-    description:
-      "Official community website for Google Developer Groups on Campus at Asansol Engineering College.",
-    url: "https://gdgcaec.in",
-    siteName: "GDGC On Campus AEC",
-    images: [
-      {
-        url: "/assets/event-1.jpg",
-        width: 1200,
-        height: 630,
-        alt: "GDG On Campus AEC Community Banner",
-      },
-    ],
-    locale: "en_US",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "GDG On Campus AEC",
-    description:
-      "Official community website for Google Developer Groups on Campus at Asansol Engineering College.",
-    images: ["/assets/event-1.jpg"],
-    creator: "@gdgc_aec",
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
+  title: "GDGC AEC",
+  description: "Developer's Group OnCampus at Asansol Engineering College",
 };
 
 export default function RootLayout({

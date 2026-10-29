@@ -70,7 +70,7 @@ export default function CinematicLightbox({
                 initial={{ opacity: 0, scale: 0.98, filter: "blur(8px)" }}
                 animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
                 exit={{ opacity: 0, scale: 1.02, filter: "blur(8px)" }}
-                transition={{ duration: 0.4 }}
+                transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] as any }}
                 className="max-w-full max-h-[60vh] object-contain rounded-2xl shadow-2xl absolute"
                 onClick={(e) => e.stopPropagation()}
               />

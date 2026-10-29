@@ -17,9 +17,9 @@ export async function GET(
 
     const contributions = await getContributions(numericId);
     return NextResponse.json(contributions);
-  } catch (err: unknown) {
+  } catch (err: any) {
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Failed to load contributor contributions" },
+      { error: err.message || "Failed to load contributor contributions" },
       { status: 500 }
     );
   }
