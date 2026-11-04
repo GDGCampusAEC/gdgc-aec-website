@@ -39,7 +39,7 @@ export default function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <div className="w-8 h-8 rounded-full border border-gray-200 opacity-0" />
+      <div className="w-8 h-8 rounded-full border border-gray-200/60 dark:border-gray-700 opacity-0 shrink-0" />
     );
   }
 
@@ -48,12 +48,12 @@ export default function ThemeToggle() {
       type="button"
       onClick={toggleTheme}
       aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
-      className="relative z-20 flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white/80 dark:bg-gray-800 dark:border-gray-700 text-gray-700 dark:text-gray-200 shadow-sm transition-all hover:scale-105 active:scale-95"
+      className="relative z-20 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white/90 text-gray-700 shadow-sm transition-all hover:scale-105 active:scale-95 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
     >
       {theme === "dark" ? (
         <Sun size={15} className="text-amber-400 transition-transform duration-300 rotate-0" />
       ) : (
-        <Moon size={15} className="text-gray-700 transition-transform duration-300 rotate-0" />
+        <Moon size={15} className="text-gray-700 dark:text-gray-200 transition-transform duration-300 rotate-0" />
       )}
     </button>
   );
