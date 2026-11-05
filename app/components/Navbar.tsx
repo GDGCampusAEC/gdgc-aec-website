@@ -4,13 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Home, Info, Users, Image, Calendar, BookOpen, Trophy, Code2 } from "lucide-react";
+import { Home, Info, Users, Image, Calendar, BookOpen, Trophy } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 
 const navLinks = [
   { name: "Home", path: "/", icon: Home },
   { name: "About", path: "/#about", icon: Info },
-  { name: "Projects", path: "/projects", icon: Code2 },
   { name: "Teams", path: "/teams", icon: Users },
   { name: "Gallery", path: "/gallery", icon: Image },
   { name: "Events", path: "/events", icon: Calendar },
@@ -134,7 +133,7 @@ export default function Navbar() {
                 aria-current={isActive ? "page" : undefined}
                 onClick={() => setActive(link.name)}
                 onMouseEnter={() => setHovered(link.name)}
-                className={`relative z-10 flex select-none shrink-0 items-center justify-center rounded-full px-2 py-1.5 text-xs font-medium transition-colors duration-300 sm:px-3 sm:py-1.5 sm:text-sm ${
+                className={`relative z-10 flex select-none shrink-0 items-center justify-center rounded-full px-2 py-1.5 text-xs font-medium transition-colors duration-300 sm:px-3.5 sm:py-1.5 sm:text-sm ${
                   isActive
                     ? "text-white dark:text-gray-900 font-semibold"
                     : isHovered

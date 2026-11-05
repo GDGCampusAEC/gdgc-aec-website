@@ -2,8 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trash2, Plus, LogOut, LayoutDashboard, Users, CalendarDays, Server, CheckCircle2, Loader2, Pencil, Camera, Upload, BookOpen, ExternalLink, Trophy, Code2, Star } from "lucide-react";
-import { StudentProject, VALID_PROJECT_CATEGORIES } from "@/lib/types/project";
+import { Trash2, Plus, LogOut, LayoutDashboard, Users, CalendarDays, Server, CheckCircle2, Loader2, Pencil, Camera, Upload, BookOpen, ExternalLink, Trophy } from "lucide-react";
 import { robustParseDate } from "@/lib/dateUtils";
 import OpenOrbitAdmin from "./components/OpenOrbitAdmin";
 import Image from "next/image";
@@ -79,7 +78,7 @@ export default function AdminPage() {
   const [secret, setSecret] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
-  const [activeTab, setActiveTab] = useState<"events" | "team" | "gallery" | "courses" | "projects" | "recruitment" | "open-orbit">("events");
+  const [activeTab, setActiveTab] = useState<"events" | "team" | "gallery" | "courses" | "recruitment" | "open-orbit">("events");
 
   const [events, setEvents] = useState<AdminEvent[]>([]);
   const [recruitment, setRecruitment] = useState<RecruitmentApplication[]>([]);
@@ -128,23 +127,6 @@ export default function AdminPage() {
   });
   const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
 
-  const [projects, setProjects] = useState<StudentProject[]>([]);
-  const [newProject, setNewProject] = useState({
-    title: "",
-    tagline: "",
-    description: "",
-    category: "Web Development" as (typeof VALID_PROJECT_CATEGORIES)[number],
-    techStack: "",
-    contributors: "",
-    githubUrl: "",
-    liveDemoUrl: "",
-    thumbnailUrl: "",
-    featured: false,
-    year: new Date().getFullYear(),
-    achievements: "",
-  });
-  const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -188,19 +170,17 @@ export default function AdminPage() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [eventsRes, teamRes, galleryRes, coursesRes, recruitmentRes, projectsRes] = await Promise.all([
+      const [eventsRes, teamRes, galleryRes, coursesRes, recruitmentRes] = await Promise.all([
         fetch("/api/events"),
         fetch("/api/team"),
         fetch("/api/gallery"),
         fetch("/api/courses"),
-        fetch("/api/recruitment", { headers: { "x-admin-secret": secret } }),
-        fetch("/api/projects")
+        fetch("/api/recruitment", { headers: { "x-admin-secret": secret } })
       ]);
       if (eventsRes.ok) setEvents(await eventsRes.json());
       if (teamRes.ok) setTeam(await teamRes.json());
       if (galleryRes.ok) setGallery(await galleryRes.json());
       if (coursesRes.ok) setCourses(await coursesRes.json());
-      if (projectsRes.ok) setProjects(await projectsRes.json());
       if (recruitmentRes.ok) {
         const recruitmentData = await recruitmentRes.json();
         setRecruitment(recruitmentData);
@@ -300,9 +280,7 @@ export default function AdminPage() {
         ? "gdgc-aec/team"
         : activeTab === "courses"
           ? "gdgc-aec/courses"
-          : activeTab === "projects"
-            ? "gdgc-aec/projects"
-            : "gdgc-aec/gallery";
+          : "gdgc-aec/gallery";
 
     formData.append("folder", destinationFolder);
 
@@ -638,123 +616,6 @@ export default function AdminPage() {
       showSuccess("Course removed.");
     } catch (err: unknown) { setError(err instanceof Error ? err.message : "Failed to delete course"); }
   };
-
-  // ── Projects CRUD ────────────────────────────────────────
-  const handleSubmitProject = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    try {
-      const url = editingProjectId ? `/api/projects/${editingProjectId}` : "/api/projects";
-      const method = editingProjectId ? "PATCH" : "POST";
-
-      const payload = {
-        title: newProject.title.trim(),
-        tagline: newProject.tagline.trim(),
-        description: newProject.description.trim(),
-        category: newProject.category,
-        techStack: newProject.techStack,
-        contributors: newProject.contributors,
-        githubUrl: newProject.githubUrl.trim() || undefined,
-        liveDemoUrl: newProject.liveDemoUrl.trim() || undefined,
-        thumbnailUrl: newProject.thumbnailUrl.trim() || undefined,
-        featured: newProject.featured,
-        year: Number(newProject.year) || new Date().getFullYear(),
-        achievements: newProject.achievements,
-      };
-
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json", "x-admin-secret": secret },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || `Failed to ${editingProjectId ? "update" : "add"} project`);
-      }
-      const saved = await res.json();
-
-      if (editingProjectId) {
-        setProjects(projects.map((p) => (p.id === editingProjectId ? saved : p)));
-        showSuccess("Project updated.");
-      } else {
-        setProjects([saved, ...projects]);
-        showSuccess("Project published.");
-      }
-      cancelEditProject();
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to save project");
-    }
-  };
-
-  const startEditProject = (project: StudentProject) => {
-    setNewProject({
-      title: project.title || "",
-      tagline: project.tagline || "",
-      description: project.description || "",
-      category: project.category || "Web Development",
-      techStack: Array.isArray(project.techStack) ? project.techStack.join(", ") : "",
-      contributors: Array.isArray(project.contributors) ? project.contributors.map((c) => c.name).join(", ") : "",
-      githubUrl: project.githubUrl || "",
-      liveDemoUrl: project.liveDemoUrl || "",
-      thumbnailUrl: project.thumbnailUrl || "",
-      featured: project.featured === true,
-      year: project.year || new Date().getFullYear(),
-      achievements: Array.isArray(project.achievements) ? project.achievements.join(", ") : "",
-    });
-    setEditingProjectId(project.id || null);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const cancelEditProject = () => {
-    setNewProject({
-      title: "",
-      tagline: "",
-      description: "",
-      category: "Web Development",
-      techStack: "",
-      contributors: "",
-      githubUrl: "",
-      liveDemoUrl: "",
-      thumbnailUrl: "",
-      featured: false,
-      year: new Date().getFullYear(),
-      achievements: "",
-    });
-    setEditingProjectId(null);
-  };
-
-  const deleteProject = async (id?: string) => {
-    if (!id) return;
-    if (!confirm("Are you sure you want to remove this project?")) return;
-    try {
-      const res = await fetch(`/api/projects/${id}`, {
-        method: "DELETE",
-        headers: { "x-admin-secret": secret },
-      });
-      if (!res.ok) throw new Error("Failed to delete project");
-      setProjects(projects.filter((p) => p.id !== id));
-      showSuccess("Project removed.");
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to delete project");
-    }
-  };
-
-  const toggleFeaturedProject = async (project: StudentProject) => {
-    try {
-      const res = await fetch(`/api/projects/${project.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json", "x-admin-secret": secret },
-        body: JSON.stringify({ featured: !project.featured }),
-      });
-      if (!res.ok) throw new Error("Failed to toggle featured status");
-      const updated = await res.json();
-      setProjects(projects.map((p) => (p.id === project.id ? updated : p)));
-      showSuccess(updated.featured ? "Project marked as featured." : "Featured status removed.");
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to update project");
-    }
-  };
   // ────────────────────────────────────────────────────────
 
   useEffect(() => {
@@ -762,7 +623,6 @@ export default function AdminPage() {
     cancelEditMember();
     cancelEditGallery();
     cancelEditCourse();
-    cancelEditProject();
   }, [activeTab]);
 
   const deleteMember = async (id?: string) => {
@@ -872,15 +732,15 @@ export default function AdminPage() {
 
         <div className="flex justify-center mb-12">
           <div className="bg-gray-100/80 p-1 rounded-full flex shadow-inner gap-0.5 flex-wrap justify-center">
-            {(["events", "team", "gallery", "courses", "projects", "recruitment", "open-orbit"] as const).map((tab) => (
+            {(["events", "team", "gallery", "courses", "recruitment", "open-orbit"] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2 ${activeTab === tab ? "bg-[#d3e3fd] text-blue-900 shadow-sm" : "text-gray-500 hover:text-gray-700 hover:bg-gray-200/50"
                   }`}
               >
-                {tab === "events" ? <CalendarDays size={16} /> : tab === "team" ? <Users size={16} /> : tab === "gallery" ? <Camera size={16} /> : tab === "courses" ? <BookOpen size={16} /> : tab === "projects" ? <Code2 size={16} /> : tab === "open-orbit" ? <Trophy size={16} /> : <Users size={16} />}
-                {tab === "recruitment" ? "Recruitment" : tab === "open-orbit" ? "Open Orbit" : tab === "projects" ? "Projects" : tab.charAt(0).toUpperCase() + tab.slice(1)}
+                {tab === "events" ? <CalendarDays size={16} /> : tab === "team" ? <Users size={16} /> : tab === "gallery" ? <Camera size={16} /> : tab === "courses" ? <BookOpen size={16} /> : tab === "open-orbit" ? <Trophy size={16} /> : <Users size={16} />}
+                {tab === "recruitment" ? "Recruitment" : tab === "open-orbit" ? "Open Orbit" : tab.charAt(0).toUpperCase() + tab.slice(1)}
               </button>
             ))}
           </div>
@@ -893,7 +753,7 @@ export default function AdminPage() {
 
           <div className="lg:col-span-7 xl:col-span-8 space-y-4">
             <h2 className="text-xl font-normal text-gray-800 mb-6 flex items-center gap-2">
-              <Server size={20} className="text-[#4285f4]" /> {activeTab === "recruitment" ? "Applications" : activeTab === "events" ? "Active Schedules" : activeTab === "team" ? "Active Roster" : activeTab === "gallery" ? "Vault Images" : activeTab === "projects" ? "Campus Projects" : "Courses"}
+              <Server size={20} className="text-[#4285f4]" /> {activeTab === "recruitment" ? "Applications" : activeTab === "events" ? "Active Schedules" : activeTab === "team" ? "Active Roster" : activeTab === "gallery" ? "Vault Images" : "Courses"}
             </h2>
 
             {loading ? (
@@ -1129,72 +989,6 @@ export default function AdminPage() {
                     </motion.div>
                   ))}
 
-                  {activeTab === "projects" && projects.length === 0 && (
-                    <div className="rounded-[2rem] border border-dashed border-gray-200 bg-white p-8 text-center text-sm text-gray-500">
-                      No student projects published yet. Use the form on the right to publish your first campus project!
-                    </div>
-                  )}
-
-                  {activeTab === "projects" && projects.map((project, index) => (
-                    <motion.div key={project.id || index} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} transition={{ delay: index * 0.05 }} className="group bg-white p-4 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-md transition-all flex justify-between items-center">
-                      <div className="flex items-center gap-4 min-w-0">
-                        {project.thumbnailUrl ? (
-                          <Image
-                            src={project.thumbnailUrl}
-                            alt={project.title}
-                            width={56}
-                            height={56}
-                            className="w-14 h-14 rounded-2xl object-cover border border-gray-100 flex-shrink-0"
-                            unoptimized
-                          />
-                        ) : (
-                          <div className="w-14 h-14 rounded-2xl bg-purple-50 flex items-center justify-center flex-shrink-0">
-                            <Code2 size={24} className="text-[#a142f4]" />
-                          </div>
-                        )}
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <h3 className="text-base font-semibold text-gray-900 truncate">{project.title}</h3>
-                            <span className="text-[10px] bg-gray-100 text-gray-700 font-medium px-2 py-0.5 rounded-full shrink-0">{project.category}</span>
-                            <span className="text-[10px] bg-blue-50 text-blue-700 font-medium px-1.5 py-0.5 rounded shrink-0">{project.year}</span>
-                            {project.featured && (
-                              <span className="text-[10px] bg-amber-50 text-amber-700 font-semibold px-1.5 py-0.5 rounded flex items-center gap-0.5 shrink-0">
-                                <Star size={10} className="fill-amber-400 text-amber-400" /> Featured
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-xs text-gray-500 truncate mt-0.5">{project.tagline}</p>
-                          <div className="flex flex-wrap items-center gap-2 mt-1.5">
-                            {project.contributors && project.contributors.length > 0 && (
-                              <span className="text-[10px] text-gray-400">By {project.contributors.map(c => c.name).join(", ")}</span>
-                            )}
-                            {project.githubUrl && (
-                              <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="text-[10px] bg-gray-100 text-gray-700 px-1.5 py-0.5 rounded hover:bg-gray-200 flex items-center gap-1 font-medium">
-                                Code
-                              </a>
-                            )}
-                            {project.liveDemoUrl && (
-                              <a href={project.liveDemoUrl} target="_blank" rel="noopener noreferrer" className="text-[10px] bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded hover:bg-blue-100 flex items-center gap-1 font-medium">
-                                Demo
-                              </a>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1 shrink-0 ml-2">
-                        <button onClick={() => toggleFeaturedProject(project)} className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${project.featured ? "text-amber-500 bg-amber-50 hover:bg-amber-100" : "text-gray-400 hover:text-amber-500 hover:bg-amber-50"}`} title={project.featured ? "Remove Featured" : "Mark as Featured"}>
-                          <Star size={17} className={project.featured ? "fill-amber-400" : ""} />
-                        </button>
-                        <button onClick={() => startEditProject(project)} className="w-9 h-9 rounded-full flex items-center justify-center text-gray-400 hover:text-[#4285f4] hover:bg-blue-50 transition-colors" title="Edit Project">
-                          <Pencil size={17} />
-                        </button>
-                        <button onClick={() => deleteProject(project.id)} className="w-9 h-9 rounded-full flex items-center justify-center text-gray-400 hover:text-[#db4437] hover:bg-[#fce8e6] transition-colors" title="Delete Project">
-                          <Trash2 size={17} />
-                        </button>
-                      </div>
-                    </motion.div>
-                  ))}
-
                 </AnimatePresence>
               </motion.div>
             )}
@@ -1250,7 +1044,7 @@ export default function AdminPage() {
               ) : (
                 <>
                   <h2 className="text-xl font-normal text-gray-800 mb-6 flex items-center gap-2">
-                    <LayoutDashboard size={20} className="text-[#f4b400]" /> {editingProjectId && activeTab === "projects" ? "Edit Project" : editingCourseId && activeTab === "courses" ? "Edit Course" : isEditing ? (activeTab === "events" ? "Edit Event" : activeTab === "team" ? "Edit Profile" : "Edit Photo") : `Create ${activeTab === "events" ? "Event" : activeTab === "team" ? "Profile" : activeTab === "courses" ? "Course" : activeTab === "projects" ? "Student Project" : "Vault Item"}`}
+                    <LayoutDashboard size={20} className="text-[#f4b400]" /> {editingCourseId && activeTab === "courses" ? "Edit Course" : isEditing ? (activeTab === "events" ? "Edit Event" : activeTab === "team" ? "Edit Profile" : "Edit Photo") : `Create ${activeTab === "events" ? "Event" : activeTab === "team" ? "Profile" : activeTab === "courses" ? "Course" : "Vault Item"}`}
                   </h2>
 
                   <AnimatePresence mode="wait">
@@ -1480,84 +1274,6 @@ export default function AdminPage() {
                           {editingCourseId && (<button type="button" onClick={cancelEditCourse} className="flex-grow bg-gray-100 text-gray-600 py-3.5 rounded-full font-medium hover:bg-gray-200 transition-all">Cancel</button>)}
                           <button type="submit" disabled={loading} className={`${editingCourseId ? 'flex-[2]' : 'w-full'} bg-[#4285f4] text-white py-3.5 rounded-full font-medium hover:bg-[#3367d6] hover:shadow-md active:scale-[0.98] transition-all flex justify-center items-center gap-2 disabled:opacity-50`}>
                             {editingCourseId ? <CheckCircle2 size={18} /> : <Plus size={18} />} {editingCourseId ? "Update Course" : "Publish Course"}
-                          </button>
-                        </div>
-                      </motion.form>
-                    ) : activeTab === "projects" ? (
-                      <motion.form key="projects-form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onSubmit={handleSubmitProject} className="space-y-4">
-                        <div className="relative bg-gray-50 rounded-t-xl border-b-2 border-gray-300 focus-within:border-[#4285f4] transition-colors px-4 pt-6 pb-2">
-                          <input type="text" required value={newProject.title} onChange={(e) => setNewProject({ ...newProject, title: e.target.value })} className="w-full bg-transparent outline-none peer text-gray-900" />
-                          <label className={`absolute left-4 transition-all duration-200 pointer-events-none text-gray-500 font-medium ${newProject.title ? 'text-xs top-2 text-[#4285f4]' : 'text-sm top-4 peer-focus:text-xs peer-focus:top-2 peer-focus:text-[#4285f4]'}`}>Project Title</label>
-                        </div>
-
-                        <div className="relative bg-gray-50 rounded-t-xl border-b-2 border-gray-300 focus-within:border-[#4285f4] transition-colors px-4 pt-6 pb-2">
-                          <input type="text" required value={newProject.tagline} onChange={(e) => setNewProject({ ...newProject, tagline: e.target.value })} className="w-full bg-transparent outline-none peer text-gray-900" />
-                          <label className={`absolute left-4 transition-all duration-200 pointer-events-none text-gray-500 font-medium ${newProject.tagline ? 'text-xs top-2 text-[#4285f4]' : 'text-sm top-4 peer-focus:text-xs peer-focus:top-2 peer-focus:text-[#4285f4]'}`}>Tagline / Summary</label>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="bg-gray-50 rounded-t-xl border-b-2 border-gray-300 focus-within:border-[#4285f4] px-4 py-2 flex flex-col justify-end">
-                            <span className="text-xs text-gray-500 font-medium mb-1">Category</span>
-                            <select value={newProject.category} onChange={(e) => setNewProject({ ...newProject, category: e.target.value as (typeof VALID_PROJECT_CATEGORIES)[number] })} className="w-full bg-transparent outline-none font-medium text-gray-900">
-                              {VALID_PROJECT_CATEGORIES.map((cat) => (
-                                <option key={cat} value={cat}>{cat}</option>
-                              ))}
-                            </select>
-                          </div>
-                          <div className="relative bg-gray-50 rounded-t-xl border-b-2 border-gray-300 focus-within:border-[#4285f4] transition-colors px-4 pt-6 pb-2">
-                            <input type="number" required value={newProject.year} onChange={(e) => setNewProject({ ...newProject, year: Number(e.target.value) })} className="w-full bg-transparent outline-none peer text-gray-900" />
-                            <label className={`absolute left-4 transition-all duration-200 pointer-events-none text-gray-500 font-medium ${newProject.year ? 'text-xs top-2 text-[#4285f4]' : 'text-sm top-4 peer-focus:text-xs peer-focus:top-2 peer-focus:text-[#4285f4]'}`}>Year</label>
-                          </div>
-                        </div>
-
-                        <div className="relative bg-gray-50 rounded-t-xl border-b-2 border-gray-300 focus-within:border-[#4285f4] transition-colors px-4 pt-6 pb-2">
-                          <textarea required value={newProject.description} onChange={(e) => setNewProject({ ...newProject, description: e.target.value })} className="w-full bg-transparent outline-none peer text-gray-900 resize-none h-20" />
-                          <label className={`absolute left-4 transition-all duration-200 pointer-events-none text-gray-500 font-medium ${newProject.description ? 'text-xs top-2 text-[#4285f4]' : 'text-sm top-4 peer-focus:text-xs peer-focus:top-2 peer-focus:text-[#4285f4]'}`}>Full Description</label>
-                        </div>
-
-                        <div className="relative bg-gray-50 rounded-t-xl border-b-2 border-gray-300 focus-within:border-[#4285f4] transition-colors px-4 pt-6 pb-2">
-                          <input type="text" value={newProject.techStack} onChange={(e) => setNewProject({ ...newProject, techStack: e.target.value })} placeholder="Next.js, TypeScript, TailwindCSS" className="w-full bg-transparent outline-none peer text-gray-900" />
-                          <label className="absolute left-4 text-xs top-2 text-[#4285f4] font-medium pointer-events-none">Tech Stack (comma-separated)</label>
-                        </div>
-
-                        <div className="relative bg-gray-50 rounded-t-xl border-b-2 border-gray-300 focus-within:border-[#4285f4] transition-colors px-4 pt-6 pb-2">
-                          <input type="text" value={newProject.contributors} onChange={(e) => setNewProject({ ...newProject, contributors: e.target.value })} placeholder="AEC Dev Team, John Doe" className="w-full bg-transparent outline-none peer text-gray-900" />
-                          <label className="absolute left-4 text-xs top-2 text-[#4285f4] font-medium pointer-events-none">Contributors (comma-separated)</label>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="relative bg-gray-50 rounded-t-xl border-b-2 border-gray-300 focus-within:border-[#4285f4] transition-colors px-4 pt-6 pb-2">
-                            <input type="url" value={newProject.githubUrl} onChange={(e) => setNewProject({ ...newProject, githubUrl: e.target.value })} className="w-full bg-transparent outline-none peer text-gray-900" />
-                            <label className={`absolute left-4 transition-all duration-200 pointer-events-none text-gray-500 font-medium ${newProject.githubUrl ? 'text-xs top-2 text-[#4285f4]' : 'text-sm top-4 peer-focus:text-xs peer-focus:top-2 peer-focus:text-[#4285f4]'}`}>GitHub URL</label>
-                          </div>
-                          <div className="relative bg-gray-50 rounded-t-xl border-b-2 border-gray-300 focus-within:border-[#4285f4] transition-colors px-4 pt-6 pb-2">
-                            <input type="url" value={newProject.liveDemoUrl} onChange={(e) => setNewProject({ ...newProject, liveDemoUrl: e.target.value })} className="w-full bg-transparent outline-none peer text-gray-900" />
-                            <label className={`absolute left-4 transition-all duration-200 pointer-events-none text-gray-500 font-medium ${newProject.liveDemoUrl ? 'text-xs top-2 text-[#4285f4]' : 'text-sm top-4 peer-focus:text-xs peer-focus:top-2 peer-focus:text-[#4285f4]'}`}>Live Demo URL</label>
-                          </div>
-                        </div>
-
-                        <div className="relative bg-gray-50 rounded-t-xl border-b-2 border-gray-300 focus-within:border-[#4285f4] transition-colors px-4 pt-6 pb-2">
-                          <input type="text" value={newProject.achievements} onChange={(e) => setNewProject({ ...newProject, achievements: e.target.value })} placeholder="SIH 2024 Winner, Best AI Award" className="w-full bg-transparent outline-none peer text-gray-900" />
-                          <label className="absolute left-4 text-xs top-2 text-[#4285f4] font-medium pointer-events-none">Achievements / Awards (comma-separated)</label>
-                        </div>
-
-                        <div className="bg-gray-50 rounded-t-xl border-b-2 border-gray-300 focus-within:border-[#4285f4] px-4 py-3 flex flex-col justify-center">
-                          <span className="text-xs text-gray-500 font-medium mb-1 flex items-center gap-1"><Upload size={12} /> Thumbnail Image (ImageKit or CDN)</span>
-                          <input type="file" accept="image/*" disabled={loading} onChange={async (e) => { if (e.target.files && e.target.files[0]) { try { setLoading(true); setError(null); const url = await uploadToImageKit(e.target.files[0]); setNewProject({ ...newProject, thumbnailUrl: url }); showSuccess("Project thumbnail hosted."); } catch (err: unknown) { setError(err instanceof Error ? err.message : "Upload failed"); } finally { setLoading(false); } } }} className="w-full text-sm text-gray-500 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50 cursor-pointer" />
-                          {newProject.thumbnailUrl && <p className="text-[10px] text-green-600 font-medium mt-1 truncate">CDN URL: {newProject.thumbnailUrl}</p>}
-                        </div>
-
-                        <label className="flex items-center gap-2 cursor-pointer pt-1">
-                          <input type="checkbox" checked={newProject.featured} onChange={(e) => setNewProject({ ...newProject, featured: e.target.checked })} className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500" />
-                          <span className="text-xs font-semibold text-gray-700 flex items-center gap-1">
-                            <Star size={13} className="text-amber-500 fill-amber-500" /> Feature this project on homepage
-                          </span>
-                        </label>
-
-                        <div className="flex gap-3 mt-4">
-                          {editingProjectId && (<button type="button" onClick={cancelEditProject} className="flex-grow bg-gray-100 text-gray-600 py-3.5 rounded-full font-medium hover:bg-gray-200 transition-all">Cancel</button>)}
-                          <button type="submit" disabled={loading} className={`${editingProjectId ? 'flex-[2]' : 'w-full'} bg-[#4285f4] text-white py-3.5 rounded-full font-medium hover:bg-[#3367d6] hover:shadow-md active:scale-[0.98] transition-all flex justify-center items-center gap-2 disabled:opacity-50`}>
-                            {editingProjectId ? <CheckCircle2 size={18} /> : <Plus size={18} />} {editingProjectId ? "Update Project" : "Publish Project"}
                           </button>
                         </div>
                       </motion.form>
